@@ -20,8 +20,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="w-full ">
+        <div className="w-full bg-white md:px-8 lg:px-16 xl:px-32 2xl:px-64">
           <Navbar />
+          
+        </div>
+        <div className="w-full bg-white md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+          
           
         </div>
         {children}
