@@ -9,7 +9,7 @@ const Navbar = () => {
     <div className="h-24 flex items-center justify-between">
       {/* Left */}
       <div className="flex items-center gap-2">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="font-bold text-xl text-blue-400 flex items-center gap-2">
           <Image
             src={icon}
             alt="Macaw logo"
