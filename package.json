@@ -11,14 +11,14 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
     "babel-plugin-react-compiler": "^0.0.0-experimental-938cd9a-20240601",
-    "next": "^14.2.35",
+    "next": "^16.1.1-canary.14",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18.3.27",
+    "@types/react-dom": "^18.3.7",
     "eslint": "^8",
     "eslint-config-next": "^15.5.9",
     "postcss": "^8",
