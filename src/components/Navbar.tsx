@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import icon from "@/app/icon.png";
 import MobileMenu from "./MobileMenu";
+import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
 
 const Navbar = () => {
   return (
@@ -42,7 +43,14 @@ const Navbar = () => {
 
       {/* Right */}
       <div className="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
-        
+        <ClerkLoading>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white" role="status">
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+          </div>
+        </ClerkLoading>
+        <ClerkLoaded>
+          
+        </ClerkLoaded>
         <MobileMenu />
       </div>
     </div>
