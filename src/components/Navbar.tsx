@@ -3,7 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import icon from "@/app/icon.png";
 import MobileMenu from "./MobileMenu";
-import { ClerkLoaded, ClerkLoading } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+
+import { FiUser } from "react-icons/fi";
 
 const Navbar = () => {
   return (
@@ -41,6 +43,27 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* <div className="hidden xl:flex p-2 bg-slate-100 items-center">
+        <input type="text" placeholder="search..." className="bg-transparent outline-none" />
+        <Image src='/search.png' alt="" width={14} height={14} />
+      </div> */}
+      <div className="hidden xl:flex p-2 bg-slate-100 items-center gap-2">
+        <input
+          type="text"
+          placeholder="search..."
+          className="bg-transparent outline-none flex-1"
+        />
+        <div className="w-4 h-4 flex items-center justify-center">
+          <Image
+            src="/search.png"
+            alt="search"
+            width={16}
+            height={16}
+            className="object-contain"
+          />
+        </div>
+      </div>
+
       {/* Right */}
       <div className="w-[30%] flex items-center gap-4 xl:gap-8 justify-end">
         <ClerkLoading>
@@ -49,7 +72,25 @@ const Navbar = () => {
           </div>
         </ClerkLoading>
         <ClerkLoaded>
-          
+          <SignedIn>
+            <div className="cursor-pointer">
+              <Image src='/people.png' alt="" width={20} height={20} />
+            </div>
+            <div className="cursor-pointer">
+              <Image src='/messages.png' alt="" width={20} height={20} />
+            </div>
+            <div className="cursor-pointer">
+              <Image src='/notifications.png' alt="" width={20} height={20} />
+            </div>
+            <UserButton />
+          </SignedIn>
+          <SignedOut>
+            <div className="flex items-center gap-2 text-sm cursor-pointer">
+              {/* <Image src='/login.png' alt="" width={20} height={20} /> */}
+              <FiUser className="text-blue-400 w-5 h-5" />
+              <Link href='/sign-in'>Login/Register</Link>
+            </div>
+          </SignedOut>
         </ClerkLoaded>
         <MobileMenu />
       </div>
