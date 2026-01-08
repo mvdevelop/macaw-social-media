@@ -25,7 +25,7 @@ const Navbar = () => {
       </div>
 
       {/* Center */}
-      <div className="hidden md:flex w-[50%] text-sm">
+      <div className="hidden md:flex w-[50%] text-sm items-center justify-between">
         {/* Links */}
         <div className="flex gap-6 text-gray-600">
           <Link href='/' className="flex items-center gap-2">
@@ -43,11 +43,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* <div className="hidden xl:flex p-2 bg-slate-100 items-center">
-        <input type="text" placeholder="search..." className="bg-transparent outline-none" />
-        <Image src='/search.png' alt="" width={14} height={14} />
-      </div> */}
-      <div className="hidden xl:flex p-2 bg-slate-100 items-center gap-2">
+      {/* Search Bar */}
+      <div className="hidden xl:flex p-2 bg-slate-100 items-center gap-2 rounded-xl">
         <input
           type="text"
           placeholder="search..."
@@ -74,13 +71,13 @@ const Navbar = () => {
         <ClerkLoaded>
           <SignedIn>
             <div className="cursor-pointer">
-              <Image src='/people.png' alt="" width={20} height={20} />
+              <Image src='/people.png' alt="" width={24} height={24} />
             </div>
             <div className="cursor-pointer">
-              <Image src='/messages.png' alt="" width={20} height={20} />
+              <Image src='/messages.png' alt="" width={24} height={24} />
             </div>
             <div className="cursor-pointer">
-              <Image src='/notifications.png' alt="" width={20} height={20} />
+              <Image src='/notifications.png' alt="" width={24} height={24} />
             </div>
             <UserButton />
           </SignedIn>
