@@ -3,8 +3,15 @@
 
 const AddPost = () => {
   return (
-    <div className="flex gap-6">
-      Hello
+    <div className="">
+      {/* Avatar */}
+      <div className="">
+
+      </div>
+      {/* Post */}
+      <div className="">
+        
+      </div>
     </div>
   );
 };
