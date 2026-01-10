@@ -1,5 +1,5 @@
 
-
+// src/components/LeftMenu.tsx
 
 const LeftMenu = () => {
   return (

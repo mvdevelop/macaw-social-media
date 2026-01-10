@@ -1,10 +1,21 @@
 
+// src/components/Feed.tsx
 
+import Post from "./Post";
 
 const Feed = () => {
   return (
-    <div className="flex gap-6">
-      Hello
+    <div className="p-4 bg-white shadow-md rounded-lg flex flex-col gap-12">
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
+      <Post />
     </div>
   );
 };
