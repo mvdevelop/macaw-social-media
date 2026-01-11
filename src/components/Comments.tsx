@@ -10,14 +10,36 @@ const Comments = () => {
       {/* Write */}
       <div className="flex items-center gap-4">
         <Image src="https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg" alt="" width={32} height={32} className="w-8 h-8 rounded-full" />
-        <div className="flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full">
-          <input type="text" placeholder="Write a comment..." className="bg-transparent outline-none" />
+        <div className="flex-1 flex items-center justify-between bg-slate-100 rounded-xl text-sm px-6 py-2 w-full">
+          <input type="text" placeholder="Write a comment..." className="bg-transparent outline-none flex-1" />
           <Image src="/emoji.png" alt="" width={16} height={16} className="cursor-pointer" />
         </div>
       </div>
 
       {/* Comments */}
-      <div className=""></div>
+      <div className="">
+        {/* Comment */}
+        <div className="">
+          {/* Avatar */}
+          <Image src="https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg" alt="" width={40} height={40} className="w-10 h-10 rounded-full" />
+
+          {/* Desc */}
+          <div className="flex flex-col gap-2">
+            <span className="font-medium">Drak Lians</span>
+            <p>Great post! I really enjoyed reading it. This is a great example of how to structure a comment section. I'm looking forward to more content like this.</p>
+            <div className="">
+              <div className="">
+                <Image src="/like.png" alt="" width={16} height={16} className="cursor-pointer w-4 h-4" />
+                <span>|</span>
+                <span>99 Likes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Icon */}
+          <Image src="/more.png" alt="" width={16} height={16} className="cursor-pointer w-4 h-4" />
+        </div>
+      </div>
     </div>
   );
 };
