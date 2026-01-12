@@ -1,10 +1,16 @@
 
 // src/components/RightMenu.tsx
 
+import FriendRequests from "./FriendRequests";
+import Birthdays from "./Birthdays";
+import Ad from "./Ad";
+
 const RightMenu = ({ userId } : { userId?: string }) => {
   return (
     <div className="flex flex-col gap-6">
-      RightMenu
+      <FriendRequests />
+      <Birthdays />
+      <Ad size="md" />
     </div>
   );
 };
