@@ -1,10 +1,10 @@
 
 // src/components/RightMenu.tsx
 
-const RightMenu = () => {
+const RightMenu = ({ userId } : { userId?: string }) => {
   return (
-    <div className="flex gap-6">
-      Hello
+    <div className="flex flex-col gap-6">
+      RightMenu
     </div>
   );
 };
