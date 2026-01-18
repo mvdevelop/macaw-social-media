@@ -31,12 +31,21 @@ const ProfileCard = () => {
           <div className="flex items-center gap-4">
             <div className="flex">
               <Image
-              src="https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg"
-              alt="" width={12} height={12}
-              className="rounded-full object-cover w-12 h-12 absolute left-0 right-0 m-auto"
+              src="/poll.png" alt="" width={12} height={12}
+              className="rounded-full object-cover w-3 h-3"
+              />
+              <Image
+              src="/poll.png" alt="" width={12} height={12}
+              className="rounded-full object-cover w-3 h-3"
+              />
+              <Image
+              src="/poll.png" alt="" width={12} height={12}
+              className="rounded-full object-cover w-3 h-3"
               />
             </div>
+            <span className="text-xs text-gray-500">365 Followers</span>
           </div>
+          <button className="bg-blue-500 text-white text-xs p-2 rounded-md">My Profile</button>
         </div>
       </div>
     </>
