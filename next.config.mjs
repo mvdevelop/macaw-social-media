@@ -5,7 +5,16 @@ const nextConfig = {
     cacheComponents: true,
   },
   images: {
-    domains: ['images.pexels.com', 'media.gettyimages.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.gettyimages.com',
+      },
+    ],
   },
 };
 
