@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
-    "@prisma/client": "^7.2.0",
+    "@prisma/client": "^7.3.0",
     "babel-plugin-react-compiler": "^0.0.0-experimental-938cd9a-20240601",
     "next": "^16.1.1-canary.14",
     "prisma": "^7.2.0",
