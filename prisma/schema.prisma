@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -23,6 +24,10 @@ model User {
   posts       Post[]
   comments    Comment[]
   likes       Like[]
+  followers   Follower[] @relation("UserFollowers")
+  followings   Follower[] @relation("UserFollowings")
+  followRequestsSent FollowRequest[] @relation("FollowRequestsSent")
+  followRequestsReceived FollowRequest[] @relation("FollowRequestsReceived")
 }
 
 model Post {
@@ -62,5 +67,30 @@ model Like {
 model Follower {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  
+  follower      User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId    String
+  following      User     @relation("UserFollowings", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId    String
+}
+
+model FollowRequest {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  sender      User     @relation("FollowRequestsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId    String
+  receiver      User     @relation("FollowRequestsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId    String
+
+  @@unique([senderId, receiverId])
+}
+
+model Block {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  blocker      User     @relation("FollowRequestsSent", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockerId    String
+  blocked      User     @relation("FollowRequestsReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+  blockedId    String
+
+  @@unique([senderId, receiverId])
 }
