@@ -3,9 +3,9 @@
 -- Execute no SQL Editor do Supabase Dashboard
 -- ============================================
 
--- Users table
+-- Users table (UUID para integrar com auth.uid())
 CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY,
+  id UUID PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   avatar TEXT,
   cover TEXT,
@@ -19,23 +19,23 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Posts table
+-- Posts table (content ao invés de desc)
 CREATE TABLE IF NOT EXISTS posts (
   id BIGSERIAL PRIMARY KEY,
-  desc TEXT NOT NULL,
+  content TEXT NOT NULL,
   img TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Comments table
+-- Comments table (content ao invés de desc)
 CREATE TABLE IF NOT EXISTS comments (
   id BIGSERIAL PRIMARY KEY,
-  desc TEXT NOT NULL,
+  content TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   post_id BIGINT NOT NULL REFERENCES posts(id) ON DELETE CASCADE
 );
 
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE TABLE IF NOT EXISTS likes (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   post_id BIGINT REFERENCES posts(id) ON DELETE CASCADE,
   comment_id BIGINT REFERENCES comments(id) ON DELETE CASCADE
 );
@@ -52,16 +52,16 @@ CREATE TABLE IF NOT EXISTS likes (
 CREATE TABLE IF NOT EXISTS followers (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  follower_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  following_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  follower_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Follow requests table
 CREATE TABLE IF NOT EXISTS follow_requests (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  receiver_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  receiver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE(sender_id, receiver_id)
 );
 
@@ -69,18 +69,18 @@ CREATE TABLE IF NOT EXISTS follow_requests (
 CREATE TABLE IF NOT EXISTS blocks (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  blocker_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  blocked_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  blocker_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  blocked_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE(blocker_id, blocked_id)
 );
 
--- Stories table
+-- Stories table (sem UNIQUE em user_id)
 CREATE TABLE IF NOT EXISTS stories (
   id BIGSERIAL PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   expires_at TIMESTAMPTZ NOT NULL,
   img TEXT NOT NULL,
-  user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- ============================================
@@ -99,10 +99,9 @@ CREATE INDEX IF NOT EXISTS idx_follow_requests_receiver_id ON follow_requests(re
 CREATE INDEX IF NOT EXISTS idx_stories_user_id ON stories(user_id);
 
 -- ============================================
--- ROW LEVEL SECURITY (opcional)
+-- ROW LEVEL SECURITY (RLS)
 -- ============================================
 
--- Habilita RLS nas tabelas
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
@@ -112,11 +111,8 @@ ALTER TABLE follow_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blocks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stories ENABLE ROW LEVEL SECURITY;
 
--- Políticas básicas: usuários podem ver e modificar apenas seus próprios dados
--- (você pode ajustar conforme necessário)
-
--- Users: cada um vê/edita seu próprio registro
-CREATE POLICY "users_select_own" ON users FOR SELECT USING (auth.uid() = id);
+-- Users: todos veem perfis, só o dono edita
+CREATE POLICY "users_select_all" ON users FOR SELECT USING (true);
 CREATE POLICY "users_insert_own" ON users FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "users_update_own" ON users FOR UPDATE USING (auth.uid() = id);
 

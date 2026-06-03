@@ -1,35 +1,9 @@
+"use client";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPost } from "@/lib/actions";
 import Image from "next/image";
 
-export const runtime = "nodejs";
-
-const AddPost = async () => {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const testAction = async (formData: FormData) => {
-    "use server";
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id;
-
-    if (!userId) return;
-
-    const desc = formData.get("desc") as string;
-
-    try {
-      const res = await supabase
-        .from("posts")
-        .insert({ user_id: userId, desc })
-        .select();
-      console.log(res);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
+const AddPost = () => {
   return (
     <div className="p-4 bg-white shadow-md rounded-lg flex gap-4 justify-between text-sm">
       <Image
@@ -41,13 +15,18 @@ const AddPost = async () => {
       />
 
       <div className="flex-1">
-        <form action={testAction} className="flex gap-4">
+        <form action={createPost} className="flex gap-4">
           <textarea
             placeholder="What's on your mind?"
             className="flex-1 bg-slate-100 rounded-lg p-2"
-            name="desc"
+            name="content"
           />
-          <button>Send</button>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition"
+          >
+            Send
+          </button>
         </form>
       </div>
     </div>

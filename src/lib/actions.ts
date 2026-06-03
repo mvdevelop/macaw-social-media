@@ -1,4 +1,3 @@
-
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -11,10 +10,17 @@ export async function createPost(formData: FormData) {
     throw new Error("Usuário não autenticado");
   }
 
-  const desc = formData.get("desc") as string;
+  const content = formData.get("content") as string;
+  if (!content?.trim()) {
+    throw new Error("O post não pode estar vazio");
+  }
 
-  await supabase.from("posts").insert({
+  const { error } = await supabase.from("posts").insert({
     user_id: user.id,
-    desc,
+    content,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }

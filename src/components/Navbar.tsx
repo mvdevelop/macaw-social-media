@@ -26,6 +26,9 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Landing page (sem usuário) não mostra navbar
+  if (!loading && !user) return null;
+
   return (
     <div className="h-24 flex items-center justify-between">
       {/* Left */}

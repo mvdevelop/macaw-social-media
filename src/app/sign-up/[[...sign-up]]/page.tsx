@@ -1,5 +1,6 @@
 "use client";
 
+import AuthLayout from "@/components/AuthLayout";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -61,8 +62,8 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-96px)] flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <AuthLayout>
+      <div className="w-full max-w-sm">
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-400">
           Sign Up
         </h1>
@@ -132,6 +133,6 @@ export default function SignUpPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   );
 }
