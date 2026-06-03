@@ -1,9 +1,9 @@
 import { updateSession } from "@/lib/supabase/proxy";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = ["/settings(.*)"];
 
-export default async function proxy(request: Request) {
+export default async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
   const url = new URL(request.url);

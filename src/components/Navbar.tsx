@@ -90,16 +90,16 @@ const Navbar = () => {
               className="flex items-center gap-2 text-white hover:bg-white/10 pl-2 pr-3 py-1.5 rounded-lg transition"
             >
               <div className="w-7 h-7 rounded-full overflow-hidden bg-white/20 flex items-center justify-center text-white font-semibold text-sm">
-                {user.user_metadata?.avatar_url ? (
+                {user!.user_metadata?.avatar_url ? (
                   <Image
-                    src={user.user_metadata.avatar_url}
+                    src={user!.user_metadata.avatar_url}
                     alt="Avatar"
                     width={28}
                     height={28}
                     className="object-cover w-full h-full"
                   />
                 ) : (
-                  user.email?.charAt(0).toUpperCase() || "U"
+                  user!.email?.charAt(0).toUpperCase() || "U"
                 )}
               </div>
               <FiChevronDown size={14} className={`transition ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -109,8 +109,8 @@ const Navbar = () => {
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden">
                 {/* User info header */}
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user.email}</p>
-                  <p className="text-xs text-gray-500">@{user.user_metadata?.username || "user"}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user!.email}</p>
+                  <p className="text-xs text-gray-500">@{user!.user_metadata?.username || "user"}</p>
                 </div>
 
                 <Link
