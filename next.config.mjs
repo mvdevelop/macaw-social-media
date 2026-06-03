@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'media.gettyimages.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
   },
 };
