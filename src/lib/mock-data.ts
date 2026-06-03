@@ -82,6 +82,40 @@ export interface MockGroup {
 }
 
 // ============================================
+// NOTIFICATIONS
+// ============================================
+export interface MockNotification {
+  id: number;
+  type: "like" | "comment" | "follow" | "friend_request";
+  user: MockUser;
+  postId?: number;
+  content: string;
+  createdAt: string;
+  read: boolean;
+}
+
+// ============================================
+// CHAT / MESSAGES
+// ============================================
+export interface MockMessage {
+  id: number;
+  senderId: string;
+  text: string;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface MockConversation {
+  id: number;
+  user: MockUser;
+  lastMessage: string;
+  lastMessageAt: string;
+  unread: number;
+  online: boolean;
+  messages: MockMessage[];
+}
+
+// ============================================
 // USERS
 // ============================================
 const users: MockUser[] = [
@@ -389,6 +423,139 @@ export function getGroups(): MockGroup[] {
   return groups;
 }
 
-export function getSuggestedFriends(): MockUser[] {
-  return users.slice(1, 4);
+// ============================================
+// NOTIFICATIONS
+// ============================================
+const notifications: MockNotification[] = [
+  {
+    id: 1,
+    type: "like",
+    user: users[1],
+    postId: 3,
+    content: "curtiu seu post",
+    createdAt: "2026-06-03T14:30:00Z",
+    read: false,
+  },
+  {
+    id: 2,
+    type: "comment",
+    user: users[2],
+    postId: 1,
+    content: "comentou no seu post: \"Incrível! 🔥\"",
+    createdAt: "2026-06-03T13:00:00Z",
+    read: false,
+  },
+  {
+    id: 3,
+    type: "follow",
+    user: users[3],
+    content: "começou a seguir você",
+    createdAt: "2026-06-03T11:00:00Z",
+    read: false,
+  },
+  {
+    id: 4,
+    type: "friend_request",
+    user: users[4],
+    content: "enviou uma solicitação de amizade",
+    createdAt: "2026-06-03T10:00:00Z",
+    read: false,
+  },
+  {
+    id: 5,
+    type: "like",
+    user: users[2],
+    postId: 5,
+    content: "curtiu seu post",
+    createdAt: "2026-06-02T20:00:00Z",
+    read: true,
+  },
+  {
+    id: 6,
+    type: "comment",
+    user: users[4],
+    postId: 2,
+    content: "comentou no seu post: \"Que lugar é esse?\"",
+    createdAt: "2026-06-02T18:00:00Z",
+    read: true,
+  },
+];
+
+// ============================================
+// CHAT / CONVERSATIONS
+// ============================================
+const conversations: MockConversation[] = [
+  {
+    id: 1,
+    user: users[1],
+    lastMessage: "Vamos marcar algo esse fim de semana!",
+    lastMessageAt: "2026-06-03T15:00:00Z",
+    unread: 2,
+    online: true,
+    messages: [
+      { id: 1, senderId: "u2", text: "Oi! Tudo bem?", createdAt: "2026-06-03T14:00:00Z", read: true },
+      { id: 2, senderId: "u1", text: "Tudo ótimo! E você?", createdAt: "2026-06-03T14:05:00Z", read: true },
+      { id: 3, senderId: "u2", text: "Também! Que tal a gente se encontrar?", createdAt: "2026-06-03T14:30:00Z", read: true },
+      { id: 4, senderId: "u2", text: "Vamos marcar algo esse fim de semana!", createdAt: "2026-06-03T15:00:00Z", read: false },
+    ],
+  },
+  {
+    id: 2,
+    user: users[2],
+    lastMessage: "Adorei as fotos do seu último post!",
+    lastMessageAt: "2026-06-02T16:00:00Z",
+    unread: 0,
+    online: false,
+    messages: [
+      { id: 5, senderId: "u3", text: "Suas fotos estão incríveis!", createdAt: "2026-06-02T15:00:00Z", read: true },
+      { id: 6, senderId: "u1", text: "Obrigado! Fiz com meu novo equipamento", createdAt: "2026-06-02T15:30:00Z", read: true },
+      { id: 7, senderId: "u3", text: "Adorei as fotos do seu último post!", createdAt: "2026-06-02T16:00:00Z", read: true },
+    ],
+  },
+  {
+    id: 3,
+    user: users[3],
+    lastMessage: "A aula de yoga amanhã está confirmada!",
+    lastMessageAt: "2026-06-01T09:00:00Z",
+    unread: 0,
+    online: true,
+    messages: [
+      { id: 8, senderId: "u4", text: "Vai ter aula amanhã?", createdAt: "2026-06-01T08:00:00Z", read: true },
+      { id: 9, senderId: "u1", text: "Sim! Confirmado", createdAt: "2026-06-01T08:30:00Z", read: true },
+      { id: 10, senderId: "u4", text: "A aula de yoga amanhã está confirmada!", createdAt: "2026-06-01T09:00:00Z", read: true },
+    ],
+  },
+  {
+    id: 4,
+    user: users[4],
+    lastMessage: "Bora tocar esse fds?",
+    lastMessageAt: "2026-05-30T22:00:00Z",
+    unread: 0,
+    online: false,
+    messages: [
+      { id: 11, senderId: "u5", text: "E aí, conseguiu ouvir a demo?", createdAt: "2026-05-30T21:00:00Z", read: true },
+      { id: 12, senderId: "u1", text: "Sim, ficou top! Vamos ensaiar", createdAt: "2026-05-30T21:30:00Z", read: true },
+      { id: 13, senderId: "u5", text: "Bora tocar esse fds?", createdAt: "2026-05-30T22:00:00Z", read: true },
+    ],
+  },
+];
+
+export function getNotifications(): MockNotification[] {
+  return notifications;
+}
+
+export function getUnreadNotificationCount(): number {
+  return notifications.filter((n) => !n.read).length;
+}
+
+export function getConversations(): MockConversation[] {
+  return conversations;
+}
+
+export function getConversationById(id: number): MockConversation | undefined {
+  return conversations.find((c) => c.id === id);
+}
+
+export function getTotalUnreadMessages(): number {
+  return conversations.reduce((acc, c) => acc + c.unread, 0);
 }

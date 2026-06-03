@@ -39,3 +39,6 @@ next-env.d.ts
 #...
 .env
 package-lock.json
+
+# Documentação local (não ir para o GitHub)
+/docs-projeto.txt

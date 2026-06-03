@@ -6,13 +6,16 @@ import icon from "@/app/icon.png";
 import MobileMenu from "./MobileMenu";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitch from "./LanguageSwitch";
+import SearchModal from "./SearchModal";
+import NotificationsDropdown from "./NotificationsDropdown";
 import { useAuth } from "@/context/AuthProvider";
 import { useState, useRef, useEffect } from "react";
-import { FiSearch, FiBell, FiMessageSquare, FiLogOut, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiSearch, FiMessageSquare, FiLogOut, FiSettings, FiChevronDown } from "react-icons/fi";
 
 const Navbar = () => {
   const { user, loading, signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,7 +70,10 @@ const Navbar = () => {
         {/* Right */}
         <div className="flex items-center gap-2">
           {/* Search */}
-          <button className="hidden sm:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white/80 px-3 py-2 rounded-lg transition text-sm">
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="hidden sm:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white/80 px-3 py-2 rounded-lg transition text-sm"
+          >
             <FiSearch size={16} />
             <span className="hidden lg:inline">Search</span>
           </button>
@@ -77,19 +83,14 @@ const Navbar = () => {
           <LanguageSwitch />
 
           {/* Notifications */}
-          <button className="relative text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
-            <FiBell size={20} />
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
-              3
-            </span>
-          </button>
+          <NotificationsDropdown />
 
-          {/* Messages */}
-          <button className="relative text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
+          {/* Messages - abre o ChatPanel via window event */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("toggle-chat"))}
+            className="relative text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition"
+          >
             <FiMessageSquare size={20} />
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
-              5
-            </span>
           </button>
 
           {/* User dropdown */}
@@ -149,6 +150,9 @@ const Navbar = () => {
           <MobileMenu />
         </div>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </div>
   );
 };

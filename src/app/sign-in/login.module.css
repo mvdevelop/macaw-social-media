@@ -1,6 +1,13 @@
 .container {
   display: flex;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .container {
+    flex-direction: row;
+  }
 }
 
 /* ======================================
@@ -8,7 +15,6 @@
 ====================================== */
 
 .hero {
-  flex: 1;
   position: relative;
   overflow: hidden;
 
@@ -28,16 +34,33 @@
   flex-direction: column;
   justify-content: center;
 
-  padding: 80px;
+  padding: 60px 32px;
+  min-height: 400px;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    flex: 1;
+    padding: 80px;
+    min-height: 100vh;
+  }
 }
 
 .logo {
   position: absolute;
-  top: 40px;
-  left: 50px;
+  top: 24px;
+  left: 24px;
 
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .logo {
+    top: 40px;
+    left: 50px;
+    font-size: 2rem;
+  }
 }
 
 .content {
@@ -46,39 +69,71 @@
 }
 
 .content h1 {
-  font-size: 5rem;
-  line-height: 1;
-  margin-bottom: 24px;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  margin-bottom: 16px;
 }
 
-.content p {
-  font-size: 1.2rem;
-  line-height: 1.7;
-  margin-bottom: 40px;
+@media (min-width: 768px) {
+  .content h1 {
+    font-size: 5rem;
+    margin-bottom: 24px;
+  }
+}
+
+.content > p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 768px) {
+  .content > p {
+    font-size: 1.2rem;
+    line-height: 1.7;
+    margin-bottom: 40px;
+  }
 }
 
 .features {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .features {
+    gap: 24px;
+  }
 }
 
 .feature {
   display: flex;
   align-items: flex-start;
-  gap: 18px;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .feature {
+    gap: 18px;
+  }
 }
 
 .feature svg {
-  font-size: 1.6rem;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .feature h4 {
   margin: 0;
+  font-size: 0.9rem;
 }
 
 .feature span {
   opacity: 0.85;
+  font-size: 0.8rem;
 }
 
 /* ======================================
@@ -86,17 +141,24 @@
 ====================================== */
 
 .cards {
-  position: absolute;
-  inset: 0;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .cards {
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
 }
 
 .card {
   position: absolute;
 
-  width: 240px;
-  height: 300px;
+  width: 200px;
+  height: 250px;
 
-  border-radius: 24px;
+  border-radius: 20px;
   overflow: hidden;
 
   box-shadow:
@@ -110,20 +172,20 @@
 }
 
 .card1 {
-  right: 240px;
+  right: 220px;
   top: 120px;
   transform: rotate(-8deg);
 }
 
 .card2 {
-  right: 120px;
-  top: 260px;
+  right: 100px;
+  top: 240px;
   transform: rotate(10deg);
 }
 
 .card3 {
-  right: 280px;
-  bottom: 90px;
+  right: 260px;
+  bottom: 80px;
   transform: rotate(-5deg);
 }
 
@@ -132,14 +194,18 @@
 ====================================== */
 
 .login {
-  width: 520px;
   background: white;
-
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 32px 24px;
+}
 
-  padding: 40px;
+@media (min-width: 768px) {
+  .login {
+    width: 520px;
+    padding: 40px;
+  }
 }
 
 .loginBox {
@@ -149,23 +215,25 @@
 
 .loginBox h2 {
   text-align: center;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  margin-bottom: 6px;
 }
 
-.loginBox p {
+.loginBox > p {
   text-align: center;
   color: #777;
-  margin-bottom: 30px;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
 }
 
 .loginBox form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .loginBox input {
-  height: 55px;
+  height: 50px;
 
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -173,7 +241,14 @@
   padding: 0 16px;
   outline: none;
 
-  font-size: 1rem;
+  font-size: 0.95rem;
+}
+
+@media (min-width: 768px) {
+  .loginBox input {
+    height: 55px;
+    font-size: 1rem;
+  }
 }
 
 .loginBox input:focus {
@@ -181,7 +256,7 @@
 }
 
 .loginBox button {
-  height: 55px;
+  height: 50px;
 
   border: none;
   border-radius: 12px;
@@ -190,7 +265,14 @@
   color: white;
 
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .loginBox button {
+    height: 55px;
+  }
 }
 
 .loginBox button:hover {
@@ -202,10 +284,12 @@
   cursor: not-allowed;
 }
 
-.loginBox span {
+.loginBox > span {
   display: block;
   text-align: center;
-  margin-top: 25px;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #666;
 }
 
 .loginBox a {
@@ -216,10 +300,11 @@
 .error {
   color: #dc2626;
   text-align: center;
-  font-size: 0.875rem;
-  padding: 8px;
+  font-size: 0.85rem;
+  padding: 10px;
   background: #fef2f2;
-  border-radius: 8px;
+  border-radius: 10px;
+  margin-bottom: 4px;
 }
 
 .divider {
@@ -227,7 +312,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 0;
+  padding: 6px 0;
+  margin: 4px 0;
 }
 
 .divider::before {
@@ -250,12 +336,12 @@
 
 .googleBtn {
   width: 100%;
-  height: 55px;
+  height: 50px;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   background: white;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;

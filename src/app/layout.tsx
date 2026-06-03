@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
+import ChatPanel from "@/components/ChatPanel";
 import { AuthProvider } from "@/context/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageProvider";
 import { ThemeProvider } from "@/context/ThemeProvider";
@@ -27,6 +28,7 @@ export default function RootLayout({
             <LanguageProvider>
               <Navbar />
               <main>{children}</main>
+              <ChatPanel />
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>

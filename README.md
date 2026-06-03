@@ -1,73 +1,74 @@
+# 🦜 Macaw Social Media
 
-🦜 Macaw Social Media
-O Macaw Social Media é uma plataforma de rede social moderna e vibrante, projetada para conectar pessoas de forma rápida e intuitiva. Desenvolvido com React e Vite, o projeto foca em alta performance, interfaces fluidas e um design responsivo impecável utilizando Tailwind CSS.
+Uma rede social moderna construída com **Next.js 16**, **Supabase** e **Tailwind CSS**.
 
-🚀 Funcionalidades
-Feed Dinâmico: Visualização de postagens em tempo real com suporte a textos e imagens.
+## 🚀 Funcionalidades
 
-Interações Sociais: Sistema de curtidas, comentários e compartilhamentos.
+- **Autenticação** — Login com email/senha e Google OAuth via Supabase
+- **Feed Dinâmico** — Postagens com texto e imagens, ordenadas por data
+- **Interações** — Curtidas, comentários e compartilhamentos
+- **Sistema de Amizades** — Seguir/deixar de seguir, solicitações
+- **Chat em Tempo Real** — Mensagens diretas entre usuários
+- **Notificações** — Alertas de likes, comentários e follow
+- **Marketplace** — Anúncios de produtos com fotos e preços
+- **Eventos** — Descoberta de eventos próximos
+- **Grupos** — Comunidades por interesse
+- **Stories** — Conteúdo temporário com expiração de 24h
+- **Perfil de Usuário** — Página personalizada com bio, foto e posts
+- **Internacionalização** — Suporte a Inglês, Português e Espanhol
+- **Modo Dark/Light** — Alternância com persistência local
 
-Perfis de Usuário: Páginas personalizadas com bio, foto de perfil e histórico de atividades.
+## 🛠️ Stack
 
-Design Responsivo: Experiência otimizada para dispositivos móveis, tablets e desktops.
+| Frontend | Backend | Database |
+|---|---|---|
+| Next.js 16 (App Router) | Supabase Auth | PostgreSQL |
+| React 18 | Server Actions | Supabase Storage |
+| Tailwind CSS | RLS Policies | Buckets (imagens/stories) |
+| Lucide / React Icons | Edge Runtime | pg_cron (expiração) |
 
-Interface Moderna: Estilização com Tailwind CSS, incluindo suporte a Dark Mode.
+## 📦 Como rodar
 
-Performance: Carregamento ultra-rápido de módulos graças ao Vite.
-
-🛠️ Tecnologias Utilizadas
-React 18: Biblioteca para construção de interfaces baseadas em componentes.
-
-Vite: Tooling de próxima geração para um desenvolvimento frontend extremamente rápido.
-
-Tailwind CSS: Framework CSS utilitário para design ágil e customizável.
-
-Lucide React: Conjunto de ícones leves e elegantes.
-
-React Router Dom: Gerenciamento de navegação e rotas Single Page Application (SPA).
-
-📦 Como rodar o projeto
-Clone o repositório:
-
-Bash
-
-git clone https://github.com/mvdevelop/macaw-social-media.git
-cd macaw-social-media
-Instale as dependências:
-
-Bash
-
+```bash
+# Instalar dependências
 npm install
-Inicie o servidor de desenvolvimento:
 
-Bash
+# Configurar variáveis de ambiente
+cp .env.local.example .env.local
+# Preencha NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+# Iniciar desenvolvimento
 npm run dev
-Acesse: http://localhost:5173
 
-Gerar build de produção:
-
-Bash
-
+# Build de produção
 npm run build
-📁 Estrutura de Pastas
-Plaintext
+```
 
-macaw-social-media/
-├── src/
-│   ├── assets/       # Imagens, logos e fontes
-│   ├── components/   # Componentes da interface (Post, Sidebar, Button)
-│   ├── context/      # Estados globais (Autenticação, Tema)
-│   ├── hooks/        # Hooks personalizados para lógica de UI
-│   ├── pages/        # Telas principais (Home, Profile, Login)
-│   └── services/     # Configuração de API (Axios/Firebase/Supabase)
-├── public/           # Arquivos estáticos
-├── tailwind.config.js
-└── vite.config.js
-👨‍💻 Autor
-Desenvolvido por mvdevelop.
+## 🗄️ Configuração do Supabase
 
-GitHub: @mvdevelop
+Execute os scripts SQL na ordem:
+1. `supabase-schema.sql` — Tabelas e RLS
+2. `supabase-trigger.sql` — Trigger para criar perfil automaticamente
+3. `supabase-storage-cron.sql` — Buckets e limpeza de stories
 
-📄 Licença
-Este projeto está sob a licença MIT. Consulte o arquivo LICENSE para mais detalhes.
+## 🌐 Variáveis de Ambiente
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anon-aqui
+```
+
+## 📁 Estrutura
+
+```
+src/
+├── app/          # Páginas (App Router)
+├── components/   # Componentes React
+├── context/      # Providers (Auth, Tema, Idioma)
+├── lib/          # Utilitários, mock-data, actions, i18n
+└── proxy.ts      # Middleware Next.js
+```
+
+## 👨‍💻 Autor
+
+Desenvolvido por [@mvdevelop](https://github.com/mvdevelop)
