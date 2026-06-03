@@ -1,10 +1,11 @@
 "use client";
 
-import AuthLayout from "@/components/AuthLayout";
-import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { FaUsers, FaImages, FaCompass } from "react-icons/fa";
+import { createClient } from "@/lib/supabase/client";
+import styles from "../login.module.css";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -24,9 +25,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        data: {
-          username,
-        },
+        data: { username },
       },
     });
 
@@ -37,9 +36,8 @@ export default function SignUpPage() {
     }
 
     if (data.user) {
-      // Cria o registro do usuário no banco (tabela users do Supabase)
       try {
-        const res = await fetch("/api/create-user", {
+        await fetch("/api/create-user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -48,12 +46,8 @@ export default function SignUpPage() {
             email: data.user.email,
           }),
         });
-
-        if (!res.ok) {
-          console.error("Falha ao criar registro de usuário");
-        }
       } catch (err) {
-        console.error("Erro ao criar usuário no banco:", err);
+        console.error("Erro ao criar usuário:", err);
       }
     }
 
@@ -62,77 +56,109 @@ export default function SignUpPage() {
   };
 
   return (
-    <AuthLayout>
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-6 text-blue-400">
-          Sign Up
-        </h1>
+    <div className={styles.container}>
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.logo}>
+          🦜 <span>Macaw</span>
+        </div>
 
-        <form onSubmit={handleSignUp} className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="username" className="text-sm text-gray-600">
-              Username
-            </label>
+        <div className={styles.content}>
+          <h1>
+            Connect.
+            <br />
+            Share.
+            <br />
+            Discover.
+          </h1>
+
+          <p>
+            Join Macaw and connect with friends,
+            share your moments and discover
+            what&apos;s happening around you.
+          </p>
+
+          <div className={styles.features}>
+            <div className={styles.feature}>
+              <FaUsers />
+              <div>
+                <h4>Connect with friends</h4>
+                <span>
+                  Find people you know and create new
+                  connections.
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.feature}>
+              <FaImages />
+              <div>
+                <h4>Share your moments</h4>
+                <span>
+                  Post photos, stories and updates.
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.feature}>
+              <FaCompass />
+              <div>
+                <h4>Discover new things</h4>
+                <span>
+                  Explore trends and communities.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sign Up */}
+      <section className={styles.login}>
+        <div className={styles.loginBox}>
+          <h2>Create Account</h2>
+
+          <p>Sign up to get started with Macaw</p>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <form onSubmit={handleSignUp}>
             <input
-              id="username"
               type="text"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="yourusername"
               required
-              className="w-full p-2 rounded-lg bg-slate-100 outline-none mt-1"
             />
-          </div>
 
-          <div>
-            <label htmlFor="email" className="text-sm text-gray-600">
-              Email
-            </label>
             <input
-              id="email"
               type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
               required
-              className="w-full p-2 rounded-lg bg-slate-100 outline-none mt-1"
             />
-          </div>
 
-          <div>
-            <label htmlFor="password" className="text-sm text-gray-600">
-              Password
-            </label>
             <input
-              id="password"
               type="password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               required
               minLength={6}
-              className="w-full p-2 rounded-lg bg-slate-100 outline-none mt-1"
             />
-          </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+            <button type="submit" disabled={loading}>
+              {loading ? "Creating account..." : "Sign Up"}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-500 text-white p-2 rounded-lg font-medium hover:bg-blue-600 transition disabled:opacity-50"
-          >
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          Already have an account?{" "}
-          <Link href="/sign-in" className="text-blue-500 hover:underline">
-            Sign In
-          </Link>
-        </p>
-      </div>
-    </AuthLayout>
+          <span>
+            Already have an account?
+            <Link href="/sign-in"> Sign In</Link>
+          </span>
+        </div>
+      </section>
+    </div>
   );
 }

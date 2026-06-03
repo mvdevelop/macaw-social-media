@@ -1,0 +1,223 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ======================================
+   HERO
+====================================== */
+
+.hero {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    to right,
+    #0052ff,
+    #4340ff,
+    #6825ff,
+    #8500ff,
+    #a300ff,
+    #c100ff
+  );
+
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 80px;
+}
+
+.logo {
+  position: absolute;
+  top: 40px;
+  left: 50px;
+
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.content {
+  max-width: 550px;
+  z-index: 2;
+}
+
+.content h1 {
+  font-size: 5rem;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.content p {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.feature svg {
+  font-size: 1.6rem;
+}
+
+.feature h4 {
+  margin: 0;
+}
+
+.feature span {
+  opacity: 0.85;
+}
+
+/* ======================================
+   FLOATING CARDS
+====================================== */
+
+.cards {
+  position: absolute;
+  inset: 0;
+}
+
+.card {
+  position: absolute;
+
+  width: 240px;
+  height: 300px;
+
+  border-radius: 24px;
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25);
+
+  border: 4px solid rgba(255,255,255,.2);
+}
+
+.card img {
+  object-fit: cover;
+}
+
+.card1 {
+  right: 240px;
+  top: 120px;
+  transform: rotate(-8deg);
+}
+
+.card2 {
+  right: 120px;
+  top: 260px;
+  transform: rotate(10deg);
+}
+
+.card3 {
+  right: 280px;
+  bottom: 90px;
+  transform: rotate(-5deg);
+}
+
+/* ======================================
+   LOGIN
+====================================== */
+
+.login {
+  width: 520px;
+  background: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 40px;
+}
+
+.loginBox {
+  width: 100%;
+  max-width: 400px;
+}
+
+.loginBox h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.loginBox p {
+  text-align: center;
+  color: #777;
+  margin-bottom: 30px;
+}
+
+.loginBox form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loginBox input {
+  height: 55px;
+
+  border: 1px solid #ddd;
+  border-radius: 12px;
+
+  padding: 0 16px;
+  outline: none;
+
+  font-size: 1rem;
+}
+
+.loginBox input:focus {
+  border-color: #4340ff;
+}
+
+.loginBox button {
+  height: 55px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #0052ff;
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.loginBox button:hover {
+  opacity: .9;
+}
+
+.loginBox button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loginBox span {
+  display: block;
+  text-align: center;
+  margin-top: 25px;
+}
+
+.loginBox a {
+  color: #4340ff;
+  font-weight: 600;
+}
+
+.error {
+  color: #dc2626;
+  text-align: center;
+  font-size: 0.875rem;
+  padding: 8px;
+  background: #fef2f2;
+  border-radius: 8px;
+}

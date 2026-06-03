@@ -1,10 +1,12 @@
 "use client";
 
-import AuthLayout from "@/components/AuthLayout";
-import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { FaUsers, FaImages, FaCompass } from "react-icons/fa";
+import { createClient } from "@/lib/supabase/client";
+import styles from "../login.module.css";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -35,63 +37,130 @@ export default function SignInPage() {
   };
 
   return (
-    <AuthLayout>
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-6 text-blue-400">
-          Sign In
-        </h1>
+    <div className={styles.container}>
+      {/* Hero */}
+      <section className={styles.hero}>
+        <div className={styles.logo}>
+          🦜 <span>Macaw</span>
+        </div>
 
-        <form onSubmit={handleSignIn} className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="email" className="text-sm text-gray-600">
-              Email
-            </label>
+        <div className={styles.content}>
+          <h1>
+            Connect.
+            <br />
+            Share.
+            <br />
+            Discover.
+          </h1>
+
+          <p>
+            Join Macaw and connect with friends,
+            share your moments and discover
+            what&apos;s happening around you.
+          </p>
+
+          <div className={styles.features}>
+            <div className={styles.feature}>
+              <FaUsers />
+              <div>
+                <h4>Connect with friends</h4>
+                <span>
+                  Find people you know and create new
+                  connections.
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.feature}>
+              <FaImages />
+              <div>
+                <h4>Share your moments</h4>
+                <span>
+                  Post photos, stories and updates.
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.feature}>
+              <FaCompass />
+              <div>
+                <h4>Discover new things</h4>
+                <span>
+                  Explore trends and communities.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating cards */}
+        <div className={styles.cards}>
+          <div className={`${styles.card} ${styles.card1}`}>
+            <Image
+              src="https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg"
+              alt=""
+              fill
+              sizes="240px"
+            />
+          </div>
+
+          <div className={`${styles.card} ${styles.card2}`}>
+            <Image
+              src="https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg"
+              alt=""
+              fill
+              sizes="240px"
+            />
+          </div>
+
+          <div className={`${styles.card} ${styles.card3}`}>
+            <Image
+              src="https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg"
+              alt=""
+              fill
+              sizes="240px"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Login */}
+      <section className={styles.login}>
+        <div className={styles.loginBox}>
+          <h2>Welcome to Macaw</h2>
+
+          <p>Sign in to continue to your account</p>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <form onSubmit={handleSignIn}>
             <input
-              id="email"
-              type="email"
+              type="text"
+              placeholder="Email or username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
               required
-              className="w-full p-2 rounded-lg bg-slate-100 outline-none mt-1"
             />
-          </div>
 
-          <div>
-            <label htmlFor="password" className="text-sm text-gray-600">
-              Password
-            </label>
             <input
-              id="password"
               type="password"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
               required
-              className="w-full p-2 rounded-lg bg-slate-100 outline-none mt-1"
             />
-          </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
+            <button type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Login"}
+            </button>
+          </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-500 text-white p-2 rounded-lg font-medium hover:bg-blue-600 transition disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-blue-500 hover:underline">
-            Sign Up
-          </Link>
-        </p>
-      </div>
-    </AuthLayout>
+          <span>
+            Don&apos;t have an account?
+            <Link href="/sign-up"> Sign Up</Link>
+          </span>
+        </div>
+      </section>
+    </div>
   );
 }
