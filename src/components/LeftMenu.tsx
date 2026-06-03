@@ -1,76 +1,43 @@
-
-// src/components/LeftMenu.tsx
+"use client";
 
 import Link from "next/link";
 import ProfileCard from "./ProfileCard";
-import Image from "next/image";
 import Ad from "./Ad";
+import { FiGrid, FiActivity, FiShoppingBag, FiCalendar, FiImage, FiVideo, FiGlobe, FiBookOpen, FiList, FiSettings } from "react-icons/fi";
 
-const LeftMenu = ({type}:{type: "home" | "profile"}) => {
+const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
+  const links = [
+    { href: "/", icon: FiGrid, label: "My Posts" },
+    { href: "/", icon: FiActivity, label: "Activity" },
+    { href: "/marketplace", icon: FiShoppingBag, label: "Marketplace" },
+    { href: "/events", icon: FiCalendar, label: "Events" },
+    { href: "/", icon: FiImage, label: "Albums" },
+    { href: "/", icon: FiVideo, label: "Videos" },
+    { href: "/", icon: FiGlobe, label: "News" },
+    { href: "/", icon: FiBookOpen, label: "Courses" },
+    { href: "/", icon: FiList, label: "Lists" },
+    { href: "/settings", icon: FiSettings, label: "Settings" },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       {type === "home" && <ProfileCard />}
-      <div className="p-4 bg-white rounded-lg shadow-md text-sm text-gray-500 flex flex-col gap-2">
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/posts.png' alt='' width={20} height={20} />
-          <span>My Posts</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
 
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/activity.png' alt='' width={20} height={20} />
-          <span>Activity</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/market.png' alt='' width={20} height={20} />
-          <span>Marketplace</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/events.png' alt='' width={20} height={20} />
-          <span>Events</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/albums.png' alt='' width={20} height={20} />
-          <span>Albums</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/videos.png' alt='' width={20} height={20} />
-          <span>Videos</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/news.png' alt='' width={20} height={20} />
-          <span>News</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/courses.png' alt='' width={20} height={20} />
-          <span>Courses</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/lists.png' alt='' width={20} height={20} />
-          <span>Lists</span>
-        </Link>
-        <hr className="border-t-1 border-gray-50 w-36 self-center" />
-
-        <Link href='/' className="flex items-center gap-4 p-2 rounded-lg hover:bg-slate-100">
-          <Image src='/settings.png' alt='' width={20} height={20} />
-          <span>Settings</span>
-        </Link>
-        {/* <hr className="border-t-1 border-gray-50 w-36 self-center" /> */}
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm text-gray-500 dark:text-gray-400 flex flex-col gap-1 transition-colors">
+        {links.map((link, i) => (
+          <div key={link.label}>
+            <Link
+              href={link.href}
+              className="flex items-center gap-4 p-2.5 rounded-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-gray-700 dark:hover:to-gray-700 transition group"
+            >
+              <link.icon size={18} className="group-hover:text-blue-500 transition" />
+              <span className="group-hover:text-gray-700 dark:group-hover:text-white transition">{link.label}</span>
+            </Link>
+            {i < links.length - 1 && <hr className="border-gray-50 dark:border-gray-700 mx-2" />}
+          </div>
+        ))}
       </div>
+
       <Ad size="sm" />
     </div>
   );

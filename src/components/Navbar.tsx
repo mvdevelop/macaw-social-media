@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import icon from "@/app/icon.png";
 import MobileMenu from "./MobileMenu";
+import ThemeToggle from "./ThemeToggle";
+import LanguageSwitch from "./LanguageSwitch";
 import { useAuth } from "@/context/AuthProvider";
 import { useState, useRef, useEffect } from "react";
 import { FiSearch, FiBell, FiMessageSquare, FiLogOut, FiSettings, FiChevronDown } from "react-icons/fi";
@@ -51,11 +53,14 @@ const Navbar = () => {
           <Link href="/" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Home
           </Link>
-          <Link href="/" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+          <Link href="/friends" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Friends
           </Link>
-          <Link href="/" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Stories
+          <Link href="/marketplace" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+            Marketplace
+          </Link>
+          <Link href="/groups" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+            Groups
           </Link>
         </div>
 
@@ -66,6 +71,10 @@ const Navbar = () => {
             <FiSearch size={16} />
             <span className="hidden lg:inline">Search</span>
           </button>
+
+          {/* Theme + Language */}
+          <ThemeToggle />
+          <LanguageSwitch />
 
           {/* Notifications */}
           <button className="relative text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition">
