@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "@/context/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <AuthProvider>
       <html lang="en">
         <body className={inter.className}>
           <div className="w-full bg-white px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
@@ -31,6 +31,6 @@ export default function RootLayout({
           </div>
         </body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

@@ -1,34 +1,29 @@
 
-//import { prisma } from "@/lib/client";
-//import prisma from "@/lib/client";
-
-import { auth } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 
 export const runtime = "nodejs";
 
 const AddPost = async () => {
-  const { userId } = await auth();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   const testAction = async (formData: FormData) => {
     "use server";
 
-    // const { userId } = await auth();
-    // if (!userId) {
-    //   throw new Error("Usuário não autenticado");
-    // }
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
 
     if (!userId) return;
 
     const desc = formData.get("desc") as string;
 
     try {
-      const res = await prisma.post.create({
-        data: {
-          userId,
-          desc,
-        },
-      });
+      const res = await supabase
+        .from("posts")
+        .insert({ user_id: userId, desc })
+        .select();
       console.log(res);
     } catch (err) {
       console.log(err);

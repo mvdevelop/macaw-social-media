@@ -22,7 +22,7 @@ const MobileMenu = () => {
           <Link href="/friends">Friends</Link>
           <Link href="/groups">Groups</Link>
           <Link href="/stories">Stories</Link>
-          <Link href="/login">Login</Link>
+          <Link href="/sign-in">Login</Link>
         </div>
       )}
     </div>
