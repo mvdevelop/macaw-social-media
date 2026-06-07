@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { getStories, getCurrentUser } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/client";
 import { FiPlus } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
+import { getStories } from "@/lib/mock-data";
+import { getOrFetch } from "@/lib/cache";
 
 interface StoryUser {
   id: string;
@@ -21,86 +22,94 @@ interface StoryItem {
 const Stories = () => {
   const [stories, setStories] = useState<StoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userAvatar, setUserAvatar] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const currentUser = getCurrentUser();
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
+
+    // Carrega avatar real do usuário logado
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      setUserId(user.id);
+      supabase.from("users").select("avatar").eq("id", user.id).single().then(({ data }) => {
+        if (data?.avatar && mountedRef.current) setUserAvatar(data.avatar);
+      });
+    });
+
     const fetchStories = async () => {
       try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("stories")
-          .select("*, user:users(*)")
-          .gt("expires_at", new Date().toISOString())
-          .order("created_at", { ascending: false });
+        const data = await getOrFetch<StoryItem[]>("stories", async () => {
+          const supabase = createClient();
+          const { data, error } = await supabase
+            .from("stories")
+            .select("*, user:users(id, name, avatar)")
+            .gt("expires_at", new Date().toISOString())
+            .order("created_at", { ascending: false })
+            .limit(10);
 
-        if (error) throw error;
+          if (error) throw error;
 
-        if (data && data.length > 0) {
-          setStories(
-            data.map((s: any) => ({
+          if (data && data.length > 0) {
+            return data.map((s: any) => ({
               id: s.id,
               img: s.img,
-              user: s.user || { id: s.user_id, name: "User", avatar: currentUser.avatar },
-            }))
-          );
-        } else {
-          // Fallback mock
-          setStories(
-            getStories().map((s) => ({
-              id: s.id,
-              img: s.img,
-              user: { id: s.user.id, name: s.user.name, avatar: s.user.avatar },
-            }))
-          );
-        }
+              user: s.user || { id: s.user_id, name: "User", avatar: "" },
+            }));
+          }
+          return getStories().slice(0, 5).map((s) => ({
+            id: s.id,
+            img: s.img,
+            user: { id: s.user.id, name: s.user.name, avatar: s.user.avatar },
+          }));
+        });
+
+        if (mountedRef.current) setStories(data);
       } catch {
-        setStories(
-          getStories().map((s) => ({
+        if (mountedRef.current) setStories(
+          getStories().slice(0, 5).map((s) => ({
             id: s.id,
             img: s.img,
             user: { id: s.user.id, name: s.user.name, avatar: s.user.avatar },
           }))
         );
       } finally {
-        setLoading(false);
+        if (mountedRef.current) setLoading(false);
       }
     };
 
     fetchStories();
+    return () => { mountedRef.current = false; };
   }, []);
 
   const handleAddStory = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !userId) return;
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const ext = file.name.split(".").pop();
-      const filePath = `stories/${user.id}/${Date.now()}.${ext}`;
+      const filePath = `stories/${userId}/${Date.now()}.${ext}`;
 
       await supabase.storage.from("story-images").upload(filePath, file);
 
       const { data: urlData } = supabase.storage.from("story-images").getPublicUrl(filePath);
 
       await supabase.from("stories").insert({
-        user_id: user.id,
+        user_id: userId,
         img: urlData.publicUrl,
         expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       });
 
-      // Adiciona otimisticamente
-      setStories([
-        {
-          id: Date.now(),
-          img: urlData.publicUrl,
-          user: { id: user.id, name: "You", avatar: currentUser.avatar },
-        },
-        ...stories,
-      ]);
+      if (mountedRef.current) {
+        setStories((prev) => [
+          { id: Date.now(), img: urlData.publicUrl, user: { id: userId, name: "You", avatar: userAvatar } },
+          ...prev,
+        ]);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -127,7 +136,7 @@ const Stories = () => {
         {/* Add story */}
         <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => fileRef.current?.click()}>
           <div className="relative w-16 h-16 rounded-full ring-2 ring-blue-400 overflow-hidden">
-            <Image src={currentUser.avatar} alt="" fill className="object-cover" />
+            <Image src={userAvatar || "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg"} alt="" fill className="object-cover" />
             <div className="absolute bottom-0 right-0 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
               <FiPlus size={12} className="text-white" />
             </div>

@@ -2,26 +2,46 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { getPostsByUserId, getCurrentUser } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect } from "react";
+import { useTranslation } from "@/context/LanguageProvider";
 
 const UserMediaCard = ({ userId }: { userId: string }) => {
-  const posts = getPostsByUserId(userId);
-  const medias = posts.filter((p) => p.img).slice(0, 8);
+  const [medias, setMedias] = useState<string[]>([]);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const fetchMedia = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("posts")
+        .select("img")
+        .eq("user_id", userId)
+        .not("img", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(8);
+
+      if (!error && data) {
+        setMedias(data.map((p) => p.img).filter(Boolean) as string[]);
+      }
+    };
+    fetchMedia();
+  }, [userId]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md text-sm flex flex-col gap-4">
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-4 transition-colors">
       <div className="flex justify-between items-center font-medium">
-        <span className="text-gray-500">User Media</span>
-        <Link href="/" className="text-blue-500 text-xs">See all</Link>
+        <span className="text-gray-500 dark:text-gray-400">{t.profile.userMedia}</span>
+        <Link href="/" className="text-blue-500 text-xs">{t.profile.seeAll}</Link>
       </div>
 
       <div className="flex gap-3 justify-between flex-wrap">
         {medias.length === 0 ? (
-          <p className="text-gray-400 text-xs py-4">No media yet</p>
+          <p className="text-gray-400 dark:text-gray-500 text-xs py-4">{t.profile.noMedia}</p>
         ) : (
-          medias.map((post) => (
-            <div key={post.id} className="relative w-[calc(25%-9px)] aspect-square rounded-lg overflow-hidden">
-              <Image src={post.img!} alt="" fill className="object-cover hover:scale-110 transition duration-300" />
+          medias.map((img, i) => (
+            <div key={i} className="relative w-[calc(25%-9px)] aspect-square rounded-lg overflow-hidden">
+              <Image src={img} alt="" fill className="object-cover hover:scale-110 transition duration-300" />
             </div>
           ))
         )}

@@ -12,6 +12,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -34,6 +35,25 @@ export default function SignInPage() {
 
     router.push("/");
     router.refresh();
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError("Please enter your email first");
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${location.origin}/auth/callback?type=reset`,
+    });
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetSent(true);
+    }
+    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
@@ -98,8 +118,19 @@ export default function SignInPage() {
           <form onSubmit={handleSignIn}>
             <input type="text" placeholder={t.auth.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required />
             <input type="password" placeholder={t.auth.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div className="flex justify-end -mt-2">
+              <button type="button" onClick={handleForgotPassword} className="text-xs text-blue-400 hover:text-blue-300 transition cursor-pointer">
+                {t.auth.forgotPassword}
+              </button>
+            </div>
             <button type="submit" disabled={loading}>{loading ? t.auth.signingIn : t.auth.login}</button>
           </form>
+
+          {resetSent && (
+            <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-sm text-green-400 text-center">
+              Password reset link sent! Check your email.
+            </div>
+          )}
 
           <div className={styles.divider}><span>{t.auth.or}</span></div>
 

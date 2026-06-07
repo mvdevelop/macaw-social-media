@@ -10,7 +10,7 @@ import SearchModal from "./SearchModal";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { useAuth } from "@/context/AuthProvider";
 import { useState, useRef, useEffect } from "react";
-import { FiSearch, FiMessageSquare, FiLogOut, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiSearch, FiLogOut, FiSettings, FiChevronDown, FiUser } from "react-icons/fi";
 
 const Navbar = () => {
   const { user, loading, signOut } = useAuth();
@@ -53,16 +53,16 @@ const Navbar = () => {
 
         {/* Center - Navigation */}
         <div className="hidden md:flex items-center gap-1">
-          <Link href="/" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+          <Link href="/" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Home
           </Link>
-          <Link href="/friends" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+          <Link href="/friends" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Friends
           </Link>
-          <Link href="/marketplace" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+          <Link href="/marketplace" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Marketplace
           </Link>
-          <Link href="/groups" className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+          <Link href="/groups" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Groups
           </Link>
         </div>
@@ -84,14 +84,6 @@ const Navbar = () => {
 
           {/* Notifications */}
           <NotificationsDropdown />
-
-          {/* Messages - abre o ChatPanel via window event */}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("toggle-chat"))}
-            className="relative text-white/80 hover:text-white p-2 hover:bg-white/10 rounded-lg transition"
-          >
-            <FiMessageSquare size={20} />
-          </button>
 
           {/* User dropdown */}
           <div className="relative" ref={dropdownRef}>
@@ -115,7 +107,7 @@ const Navbar = () => {
               <FiChevronDown size={14} className={`transition ${dropdownOpen ? "rotate-180" : ""}`} />
             </button>
 
-            {dropdownOpen && (
+              {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden">
                 {/* User info header */}
                 <div className="px-4 py-3 border-b border-gray-100">
@@ -124,7 +116,18 @@ const Navbar = () => {
                 </div>
 
                 <Link
+                  href="/profile/me"
+                  prefetch={true}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
+                  onClick={() => setDropdownOpen(false)}
+                >
+                  <FiUser size={16} className="text-gray-400" />
+                  Profile
+                </Link>
+
+                <Link
                   href="/settings"
+                  prefetch={true}
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition"
                   onClick={() => setDropdownOpen(false)}
                 >

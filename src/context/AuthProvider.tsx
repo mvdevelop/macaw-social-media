@@ -37,9 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      router.refresh();
+      // Só recarrega a página em login/logout explícito,
+      // ignora TOKEN_REFRESH que ocorre silenciosamente
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        router.refresh();
+      }
     });
 
     return () => subscription.unsubscribe();

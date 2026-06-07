@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node scripts/generate-seed-data.js > supabase/seed-data.sql"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
