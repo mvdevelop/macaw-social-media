@@ -258,7 +258,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
             {/* Cover */}
             <div className="relative h-48 md:h-64 bg-gradient-to-r from-blue-400 to-purple-500 group">
               {user.cover && (
-                <Image src={user.cover} alt="Cover" fill className="object-cover" />
+                <Image src={user.cover} alt="Cover" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
               )}
 
               {/* Cover upload overlay (só para o próprio perfil) */}

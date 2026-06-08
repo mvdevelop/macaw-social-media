@@ -17,7 +17,7 @@ export default function MarketplacePage() {
         {items.map((item) => (
           <div key={item.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group dark:border dark:border-gray-700">
             <div className="relative h-48">
-              <Image src={item.img} alt={item.title} fill className="object-cover group-hover:scale-105 transition duration-300" />
+              <Image src={item.img} alt={item.title} fill sizes="(max-width: 768px) 100vw, 25vw" className="object-cover group-hover:scale-105 transition duration-300" />
               <button className="absolute top-3 right-3 w-8 h-8 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 transition">
                 <FiHeart size={16} className="text-gray-500 dark:text-gray-300" />
               </button>

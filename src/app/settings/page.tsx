@@ -84,7 +84,7 @@ export default function SettingsPage() {
           {/* Cover preview */}
           {profile.cover && (
             <div className="relative w-full h-32 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-              <Image src={profile.cover} alt="Cover" fill className="object-cover" />
+              <Image src={profile.cover} alt="Cover" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
             </div>
           )}
 
@@ -92,7 +92,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-4">
             <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 ring-4 ring-white dark:ring-gray-800 -mt-10">
               {profile.avatar ? (
-                <Image src={profile.avatar} alt="" fill className="object-cover" />
+                <Image src={profile.avatar} alt="" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-3xl text-gray-400">
                   {profile.name?.charAt(0)?.toUpperCase() || "U"}

@@ -18,8 +18,12 @@ const Birthdays = () => {
       {birthdays.map((user) => (
         <div key={user.id} className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
-            <span className="font-semibold text-sm text-gray-800 dark:text-white">{user.name} {user.surname}</span>
+            <Link href={`/profile/${user.id}`}>
+              <Image src={user.avatar} alt={user.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition" />
+            </Link>
+            <Link href={`/profile/${user.id}`} className="font-semibold text-sm text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition">
+              {user.name} {user.surname}
+            </Link>
           </div>
           <button className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-600 transition">
             {t.common.celebrate}

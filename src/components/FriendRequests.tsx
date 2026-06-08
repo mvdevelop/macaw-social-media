@@ -83,11 +83,13 @@ const FriendRequests = () => {
         requests.slice(0, 3).map((req) => (
           <div key={req.id} className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Image src={req.sender?.avatar || ""} alt={req.sender?.name || "User"} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+              <Link href={`/profile/${req.sender_id}`}>
+                <Image src={req.sender?.avatar || ""} alt={req.sender?.name || "User"} width={40} height={40} className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition" />
+              </Link>
               <div>
-                <span className="font-semibold text-sm text-gray-800 dark:text-white">
+                <Link href={`/profile/${req.sender_id}`} className="font-semibold text-sm text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition">
                   {req.sender?.name} {req.sender?.surname}
-                </span>
+                </Link>
                 <p className="text-xs text-gray-400">{req.sender?.city}</p>
               </div>
             </div>

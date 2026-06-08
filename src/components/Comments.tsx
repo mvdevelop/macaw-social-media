@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { createComment, likeComment } from "@/lib/actions";
 import { getCommentsByPostId, getCurrentUser } from "@/lib/mock-data";
@@ -32,15 +33,26 @@ const Comments = ({ postId }: { postId: number }) => {
 
   // Carrega avatar do usuário logado
   useEffect(() => {
-    const mock = getCurrentUser();
-    setUserAvatar(mock.avatar);
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      supabase.from("users").select("avatar").eq("id", user.id).single().then(({ data }) => {
+    const loadAvatar = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        // Não logado → usa mock
+        const mock = getCurrentUser();
+        if (mountedRef.current) setUserAvatar(mock.avatar);
+        return;
+      }
+      // Logado → usa avatar do Google/auth metadata primeiro
+      if (user.user_metadata?.avatar_url) {
+        setUserAvatar(user.user_metadata.avatar_url);
+      }
+      // Depois tenta buscar do Supabase (pode ter avatar customizado)
+      try {
+        const { data } = await supabase.from("users").select("avatar").eq("id", user.id).single();
         if (data?.avatar && mountedRef.current) setUserAvatar(data.avatar);
-      });
-    });
+      } catch {}
+    };
+    loadAvatar();
   }, []);
 
   useEffect(() => {
@@ -54,7 +66,7 @@ const Comments = ({ postId }: { postId: number }) => {
             .select("*, user:users(id, name, surname, avatar)")
             .eq("post_id", postId)
             .order("created_at", { ascending: true })
-            .limit(15); // Máximo 15 comentários por requisição (plano free)
+            .limit(50); // Limite seguro de 50 comentários por requisição
           if (error) throw error;
           if (data && data.length > 0) {
             return data.map((c: any) => ({
@@ -212,18 +224,20 @@ function CommentBlock({
     <div className="space-y-2">
       {/* Comment */}
       <div className="flex gap-3">
-        <Image
-          src={comment.user.avatar}
-          alt={comment.user.name}
-          width={36} height={36}
-          className="w-9 h-9 rounded-full object-cover shrink-0"
-        />
+        <Link href={`/profile/${comment.user.id}`} className="shrink-0">
+          <Image
+            src={comment.user.avatar}
+            alt={comment.user.name}
+            width={36} height={36}
+            className="w-9 h-9 rounded-full object-cover shrink-0 hover:opacity-90 transition"
+          />
+        </Link>
         <div className="flex-1 min-w-0">
           <div className="bg-gray-50 dark:bg-gray-700 rounded-xl px-4 py-2.5">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-semibold text-sm text-gray-800 dark:text-white">
+              <Link href={`/profile/${comment.user.id}`} className="font-semibold text-sm text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition">
                 {comment.user.name} {comment.user.surname}
-              </span>
+              </Link>
               <span className="text-xs text-gray-400">{formatDate(comment.createdAt)}</span>
             </div>
             <p className="text-sm text-gray-700 dark:text-gray-300">{comment.content}</p>
@@ -246,18 +260,20 @@ function CommentBlock({
         <div className="ml-10 space-y-2 border-l-2 border-gray-100 dark:border-gray-700 pl-4">
           {replies.map((reply) => (
             <div key={reply.id} className="flex gap-3">
-              <Image
-                src={reply.user.avatar}
-                alt={reply.user.name}
-                width={32} height={32}
-                className="w-8 h-8 rounded-full object-cover shrink-0"
-              />
+              <Link href={`/profile/${reply.user.id}`} className="shrink-0">
+                <Image
+                  src={reply.user.avatar}
+                  alt={reply.user.name}
+                  width={32} height={32}
+                  className="w-8 h-8 rounded-full object-cover shrink-0 hover:opacity-90 transition"
+                />
+              </Link>
               <div className="flex-1 min-w-0">
                 <div className="bg-gray-50/50 dark:bg-gray-700/50 rounded-xl px-4 py-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-sm text-gray-800 dark:text-white">
+                    <Link href={`/profile/${reply.user.id}`} className="font-semibold text-sm text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition">
                       {reply.user.name} {reply.user.surname}
-                    </span>
+                    </Link>
                     <span className="text-xs text-gray-400">{formatDate(reply.createdAt)}</span>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-300">{reply.content}</p>

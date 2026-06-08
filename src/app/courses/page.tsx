@@ -101,7 +101,7 @@ export default function CoursesPage() {
           {courses.filter(c => c.progress > 0).map((course) => (
             <div key={course.id} className="flex flex-col md:flex-row gap-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-700 rounded-xl p-4">
               <div className="relative w-full md:w-48 h-28 rounded-lg overflow-hidden shrink-0">
-                <Image src={course.thumbnail} alt={course.title} fill className="object-cover" />
+                <Image src={course.thumbnail} alt={course.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bold text-gray-800 dark:text-white">{course.title}</h3>
@@ -132,7 +132,7 @@ export default function CoursesPage() {
           {courses.map((course) => (
             <div key={course.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group">
               <div className="relative h-40">
-                <Image src={course.thumbnail} alt={course.title} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                <Image src={course.thumbnail} alt={course.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition duration-300" />
                 <div className="absolute top-3 left-3">
                   <span className="text-xs font-semibold text-white bg-black/50 px-2 py-0.5 rounded-full">
                     {course.category}

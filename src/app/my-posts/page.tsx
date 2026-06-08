@@ -78,7 +78,7 @@ export default function MyPostsPage() {
                 <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">{post.content}</p>
                 {post.img && (
                   <div className="relative w-full h-56 rounded-lg overflow-hidden mb-3">
-                    <Image src={post.img} alt="" fill className="object-cover" />
+                    <Image src={post.img} alt="" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
                   </div>
                 )}
                 <div className="flex items-center gap-4 text-xs text-gray-400">

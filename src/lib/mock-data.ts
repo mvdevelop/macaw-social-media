@@ -531,20 +531,34 @@ for (const post of posts.slice(0, 600)) { // comment on first 600 posts
 const comments = generatedComments;
 
 // ============================================
-// GENERATE STORIES (1 per user = 500 stories)
+// GENERATE STORIES (5+ per user = 2500+ stories)
 // ============================================
+const STORIES_PER_USER = 5;
 const generatedStories: MockStory[] = [];
+let storyId = 1;
+
 for (let i = 0; i < users.length; i++) {
   const user = users[i];
-  generatedStories.push({
-    id: i + 1,
-    img: user.avatar, // stories use user's own avatar/selfie
-    userId: user.id,
-    user,
-    createdAt: randDate(new Date("2026-06-01"), new Date("2026-06-08")),
-  });
+  const count = i === 0 ? 8 : STORIES_PER_USER; // user u1 (current user) tem 8 stories
+  for (let j = 0; j < count; j++) {
+    generatedStories.push({
+      id: storyId++,
+      img: pick(POST_IMG_POOL) ? pexelUrl(pick(POST_IMG_POOL)) : user.avatar,
+      userId: user.id,
+      user,
+      createdAt: randDate(new Date("2026-06-01"), new Date("2026-06-08")),
+    });
+  }
 }
 generatedStories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const storiesMap = new Map<string, MockStory[]>();
+for (const story of generatedStories) {
+  if (!storiesMap.has(story.userId)) {
+    storiesMap.set(story.userId, []);
+  }
+  storiesMap.get(story.userId)!.push(story);
+}
 
 const stories = generatedStories;
 
@@ -786,6 +800,14 @@ export function getCommentsByPostId(postId: number): MockComment[] {
 
 export function getStories(): MockStory[] {
   return stories;
+}
+
+export function getStoriesByUserId(userId: string): MockStory[] {
+  return generatedStories.filter((s) => s.userId === userId);
+}
+
+export function getGroupedStories(): Map<string, MockStory[]> {
+  return storiesMap;
 }
 
 export function getFriendRequests(): MockFriendRequest[] {

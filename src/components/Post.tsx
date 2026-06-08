@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import Comments from "./Comments";
 import { useState, useRef, useEffect } from "react";
 import { likePost, sharePost, deletePost, updatePost } from "@/lib/actions";
@@ -79,11 +80,13 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image src={post.user.avatar} alt={post.user.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
+          <Link href={`/profile/${post.user.id}`}>
+            <Image src={post.user.avatar} alt={post.user.name} width={40} height={40} className="w-10 h-10 rounded-full object-cover hover:opacity-90 transition" />
+          </Link>
           <div>
-            <span className="font-medium text-sm text-gray-800 dark:text-white">
+            <Link href={`/profile/${post.user.id}`} className="font-medium text-sm text-gray-800 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 transition">
               {post.user.name} {post.user.surname}
-            </span>
+            </Link>
             <p className="text-xs text-gray-400">{formatDate(post.createdAt)}</p>
           </div>
         </div>
@@ -139,7 +142,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
           {isVideo ? (
             <video src={post.img} controls className="w-full h-full object-contain" />
           ) : (
-            <Image src={post.img} alt="Post image" fill className="object-cover" />
+            <Image src={post.img} alt="Post image" fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover" />
           )}
         </div>
       )}

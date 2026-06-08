@@ -30,7 +30,7 @@ const UserInfoCard = ({ userId }: { userId: string }) => {
           .select("id")
           .eq("follower_id", authUser.id)
           .eq("following_id", userId)
-          .single();
+          .maybeSingle();
         setFollowing(!!followData);
       }
     };

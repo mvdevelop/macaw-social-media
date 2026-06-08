@@ -41,7 +41,7 @@ const UserMediaCard = ({ userId }: { userId: string }) => {
         ) : (
           medias.map((img, i) => (
             <div key={i} className="relative w-[calc(25%-9px)] aspect-square rounded-lg overflow-hidden">
-              <Image src={img} alt="" fill className="object-cover hover:scale-110 transition duration-300" />
+              <Image src={img} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover hover:scale-110 transition duration-300" />
             </div>
           ))
         )}

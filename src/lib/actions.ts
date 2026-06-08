@@ -3,11 +3,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB (plano free Supabase)
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB — seguro para plano free, com compressão client-side
+const MAX_VIDEO_SIZE = 15 * 1024 * 1024; // 15MB para vídeos
 
-function validateFileSize(file: File): void {
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error(`File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum is 1MB.`);
+function validateFileSize(file: File, isVideo = false): void {
+  const limit = isVideo ? MAX_VIDEO_SIZE : MAX_FILE_SIZE;
+  if (file.size > limit) {
+    const type = isVideo ? "Vídeo" : "Imagem";
+    throw new Error(
+      `${type} muito grande (${(file.size / 1024 / 1024).toFixed(1)}MB). ` +
+      `Máximo permitido: ${(limit / 1024 / 1024).toFixed(0)}MB.`
+    );
   }
 }
 
@@ -34,13 +40,17 @@ async function ensureUserExists(userId: string, email?: string) {
     .from("users")
     .select("id")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
   if (existing) return;
   const username = email?.split("@")[0] || `user_${userId.slice(0, 8)}`;
-  await supabase.from("users").insert({
+  const { error } = await supabase.from("users").insert({
     id: userId, username, name: username, surname: "",
     avatar: "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
   });
+  if (error && error.code !== "23505") {
+    // 23505 = duplicate key, ignora (corrida concorrente)
+    console.warn("ensureUserExists insert error:", error);
+  }
 }
 
 // ============================
@@ -50,6 +60,7 @@ export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
+  await ensureUserExists(user.id, user.email);
 
   const fields = ["name", "surname", "description", "city", "school", "work", "website"];
   const updates: Record<string, string> = {};
@@ -89,6 +100,7 @@ export async function updateProfileCover(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
+  await ensureUserExists(user.id, user.email);
 
   const cover = formData.get("cover") as File;
   if (!cover || cover.size === 0) throw new Error("No cover file");
@@ -127,8 +139,8 @@ export async function createPost(formData: FormData) {
   let imgUrl: string | null = null;
 
   if (media && media.size > 0) {
-    validateFileSize(media);
     const isVideo = media.type.startsWith("video/");
+    validateFileSize(media, isVideo);
     const ext = media.name.split(".").pop();
     const filePath = `${user.id}/${Date.now()}.${ext}`;
     const bucket = isVideo ? "post-videos" : "post-images";
@@ -140,6 +152,7 @@ export async function createPost(formData: FormData) {
   }
 
   const { error } = await supabase.from("posts").insert({
+    id: Date.now() * 1000 + Math.floor(Math.random() * 1000),
     user_id: user.id, content, img: imgUrl,
   });
   if (error) throw new Error(error.message);
@@ -177,11 +190,11 @@ export async function likePost(postId: number) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
   await ensureUserExists(user.id, user.email);
-  const { data: existing } = await supabase.from("likes").select("id").eq("user_id", user.id).eq("post_id", postId).single();
+  const { data: existing } = await supabase.from("likes").select("id").eq("user_id", user.id).eq("post_id", postId).maybeSingle();
   if (existing) {
     await supabase.from("likes").delete().eq("id", existing.id);
   } else {
-    await supabase.from("likes").insert({ user_id: user.id, post_id: postId });
+    await supabase.from("likes").insert({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), user_id: user.id, post_id: postId });
   }
   revalidatePath("/");
 }
@@ -190,9 +203,9 @@ export async function sharePost(postId: number) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
-  const { data: existing } = await supabase.from("shares").select("id").eq("user_id", user.id).eq("post_id", postId).single();
+  const { data: existing } = await supabase.from("shares").select("id").eq("user_id", user.id).eq("post_id", postId).maybeSingle();
   if (!existing) {
-    await supabase.from("shares").insert({ user_id: user.id, post_id: postId });
+    await supabase.from("shares").insert({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), user_id: user.id, post_id: postId });
   }
   revalidatePath("/");
 }
@@ -212,6 +225,7 @@ export async function createComment(formData: FormData) {
   if (!content?.trim()) throw new Error("Comentário vazio");
   if (!postId) throw new Error("Post ID obrigatório");
   const { error } = await supabase.from("comments").insert({
+    id: Date.now() * 1000 + Math.floor(Math.random() * 1000),
     content, user_id: user.id, post_id: postId, parent_id: parentId,
   });
   if (error) throw new Error(error.message);
@@ -222,11 +236,11 @@ export async function likeComment(commentId: number) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
-  const { data: existing } = await supabase.from("likes").select("id").eq("user_id", user.id).eq("comment_id", commentId).single();
+  const { data: existing } = await supabase.from("likes").select("id").eq("user_id", user.id).eq("comment_id", commentId).maybeSingle();
   if (existing) {
     await supabase.from("likes").delete().eq("id", existing.id);
   } else {
-    await supabase.from("likes").insert({ user_id: user.id, comment_id: commentId });
+    await supabase.from("likes").insert({ id: Date.now() * 1000 + Math.floor(Math.random() * 1000), user_id: user.id, comment_id: commentId });
   }
 }
 
@@ -274,13 +288,19 @@ export async function followUser(targetUserId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
   await ensureUserExists(user.id, user.email);
-  const { data: existing } = await supabase.from("followers").select("id").eq("follower_id", user.id).eq("following_id", targetUserId).single();
+  const { data: existing } = await supabase
+    .from("followers")
+    .select("id")
+    .eq("follower_id", user.id)
+    .eq("following_id", targetUserId)
+    .maybeSingle();
   if (existing) {
     await supabase.from("followers").delete().eq("id", existing.id);
   } else {
     await supabase.from("followers").insert({ follower_id: user.id, following_id: targetUserId });
   }
   revalidatePath("/");
+  revalidatePath(`/profile/${targetUserId}`);
 }
 
 export async function unfollowUser(targetUserId: string) {
@@ -299,6 +319,7 @@ export async function sendMessage(conversationId: number, content: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado");
   const { error } = await supabase.from("messages").insert({
+    id: Date.now() * 1000 + Math.floor(Math.random() * 1000),
     content, sender_id: user.id, conversation_id: conversationId,
   });
   if (error) throw new Error(error.message);

@@ -2,7 +2,7 @@
 // Otimização de imagens client-side para reduzir storage e banda
 // Converte para WebP, redimensiona e comprime ANTES do upload
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB (imagens comprimidas para WebP raramente passam disso)
 
 interface ProcessOptions {
   maxWidth?: number;

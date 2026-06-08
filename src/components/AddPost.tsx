@@ -19,19 +19,28 @@ const AddPost = () => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [avatar, setAvatar] = useState("");
 
-  // Carrega avatar do usuário real (com fallback mock)
+  // Carrega avatar do usuário real (auth metadata primeiro, depois mock se não logado)
   useEffect(() => {
-    // Fallback imediato com mock data
-    const mock = getCurrentUser();
-    setAvatar(mock.avatar);
-
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      supabase.from("users").select("avatar").eq("id", user.id).single().then(({ data }) => {
+    const loadAvatar = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        // Não logado → mock
+        const mock = getCurrentUser();
+        setAvatar(mock.avatar);
+        return;
+      }
+      // Logado → avatar do Google/auth metadata
+      if (user.user_metadata?.avatar_url) {
+        setAvatar(user.user_metadata.avatar_url);
+      }
+      // Tenta buscar avatar customizado do Supabase
+      try {
+        const { data } = await supabase.from("users").select("avatar").eq("id", user.id).single();
         if (data?.avatar) setAvatar(data.avatar);
-      });
-    });
+      } catch {}
+    };
+    loadAvatar();
   }, []);
 
   const handleMediaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +125,7 @@ const AddPost = () => {
 
           {preview && mediaType === "image" && (
             <div className="relative w-full h-40 rounded-lg overflow-hidden">
-              <Image src={preview} alt="Preview" fill className="object-cover" />
+              <Image src={preview} alt="Preview" fill sizes="(max-width: 768px) 100vw, 400px" className="object-cover" />
               <button
                 type="button"
                 onClick={clearMedia}

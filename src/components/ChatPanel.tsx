@@ -58,8 +58,19 @@ export default function ChatPanel() {
   }, []);
 
   const loadConversations = async (uid: string) => {
+    const supabase = createClient();
+
+    // Quick connectivity test - if conversations table doesn't exist, fallback to mock data
     try {
-      const supabase = createClient();
+      const { error: testError } = await supabase.from("conversations").select("id", { count: "exact", head: true });
+      if (testError) throw testError;
+    } catch {
+      setConversations(getConversations());
+      setUnreadTotal(getTotalUnreadMessages());
+      return;
+    }
+
+    try {
       const { data, error } = await supabase
         .from("conversation_participants")
         .select("conversation_id, conversation:conversations(id, updated_at), user:users!inner(*)")

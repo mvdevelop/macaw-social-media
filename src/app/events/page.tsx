@@ -17,7 +17,7 @@ export default function EventsPage() {
         {events.map((event) => (
           <div key={event.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row dark:border dark:border-gray-700">
             <div className="relative h-48 md:h-auto md:w-48 shrink-0">
-              <Image src={event.img} alt={event.title} fill className="object-cover" />
+              <Image src={event.img} alt={event.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             </div>
             <div className="p-5 flex flex-col justify-between flex-1">
               <div>

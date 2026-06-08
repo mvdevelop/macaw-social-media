@@ -134,7 +134,7 @@ export default function NewsPage() {
         {/* Featured article */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden mb-6 cursor-pointer hover:shadow-lg transition">
           <div className="relative h-64 md:h-80">
-            <Image src={newsArticles[0].image} alt={newsArticles[0].title} fill className="object-cover" />
+            <Image src={newsArticles[0].image} alt={newsArticles[0].title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6">
               <span className="text-xs font-semibold text-blue-300 bg-blue-900/50 px-2 py-1 rounded-full">
@@ -156,7 +156,7 @@ export default function NewsPage() {
           {newsArticles.slice(1).map((article) => (
             <div key={article.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer group">
               <div className="relative h-44">
-                <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                <Image src={article.image} alt={article.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-105 transition duration-300" />
                 <div className="absolute top-3 left-3">
                   <span className="text-xs font-semibold text-white bg-black/50 px-2 py-0.5 rounded-full">
                     {article.category}

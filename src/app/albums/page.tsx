@@ -44,7 +44,7 @@ export default function AlbumsPage() {
               <div key={album.name} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group cursor-pointer">
                 <div className="relative h-44">
                   {album.cover ? (
-                    <Image src={album.cover} alt={album.name} fill className="object-cover group-hover:scale-105 transition duration-300" />
+                    <Image src={album.cover} alt={album.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition duration-300" />
                   ) : (
                     <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                       <FiImage size={40} className="text-gray-300 dark:text-gray-600" />
@@ -66,7 +66,7 @@ export default function AlbumsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {allPostsWithImages.slice(0, 24).map((post) => (
             <div key={post.id} className="relative aspect-square rounded-lg overflow-hidden">
-              <Image src={post.img!} alt="" fill className="object-cover hover:scale-110 transition duration-300" />
+              <Image src={post.img!} alt="" fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover hover:scale-110 transition duration-300" />
             </div>
           ))}
         </div>

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import icon from "@/app/icon.png";
 import MobileMenu from "./MobileMenu";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitch from "./LanguageSwitch";

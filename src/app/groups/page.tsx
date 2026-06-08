@@ -17,7 +17,7 @@ export default function GroupsPage() {
         {groups.map((group) => (
           <div key={group.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group dark:border dark:border-gray-700">
             <div className="relative h-40">
-              <Image src={group.img} alt={group.name} fill className="object-cover group-hover:scale-105 transition duration-300" />
+              <Image src={group.img} alt={group.name} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover group-hover:scale-105 transition duration-300" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               <h3 className="absolute bottom-3 left-4 text-white font-bold text-lg">{group.name}</h3>
             </div>
