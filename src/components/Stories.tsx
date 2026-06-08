@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { FiPlus } from "react-icons/fi";
+import { useTranslation } from "@/context/LanguageProvider";
 import { useState, useEffect, useRef } from "react";
 import { getStories } from "@/lib/mock-data";
 import { getOrFetch } from "@/lib/cache";
@@ -20,6 +21,7 @@ interface StoryItem {
 }
 
 const Stories = () => {
+  const { t } = useTranslation();
   const [stories, setStories] = useState<StoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [userAvatar, setUserAvatar] = useState("");
@@ -141,7 +143,7 @@ const Stories = () => {
               <FiPlus size={12} className="text-white" />
             </div>
           </div>
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Your Story</span>
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{t.feed.yourStory}</span>
           <input ref={fileRef} type="file" accept="image/*" onChange={handleAddStory} className="hidden" />
         </div>
 

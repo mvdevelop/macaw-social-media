@@ -2,13 +2,15 @@
 // src/components/Ad.tsx
 
 import Image from "next/image";
+import { useTranslation } from "@/context/LanguageProvider";
 
 const Ad = ({ size } : { size: "sm" | "md" | "lg" }) => {
+  const { t } = useTranslation();
   return (
     <div className="p-4 bg-white rounded-lg shadow-md text-sm">
       {/* Top */}
       <div className="flex items-center justify-between text-gray-500 font-medium">
-        <span>Sponsored Ads</span>
+        <span>{t.common.sponsored}</span>
         <Image src='/more.png' alt="" width={16} height={16} className="cursor-pointer" />
       </div>
 
@@ -24,7 +26,7 @@ const Ad = ({ size } : { size: "sm" | "md" | "lg" }) => {
         <p className={size === 'sm' ? 'text-xs' : 'text-sm'}>
           {size === 'sm' ? 'BigChef Rio de Janeiro is a popular restaurant in the city. Come to see their delicious dishes and the amazing atmosphere.' : size === 'md' ? 'BigChef Rio de Janeiro is a popular restaurant in the city. Come to see their delicious dishes and the amazing atmosphere.' : 'BigChef Rio de Janeiro is a popular restaurant in the city. Come to see their delicious dishes and the amazing atmosphere.'}
         </p>
-        <button className="bg-gray-200 text-gray-500 p-2 text-xs rounded-lg">Learn more</button>
+        <button className="bg-gray-200 text-gray-500 p-2 text-xs rounded-lg">{t.common.learnMore}</button>
       </div>
     </div>
   );

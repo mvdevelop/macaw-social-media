@@ -6,12 +6,15 @@ import LeftMenu from "@/components/LeftMenu";
 import Feed from "@/components/Feed";
 import RightMenu from "@/components/RightMenu";
 import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { followUser, updateProfile, updateProfileCover } from "@/lib/actions";
 import { processUpload } from "@/lib/image-utils";
+import { getUserById, getPostsByUserId, getCurrentUser, getStories } from "@/lib/mock-data";
+import { useTranslation } from "@/context/LanguageProvider";
 import {
   FiCalendar, FiMapPin, FiUserPlus, FiUserCheck,
-  FiCamera, FiEdit2, FiSettings, FiCheck, FiX,
+  FiCamera, FiEdit2, FiSettings, FiCheck, FiX, FiArrowLeft,
 } from "react-icons/fi";
 
 interface ProfileUser {
@@ -26,12 +29,14 @@ interface ProfileUser {
   school: string;
   work: string;
   website: string;
-  created_at: string;
+  created_at?: string;
+  createdAt?: string;
 }
 
 export default function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { t } = useTranslation();
   const [user, setUser] = useState<ProfileUser | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -47,48 +52,60 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   const [savingBio, setSavingBio] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [isMockUser, setIsMockUser] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const supabase = createClient();
       const { data: { user: authUser } } = await supabase.auth.getUser();
-
-      if (!authUser) {
-        setError("Not authenticated");
-        setLoading(false);
-        return;
-      }
-
-      setCurrentUserId(authUser.id);
+      setCurrentUserId(authUser?.id || null);
 
       let targetId = id;
       if (id === "me") {
-        router.replace(`/profile/${authUser.id}`);
-        return;
+        if (authUser) {
+          router.replace(`/profile/${authUser.id}`);
+          return;
+        } else {
+          // Fallback: usa o mock user u1 como "meu perfil"
+          const mock = getCurrentUser();
+          setUser(mock as ProfileUser);
+          setIsMockUser(true);
+          setPostCount(getPostsByUserId(mock.id).length);
+          setFollowersCount(128);
+          setFollowingCount(56);
+          setLoading(false);
+          return;
+        }
       }
 
-      let { data: profile } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", targetId)
-        .single();
-
-      if (!profile && targetId === authUser.id) {
-        const username = authUser.email?.split("@")[0] || `user_${authUser.id.slice(0, 8)}`;
-        const { data: newUser } = await supabase
+      // Try Supabase first
+      let profile: any = null;
+      if (authUser) {
+        const { data } = await supabase
           .from("users")
-          .insert({
-            id: authUser.id, username,
-            name: authUser.user_metadata?.name || username, surname: "",
-            avatar: authUser.user_metadata?.avatar_url || "",
-          })
-          .select()
+          .select("*")
+          .eq("id", targetId)
           .single();
-        if (newUser) profile = newUser;
+        profile = data;
+      }
+
+      // Fallback: mock data
+      if (!profile) {
+        const mockUser = getUserById(targetId);
+        if (mockUser) {
+          setUser(mockUser as ProfileUser);
+          setIsMockUser(true);
+          setPostCount(getPostsByUserId(mockUser.id).length);
+          setFollowersCount(Math.floor(Math.random() * 500) + 10);
+          setFollowingCount(Math.floor(Math.random() * 200) + 5);
+          setBioText(mockUser.description || "");
+          setLoading(false);
+          return;
+        }
       }
 
       if (!profile) {
-        setError("User not found");
+        setError(t.profile.userNotFound);
         setLoading(false);
         return;
       }
@@ -118,7 +135,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
       if (fingCount !== null) setFollowingCount(fingCount);
 
       // Verifica follow
-      if (authUser.id !== targetId) {
+      if (authUser && authUser.id !== targetId) {
         const { data: follow } = await supabase
           .from("followers")
           .select("id")
@@ -135,7 +152,11 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   }, [id, router]);
 
   const handleFollowToggle = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      setIsFollowing(!isFollowing);
+      setFollowersCount((c) => (isFollowing ? Math.max(0, c - 1) : c + 1));
+      return;
+    }
     setIsFollowing(!isFollowing);
     if (isFollowing) setFollowersCount((c) => Math.max(0, c - 1));
     else setFollowersCount((c) => c + 1);
@@ -145,16 +166,15 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !currentUserId) return;
     setUploadingCover(true);
     try {
       const { blob } = await processUpload(file, "cover");
       const fd = new FormData();
       fd.append("cover", blob, "cover.webp");
       await updateProfileCover(fd);
-      // Recarrega usuário
       const supabase = createClient();
-      const { data } = await supabase.from("users").select("*").eq("id", currentUserId!).single();
+      const { data } = await supabase.from("users").select("*").eq("id", currentUserId).single();
       if (data) setUser(data as ProfileUser);
     } catch (err: any) { alert(err.message); }
     finally { setUploadingCover(false); if (e.target) e.target.value = ""; }
@@ -162,7 +182,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !currentUserId) return;
     setUploadingAvatar(true);
     try {
       const { blob } = await processUpload(file, "avatar");
@@ -172,7 +192,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
       fd.append("surname", user?.surname || "");
       await updateProfile(fd);
       const supabase = createClient();
-      const { data } = await supabase.from("users").select("*").eq("id", currentUserId!).single();
+      const { data } = await supabase.from("users").select("*").eq("id", currentUserId).single();
       if (data) setUser(data as ProfileUser);
     } catch (err: any) { alert(err.message); }
     finally { setUploadingAvatar(false); if (e.target) e.target.value = ""; }
@@ -193,7 +213,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
     finally { setSavingBio(false); }
   };
 
-  const isOwnProfile = currentUserId === user?.id;
+  const isOwnProfile = currentUserId === user?.id || (isMockUser && id === "me");
 
   if (loading) {
     return (
@@ -206,13 +226,10 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
   if (error || !user) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-400">{error || "User not found"}</p>
-        {currentUserId && (
-          <button onClick={() => router.push(`/profile/${currentUserId}`)}
-            className="text-blue-500 text-sm hover:underline">
-            Go to my profile
-          </button>
-        )}
+        <p className="text-gray-400">{error || t.profile.userNotFound}</p>
+        <Link href="/" className="text-blue-500 text-sm hover:underline">
+          {t.profile.goToHome}
+        </Link>
       </div>
     );
   }
@@ -225,6 +242,17 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
       <div className="w-full lg:w-[70%] xl:w-[50%]">
         <div className="flex flex-col gap-6">
+          {/* Top bar */}
+          <div className="flex items-center gap-3">
+            <Link href="/" className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition">
+              <FiArrowLeft size={20} className="text-gray-600 dark:text-gray-400" />
+            </Link>
+            <div>
+              <h1 className="font-bold text-gray-800 dark:text-white">{user.name} {user.surname}</h1>
+              <p className="text-xs text-gray-400">{postCount} {t.profile.posts}</p>
+            </div>
+          </div>
+
           {/* Profile Card */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-colors">
             {/* Cover */}
@@ -234,7 +262,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
               )}
 
               {/* Cover upload overlay (só para o próprio perfil) */}
-              {isOwnProfile && (
+              {isOwnProfile && !isMockUser && (
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
                   <button
                     onClick={() => coverInputRef.current?.click()}
@@ -246,7 +274,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                     ) : (
                       <FiCamera size={16} />
                     )}
-                    {uploadingCover ? "Uploading..." : "Change Cover"}
+                    {uploadingCover ? t.profile.uploading : t.profile.changeCover}
                   </button>
                 </div>
               )}
@@ -255,7 +283,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
 
             <div className="relative px-4 pb-4">
               <div className="flex flex-col items-center -mt-16">
-                {/* Avatar com overlay de câmera */}
+                {/* Avatar */}
                 <div className="relative group">
                   <div className="w-28 h-28 rounded-full ring-4 ring-white dark:ring-gray-800 overflow-hidden bg-gray-100">
                     {user.avatar ? (
@@ -266,20 +294,6 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                       </div>
                     )}
                   </div>
-
-                  {isOwnProfile && (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      onClick={() => avatarInputRef.current?.click()}>
-                      <div className="w-28 h-28 rounded-full bg-black/40 flex items-center justify-center">
-                        {uploadingAvatar ? (
-                          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <FiCamera size={22} className="text-white" />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
                 </div>
 
                 {/* Nome + username */}
@@ -287,53 +301,15 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                   <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
                     {user.name} {user.surname}
                   </h1>
-                  {isOwnProfile && (
-                    <button onClick={() => router.push("/settings")}
-                      className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition"
-                      title="Edit profile">
-                      <FiEdit2 size={14} />
-                    </button>
-                  )}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</p>
 
-                {/* Bio editável */}
-                {isOwnProfile && editingBio ? (
-                  <div className="mt-2 w-full max-w-md space-y-2">
-                    <textarea
-                      value={bioText}
-                      onChange={(e) => setBioText(e.target.value)}
-                      className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 dark:text-white resize-none"
-                      rows={3}
-                      placeholder="Write something about yourself..."
-                    />
-                    <div className="flex gap-2 justify-center">
-                      <button onClick={() => { setEditingBio(false); setBioText(user.description || ""); }}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
-                        <FiX size={14} /> Cancel
-                      </button>
-                      <button onClick={handleSaveBio} disabled={savingBio}
-                        className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50">
-                        <FiCheck size={14} /> {savingBio ? "Saving..." : "Save"}
-                      </button>
-                    </div>
-                  </div>
-                ) : user.description ? (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 max-w-md text-center group relative">
+                {/* Bio */}
+                {user.description && (
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 max-w-md text-center">
                     {user.description}
-                    {isOwnProfile && (
-                      <button onClick={() => setEditingBio(true)}
-                        className="ml-2 text-gray-400 hover:text-blue-500 transition opacity-0 group-hover:opacity-100 inline">
-                        <FiEdit2 size={12} className="inline" />
-                      </button>
-                    )}
                   </p>
-                ) : isOwnProfile ? (
-                  <button onClick={() => setEditingBio(true)}
-                    className="text-sm text-gray-400 hover:text-blue-500 mt-2 transition">
-                    + Add bio
-                  </button>
-                ) : null}
+                )}
 
                 {/* Location + Date */}
                 <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
@@ -345,7 +321,7 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                   )}
                   <div className="flex items-center gap-1">
                     <FiCalendar size={14} />
-                    <span>Joined {new Date(user.created_at || Date.now()).getFullYear()}</span>
+                    <span>{t.profile.joined} {new Date(user.created_at || user.createdAt || Date.now()).getFullYear()}</span>
                   </div>
                 </div>
 
@@ -353,15 +329,15 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                 <div className="flex items-center gap-8 mt-4 mb-4">
                   <div className="text-center">
                     <span className="font-bold text-gray-800 dark:text-white">{postCount}</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Posts</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.profile.posts}</p>
                   </div>
                   <div className="text-center">
                     <span className="font-bold text-gray-800 dark:text-white">{followersCount}</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Followers</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.profile.followers}</p>
                   </div>
                   <div className="text-center">
                     <span className="font-bold text-gray-800 dark:text-white">{followingCount}</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Following</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.profile.following}</p>
                   </div>
                 </div>
 
@@ -372,22 +348,42 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                       className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-sm transition ${
                         isFollowing
                           ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 hover:text-red-500"
-                          : "bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white hover:opacity-90"
+                          : "bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white hover:opacity-90"
                       }`}>
                       {isFollowing ? <FiUserCheck size={16} /> : <FiUserPlus size={16} />}
-                      {isFollowing ? "Following" : "Follow"}
+                      {isFollowing ? t.profile.following : t.profile.follow}
                     </button>
-                  ) : (
+                  ) : currentUserId && !isMockUser ? (
                     <button onClick={() => router.push("/settings")}
                       className="flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                       <FiSettings size={16} />
-                      Edit Profile
+                      {t.profile.editProfileBtn}
                     </button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Stories section for this user */}
+          {isMockUser && (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">{t.profile.stories}</h3>
+              <div className="flex gap-3 overflow-x-auto">
+                {getStories().filter(s => s.userId === user.id).slice(0, 5).map((story) => (
+                  <div key={story.id} className="flex flex-col items-center gap-1 cursor-pointer shrink-0">
+                    <div className="w-16 h-16 rounded-full ring-2 ring-pink-400 overflow-hidden">
+                      <Image src={story.img} alt="" width={64} height={64} className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-xs text-gray-500">{story.user.name}</span>
+                  </div>
+                ))}
+                {getStories().filter(s => s.userId === user.id).length === 0 && (
+                  <p className="text-xs text-gray-400 py-4">{t.profile.noStories}</p>
+                )}
+              </div>
+            </div>
+          )}
 
           <Feed />
         </div>

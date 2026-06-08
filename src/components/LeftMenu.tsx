@@ -3,20 +3,23 @@
 import Link from "next/link";
 import ProfileCard from "./ProfileCard";
 import Ad from "./Ad";
+import { useTranslation } from "@/context/LanguageProvider";
 import { FiGrid, FiActivity, FiShoppingBag, FiCalendar, FiImage, FiVideo, FiGlobe, FiBookOpen, FiList, FiSettings } from "react-icons/fi";
 
 const LeftMenu = ({ type }: { type: "home" | "profile" }) => {
+  const { t } = useTranslation();
+
   const links = [
-    { href: "/", icon: FiGrid, label: "My Posts" },
-    { href: "/", icon: FiActivity, label: "Activity" },
-    { href: "/marketplace", icon: FiShoppingBag, label: "Marketplace" },
-    { href: "/events", icon: FiCalendar, label: "Events" },
-    { href: "/", icon: FiImage, label: "Albums" },
-    { href: "/", icon: FiVideo, label: "Videos" },
-    { href: "/", icon: FiGlobe, label: "News" },
-    { href: "/", icon: FiBookOpen, label: "Courses" },
-    { href: "/", icon: FiList, label: "Lists" },
-    { href: "/settings", icon: FiSettings, label: "Settings" },
+    { href: "/my-posts", icon: FiGrid, label: t.sidebar.myPosts },
+    { href: "/activity", icon: FiActivity, label: t.sidebar.activity },
+    { href: "/marketplace", icon: FiShoppingBag, label: t.nav.marketplace },
+    { href: "/events", icon: FiCalendar, label: t.events.title },
+    { href: "/albums", icon: FiImage, label: t.sidebar.albums },
+    { href: "/videos", icon: FiVideo, label: t.sidebar.videos },
+    { href: "/news", icon: FiGlobe, label: t.sidebar.news },
+    { href: "/courses", icon: FiBookOpen, label: t.sidebar.courses },
+    { href: "/lists", icon: FiList, label: t.sidebar.lists },
+    { href: "/settings", icon: FiSettings, label: t.nav.settings },
   ];
 
   return (

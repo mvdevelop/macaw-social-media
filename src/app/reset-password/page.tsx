@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/context/LanguageProvider";
+import MacawIcon from "@/components/MacawIcon";
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -15,14 +18,14 @@ export default function ResetPasswordPage() {
     // Verifica se tem o hash de recovery na URL (enviado pelo Supabase)
     const hash = window.location.hash;
     if (!hash || !hash.includes("type=recovery")) {
-      setError("Invalid or expired reset link. Please request a new one.");
+      setError(t.resetPassword.invalidLink);
     }
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t.resetPassword.validation);
       return;
     }
     setError(null);
@@ -41,17 +44,17 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0052FF] via-[#6825FF] to-[#C100FF] flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex items-center justify-center px-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-6">
-          <span className="text-4xl">🦜</span>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white mt-2">Reset Password</h1>
+          <MacawIcon size={48} className="block mx-auto" />
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white mt-2">{t.resetPassword.title}</h1>
         </div>
 
         {success ? (
           <div className="text-center">
-            <p className="text-green-500 font-semibold mb-2">✓ Password updated successfully!</p>
-            <p className="text-sm text-gray-400">Redirecting to sign in...</p>
+            <p className="text-green-500 font-semibold mb-2">{t.resetPassword.success}</p>
+            <p className="text-sm text-gray-400">{t.resetPassword.redirecting}</p>
           </div>
         ) : (
           <form onSubmit={handleReset} className="space-y-4">
@@ -60,7 +63,7 @@ export default function ResetPasswordPage() {
             )}
             <input
               type="password"
-              placeholder="New password"
+              placeholder={t.resetPassword.newPassword}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               minLength={6}
@@ -72,7 +75,7 @@ export default function ResetPasswordPage() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
             >
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? t.resetPassword.updating : t.resetPassword.updatePassword}
             </button>
           </form>
         )}

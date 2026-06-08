@@ -11,6 +11,17 @@ const es: Translations = {
     signOut: "Cerrar Sesión",
   },
 
+  // Sidebar
+  sidebar: {
+    myPosts: "Mis Publicaciones",
+    activity: "Actividad",
+    albums: "Álbumes",
+    videos: "Videos",
+    news: "Noticias",
+    courses: "Cursos",
+    lists: "Listas",
+  },
+
   landing: {
     title: "Macaw",
     subtitle: "Conecta. Comparte. Descubre.",
@@ -61,6 +72,88 @@ const es: Translations = {
     reply: "Responder",
     yourStory: "Tu Historia",
     addStory: "Añadir Historia",
+    edit: "Editar",
+    delete: "Eliminar",
+    cancel: "Cancelar",
+    saving: "Guardando...",
+    save: "Guardar",
+    confirmDelete: "Eliminar esta publicación?",
+    minAgo: "min atrás",
+    hoursAgo: "h atrás",
+    daysAgo: "d atrás",
+  },
+
+  // Search
+  search: {
+    placeholder: "Buscar usuarios, publicaciones...",
+    all: "Todo",
+    people: "Personas",
+    posts: "Publicaciones",
+    empty: "Escribe para buscar usuarios y publicaciones",
+    noResults: "Sin resultados para",
+  },
+
+  // Notifications
+  notifications: {
+    title: "Notificaciones",
+    markAllRead: "Marcar todo como leído",
+    empty: "Sin notificaciones aún",
+    liked: "le gustó tu publicación",
+    commented: "comentó en tu publicación",
+    followed: "comenzó a seguirte",
+    friendRequest: "te envió una solicitud de amistad",
+    shared: "compartió tu publicación",
+    message: "te envió un mensaje",
+  },
+
+  // Chat
+  chat: {
+    messages: "Mensajes",
+    typeMessage: "Escribe un mensaje...",
+    noConversations: "Sin conversaciones aún",
+    yesterday: "Ayer",
+  },
+
+  // Add Post
+  addPost: {
+    placeholder: "¿Qué estás pensando?",
+    image: "Imagen",
+    video: "Video",
+    send: "Enviar",
+    posting: "Publicando...",
+  },
+
+  // Settings
+  settings: {
+    title: "Ajustes",
+    myPosts: "Mis Publicaciones",
+    avatar: "Avatar",
+    cover: "Portada",
+    bio: "Bio",
+    saveChanges: "Guardar Cambios",
+    saving: "Guardando...",
+    saved: "¡Guardado!",
+    confirmDelete: "Eliminar esta publicación?",
+    noPosts: "Sin publicaciones aún.",
+    hasImage: "Tiene imagen",
+    firstName: "Nombre",
+    lastName: "Apellido",
+    city: "Ciudad",
+    school: "Escuela",
+    work: "Trabajo",
+    website: "Sitio web",
+  },
+
+  // Reset Password
+  resetPassword: {
+    title: "Restablecer Contraseña",
+    validation: "La contraseña debe tener al menos 6 caracteres",
+    success: "✓ ¡Contraseña actualizada exitosamente!",
+    redirecting: "Redirigiendo al inicio de sesión...",
+    newPassword: "Nueva contraseña",
+    updatePassword: "Actualizar Contraseña",
+    updating: "Actualizando...",
+    invalidLink: "Enlace de restablecimiento inválido o expirado. Solicita uno nuevo.",
   },
 
   profile: {
@@ -78,6 +171,21 @@ const es: Translations = {
     wentTo: "Estudió en",
     worksAt: "Trabaja en",
     joined: "Se unió en",
+    changeCover: "Cambiar Portada",
+    uploading: "Subiendo...",
+    editProfile: "Editar perfil",
+    addBio: "+ Añadir biografía",
+    bioPlaceholder: "Escribe algo sobre ti...",
+    cancel: "Cancelar",
+    save: "Guardar",
+    saving: "Guardando...",
+    editProfileBtn: "Editar Perfil",
+    notAuthenticated: "No autenticado",
+    userNotFound: "Usuario no encontrado",
+    goToMyProfile: "Ir a mi perfil",
+    goToHome: "Ir al Inicio",
+    stories: "Historias",
+    noStories: "Sin historias aún",
   },
 
   friends: {
@@ -116,6 +224,64 @@ const es: Translations = {
     rights: "Todos los derechos reservados.",
     friendRequests: "Solicitudes de Amistad",
     birthdays: "Cumpleaños",
+  },
+
+  // My Posts
+  myPosts: {
+    title: "Mis Publicaciones",
+    empty: "Sin publicaciones aún. ¡Comparte tu primera publicación!",
+  },
+
+  // Activity
+  activity: {
+    title: "Actividad",
+    empty: "Sin actividad reciente.",
+    liked: "le gustó tu publicación",
+    commented: "comentó en tu publicación",
+    followed: "te siguió",
+    friendRequest: "te envió una solicitud de amistad",
+  },
+
+  // Albums
+  albums: {
+    title: "Álbumes",
+    empty: "Sin álbumes aún.",
+    photos: "fotos",
+  },
+
+  // Videos
+  videos: {
+    title: "Videos",
+    empty: "Sin videos aún.",
+  },
+
+  // News
+  news: {
+    title: "Noticias",
+    empty: "Sin noticias disponibles.",
+    readMore: "Leer más",
+    minAgo: "min atrás",
+    hoursAgo: "horas atrás",
+    daysAgo: "días atrás",
+  },
+
+  // Courses
+  courses: {
+    title: "Cursos",
+    empty: "Sin cursos disponibles.",
+    lessons: "lecciones",
+    enrolled: "inscritos",
+    start: "Iniciar Curso",
+    continue: "Continuar",
+    progress: "Progreso",
+  },
+
+  // Lists
+  lists: {
+    title: "Listas",
+    empty: "Sin listas guardadas aún.",
+    items: "elementos",
+    createList: "Crear Lista",
   },
 };
 

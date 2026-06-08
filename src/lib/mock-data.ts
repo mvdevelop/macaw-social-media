@@ -1,8 +1,209 @@
 // ============================================
 // MOCK DATA - Macaw Social Media
-// Simula os dados que viriam do Supabase
+// Gera 500+ usuários + posts + interações
+// Imagens via Pexels (web), sem upload ao DB
 // ============================================
 
+// ============================================
+// SEEDED PRNG (mulberry32)
+// ============================================
+function createRng(seed: number) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const RNG = createRng(42);
+
+function pick<T>(arr: T[]): T {
+  return arr[Math.floor(RNG() * arr.length)];
+}
+
+function pickN<T>(arr: T[], n: number): T[] {
+  const copy = [...arr];
+  const result: T[] = [];
+  for (let i = 0; i < n && copy.length > 0; i++) {
+    const idx = Math.floor(RNG() * copy.length);
+    result.push(copy.splice(idx, 1)[0]);
+  }
+  return result;
+}
+
+function randInt(min: number, max: number): number {
+  return Math.floor(RNG() * (max - min + 1)) + min;
+}
+
+function randDate(start: Date, end: Date): string {
+  const d = new Date(start.getTime() + RNG() * (end.getTime() - start.getTime()));
+  return d.toISOString();
+}
+
+function randDateStr(start: Date, end: Date): string {
+  const d = new Date(start.getTime() + RNG() * (end.getTime() - start.getTime()));
+  return d.toISOString().split("T")[0];
+}
+
+// ============================================
+// NAME POOLS
+// ============================================
+const FIRST_NAMES_M = [
+  "James","Robert","Michael","David","Daniel","Matthew","Andrew","Christopher","Joseph","William",
+  "Ryan","Nicholas","Jacob","Tyler","Brandon","Justin","Kevin","Thomas","Brian","Jason",
+  "Lucas","Liam","Noah","Oliver","Elijah","Ethan","Mason","Logan","Alexander","Henry",
+  "Sebastian","Jack","Owen","Aiden","Samuel","Luke","Dylan","Nathan","Caleb","Gabriel",
+  "Benjamin","Isaac","Julian","Anthony","Adrian","Cameron","Diego","Hunter","Juan","Cole",
+  "Pedro","Luca","Mateo","Santiago","Joaquin","Thiago","Rafael","Enzo","Nicolas","Gael",
+  "Léo","Arthur","Heitor","Davi","Bernardo","Miguel","Vicente","Caio","Bruno","Felipe",
+  "Gustavo","Rafael","Vitor","Igor","Renato","Marcos","Paulo","Sergio","André","Ricardo",
+  "Eduardo","Alex","Marco","Antonio","Carlos","Jorge","Luis","Fernando","Roberto","Mario",
+];
+const FIRST_NAMES_F = [
+  "Mary","Patricia","Jennifer","Linda","Elizabeth","Barbara","Susan","Jessica","Sarah","Karen",
+  "Emma","Olivia","Ava","Sophia","Isabella","Mia","Charlotte","Amelia","Harper","Evelyn",
+  "Abigail","Emily","Ella","Avery","Sofia","Camila","Aria","Scarlett","Victoria","Madison",
+  "Luna","Grace","Chloe","Penelope","Layla","Riley","Zoey","Nora","Lily","Eleanor",
+  "Valentina","Isabella","Samantha","Gabriella","Alice","Julia","Laura","Helena","Beatriz","Manuela",
+  "Sofia","Isadora","Mariana","Clara","Larissa","Letícia","Amanda","Vanessa","Patricia","Carla",
+  "Ana","Fernanda","Bruna","Camila","Daniela","Eduarda","Gabriela","Jessica","Luciana","Marina",
+  "Rafaela","Renata","Sabrina","Tatiane","Vivian","Adriana","Bianca","Cristina","Debora","Elaine",
+  "Fabiana","Giovana","Heloisa","Irene","Juliana","Karina","Lorena","Monica","Nathalia","Priscila",
+];
+const LAST_NAMES = [
+  "Smith","Johnson","Williams","Brown","Jones","Garcia","Miller","Davis","Rodriguez","Martinez",
+  "Hernandez","Lopez","Gonzalez","Wilson","Anderson","Thomas","Taylor","Moore","Jackson","Martin",
+  "Lee","Perez","Thompson","White","Harris","Sanchez","Clark","Ramirez","Lewis","Robinson",
+  "Walker","Young","Allen","King","Wright","Scott","Torres","Nguyen","Hill","Flores",
+  "Green","Adams","Nelson","Baker","Hall","Rivera","Campbell","Mitchell","Carter","Roberts",
+  "Silva","Santos","Oliveira","Souza","Lima","Pereira","Costa","Ferreira","Almeida","Barbosa",
+  "Ribeiro","Carvalho","Araújo","Cavalcanti","Dias","Moreira","Melo","Rocha","Vieira","Martins",
+  "Mendes","Nunes","Soares","Ramos","Correia","Neves","Teixeira","Fernandes","Castro","Azevedo",
+  "Cardoso","Cunha","Duarte","Esteves","Fonseca","Godoi","Guimarães","Henriques","Leite","Lopes",
+];
+const CITIES = [
+  "New York, NY","Los Angeles, CA","Chicago, IL","Houston, TX","Phoenix, AZ","Philadelphia, PA",
+  "San Antonio, TX","San Diego, CA","Dallas, TX","San Jose, CA","Austin, TX","Jacksonville, FL",
+  "Fort Worth, TX","Columbus, OH","Charlotte, NC","Indianapolis, IN","San Francisco, CA",
+  "Seattle, WA","Denver, CO","Nashville, TN","Portland, OR","Miami, FL","Atlanta, GA",
+  "Boston, MA","Detroit, MI","Minneapolis, MN","Salt Lake City, UT","Orlando, FL",
+  "Raleigh, NC","Kansas City, MO","Cincinnati, OH","Cleveland, OH","Tampa, FL",
+  "São Paulo, SP","Rio de Janeiro, RJ","Belo Horizonte, MG","Salvador, BA","Fortaleza, CE",
+  "Brasília, DF","Curitiba, PR","Recife, PE","Porto Alegre, RS","Manaus, AM",
+  "Lisbon, Portugal","Porto, Portugal","London, UK","Manchester, UK","Berlin, Germany",
+  "Munich, Germany","Paris, France","Madrid, Spain","Barcelona, Spain","Rome, Italy",
+  "Tokyo, Japan","Seoul, South Korea","Sydney, Australia","Melbourne, Australia",
+  "Toronto, Canada","Vancouver, Canada","Mexico City, Mexico","Bogotá, Colombia",
+  "Buenos Aires, Argentina","Santiago, Chile","Lima, Peru","Quito, Ecuador",
+];
+const SCHOOLS = [
+  "University of California","NYU","Stanford University","MIT","Harvard University",
+  "University of Michigan","UCLA","University of Texas","Columbia University",
+  "University of Florida","University of Chicago","USC","Princeton University",
+  "University of Washington","Duke University","Northwestern University",
+  "USP","UNICAMP","UFRJ","UFMG","PUC-SP","FGV",
+  "University of Oxford","University of Cambridge","Imperial College London",
+  "University of Tokyo","Seoul National University","University of Sydney",
+  "University of Toronto","Sorbonne University","University of Barcelona",
+  "University of São Paulo","Federal University of Rio de Janeiro",
+  "Lincoln High School","Washington High School","Jefferson High School",
+  "Central High School","West High School","East High School","North High School",
+  "Colegio São Bento","Colegio Bandeirantes","Colegio Santa Maria",
+  "St. Mary's Academy","St. Joseph's School","St. Paul's School",
+];
+const COMPANIES = [
+  "Google","Apple","Microsoft","Amazon","Meta","Netflix","Uber","Airbnb","Spotify","Twitter",
+  "Tesla","SpaceX","Adobe","Salesforce","Oracle","IBM","Intel","Cisco","Dell","HP",
+  "Nubank","Stone","PagSeguro","iFood","QuintoAndar","Loft","VTEX","Mercado Livre",
+  "Freelance Designer","Self-Employed","Startup Founder","Digital Creator",
+  "Local Business Owner","Restaurant Owner","Photography Studio","Consulting Agency",
+  "Hospital das Clínicas","Sírio-Libanês Hospital","Albert Einstein Hospital",
+  "Mackenzie University","UNESP","University of Brasília",
+];
+const BIOS = [
+  "Software developer passionate about creating elegant solutions to complex problems.",
+  "Photographer & digital artist. Capturing moments that matter.",
+  "Travel enthusiast exploring the world one city at a time.",
+  "Fitness coach & yoga instructor helping people live their best lives.",
+  "Musician, composer, and producer. Music is life.",
+  "Food lover and amateur chef. Always trying new recipes.",
+  "Writer & poet. Words are my superpower.",
+  "Digital marketer helping brands grow their online presence.",
+  "Architect by profession, artist by heart.",
+  "Data scientist exploring the intersection of AI and human creativity.",
+  "Fashion enthusiast & style consultant.",
+  "Entrepreneur building the next big thing.",
+  "Teacher inspiring young minds every day.",
+  "Doctor dedicated to making healthcare accessible to all.",
+  "Environmental activist fighting for a greener planet.",
+  "Video game developer and esports enthusiast.",
+  "Film buff and aspiring director.",
+  "Animal lover and volunteer at local shelters.",
+  "Yoga practitioner finding balance in a chaotic world.",
+  "Coffee addict and bookworm. Perfect combo.",
+  "Running marathons and chasing dreams.",
+  "Painter and visual artist. The canvas is my world.",
+  "Crypto enthusiast and blockchain developer.",
+  "Psychology student understanding the human mind.",
+  "Marine biologist passionate about ocean conservation.",
+  "History buff and museum curator.",
+  "Astronomy lover. Looking up at the stars.",
+  "Chef de cuisine creating gastronomic experiences.",
+  "Fashion designer with a sustainable approach.",
+  "Volunteer teacher. Education changes lives.",
+];
+const WEBSITES = [
+  ".com",".dev",".io",".co",".blog",".portfolio",".me",".design",".photo",".travel",
+];
+const USERNAME_PREFIXES = [
+  "the","real","official","mr","ms","its","just","hey","im","_",
+];
+
+// ============================================
+// PEXELS IMAGE POOLS (verified working photo IDs)
+// ============================================
+const AVATAR_POOL = [
+  "12198960","35496265","35525012","35590309","35554037","35634366","35443625","35655771",
+  "35360579","35350413","35565461","34374535","18465582","27585749","18289481",
+  "35729138","35701815","35680942","35639714","35586994","35577172","35563658",
+  "35548297","35528023","35515960","35500894","35487966","35474906","35459874",
+  "35438821","35421139","35409963","35396873","35382479","35369567","35357186",
+  "35342149","35329736","35317558","35305062","35291387","35278481","35266321",
+  "35253964","35241895","35228723","35216378","35204037","35192852","35180583",
+  "35169063","35157343","35144974","35126636","35114204","35102341","35090740",
+  "35078829","35067414","35055479","35042831","35030704","35018940","35007035",
+  "34994106","34982942","34971057","34959733","34947430","34935582","34923707",
+  "34912292","34900875","34888162","34875644","34863638","34852157","34840173",
+  "34828140","34816170","34804041","34791787","34780380","34768842","34757172",
+  "34745402","34733854","34722286","34710569","34698826","34687236","34675622",
+  "34663847","34652037","34640393","34628701","34617039","34605380","34593774",
+];
+const COVER_POOL = [
+  "2504709","17584747","35350413","35565461","34374535","35655771","18465582",
+  "27585749","18289481","35360579","35729138","35701815","35680942","35639714",
+  "35586994","35577172","35563658","35548297","35528023","35515960","35500894",
+  "35487966","35474906","35459874","35438821","35421139","35409963","35396873",
+  "35382479","35369567","35357186","35342149","35329736","35317558","35305062",
+  "35291387","35278481","35266321","35253964","35241895","35228723","35216378",
+  "35204037","35192852","35180583","35169063","35157343","35144974","35126636",
+  "35114204","35102341","35090740","35078829","35067414","35055479","35042831",
+  "35030704","35018940","35007035","34994106","34982942","34971057","34959733",
+];
+
+function pexelUrl(id: string): string {
+  return `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg`;
+}
+function pexelAvatar(): string {
+  return pexelUrl(pick(AVATAR_POOL));
+}
+function pexelCover(): string {
+  return pexelUrl(pick(COVER_POOL));
+}
+
+// ============================================
+// DATA GENERATION
+// ============================================
 export interface MockUser {
   id: string;
   username: string;
@@ -81,9 +282,6 @@ export interface MockGroup {
   category: string;
 }
 
-// ============================================
-// NOTIFICATIONS
-// ============================================
 export interface MockNotification {
   id: number;
   type: "like" | "comment" | "follow" | "friend_request";
@@ -94,9 +292,6 @@ export interface MockNotification {
   read: boolean;
 }
 
-// ============================================
-// CHAT / MESSAGES
-// ============================================
 export interface MockMessage {
   id: number;
   senderId: string;
@@ -116,259 +311,453 @@ export interface MockConversation {
 }
 
 // ============================================
-// USERS
+// POST CONTENT POOL
 // ============================================
-const users: MockUser[] = [
-  {
-    id: "u1",
-    username: "john_doe",
-    name: "John",
-    surname: "Doe",
-    avatar: "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
-    cover: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
-    description: "Software developer who enjoys working with React and TypeScript. Passionate about creating efficient and scalable web applications.",
-    city: "Denver",
-    school: "Edgar High School",
-    work: "Apple Inc.",
-    website: "https://macaw.com",
-    createdAt: "2023-01-15",
-  },
-  {
-    id: "u2",
-    username: "sarah_smith",
-    name: "Sarah",
-    surname: "Smith",
-    avatar: "https://images.pexels.com/photos/35496265/pexels-photo-35496265.jpeg",
-    cover: "https://images.pexels.com/photos/17584747/pexels-photo-17584747.jpeg",
-    description: "Photographer and digital artist. Love capturing moments and creating art.",
-    city: "New York",
-    school: "NYU",
-    work: "Freelance Photographer",
-    website: "https://sarahsmith.com",
-    createdAt: "2023-03-20",
-  },
-  {
-    id: "u3",
-    username: "mike_johnson",
-    name: "Mike",
-    surname: "Johnson",
-    avatar: "https://images.pexels.com/photos/35525012/pexels-photo-35525012.jpeg",
-    cover: "https://images.pexels.com/photos/17584747/pexels-photo-17584747.jpeg",
-    description: "Traveler and food lover. Exploring the world one dish at a time.",
-    city: "San Francisco",
-    school: "UCSF",
-    work: "Food Blogger",
-    website: "https://miketravels.com",
-    createdAt: "2023-06-10",
-  },
-  {
-    id: "u4",
-    username: "emma_wilson",
-    name: "Emma",
-    surname: "Wilson",
-    avatar: "https://images.pexels.com/photos/35590309/pexels-photo-35590309.jpeg",
-    cover: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
-    description: "Fitness enthusiast and yoga instructor.",
-    city: "Los Angeles",
-    school: "UCLA",
-    work: "Yoga Studio Owner",
-    website: "https://emmawilson.com",
-    createdAt: "2023-02-14",
-  },
-  {
-    id: "u5",
-    username: "alex_brown",
-    name: "Alex",
-    surname: "Brown",
-    avatar: "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg",
-    cover: "https://images.pexels.com/photos/17584747/pexels-photo-17584747.jpeg",
-    description: "Musician and composer. Creating melodies that matter.",
-    city: "Nashville",
-    school: "Berklee",
-    work: "Music Producer",
-    website: "https://alexbrownmusic.com",
-    createdAt: "2023-04-01",
-  },
+const POST_TEXTS = [
+  "Just had an amazing sunset photoshoot! The colors were absolutely breathtaking today. 🌅 Can't wait to share more photos with everyone!",
+  "Exploring the streets of Tokyo! 🇯🇵 Every corner is a new adventure. The food, the culture, the people — absolutely incredible experience!",
+  "New track just dropped! 🎵 Spent the last 3 months working on this album. Link in bio!",
+  "Morning yoga session done! 💪 Starting the day right. Who else loves morning workouts?",
+  "Just finished reading an incredible book. Such a masterpiece! 📚 What are you reading right now?",
+  "Weekend hiking trip was incredible! The views from the top were worth every step. 🏔️",
+  "New café in town! ☕ Best latte art I've ever seen. Highly recommend!",
+  "Throwback to my Paris trip last spring. The Eiffel Tower never gets old! 🗼",
+  "Today was productive! Got so much done. How was your day?",
+  "Grateful for the little things. ☀️",
+  "Fresh start, fresh mindset. New week, new goals! 🚀",
+  "Trying out a new recipe today. Cooking is therapy. 🍳",
+  "Beach day! Nothing beats the sound of the waves. 🌊",
+  "Sunset chasers 🌅 This view never gets old.",
+  "Coffee and coding. Name a better duo. ☕💻",
+  "Work hard, dream big. Never give up on your goals. ✨",
+  "Family time is the best time. ❤️",
+  "Weekend vibes only! 🎉",
+  "Nature is the ultimate artist. 🍃",
+  "Late night thoughts: Life is beautiful. 🌙",
+  "New project alert! Building something exciting. Stay tuned! 🔥",
+  "Throwback Thursday! Remember when we did this? 😂",
+  "Motivation Monday: You are capable of amazing things! 💪",
+  "Self-care Sunday. Taking time to recharge. 🧘",
+  "Friday feeling! The weekend is here! 🎊",
+  "Pet lovers, unite! My fur baby is the cutest. 🐾",
+  "Just ran my first 10k! New personal record! 🏃",
+  "Art gallery opening was amazing. So much talent! 🎨",
+  "Live music night! This band is incredible. 🎸",
+  "Rainy days are the best for reading and hot chocolate. ☕📖",
+];
+
+const COMMENT_TEXTS = [
+  "Absolutely stunning! 🔥",
+  "This is incredible! 😍",
+  "Love this so much! ❤️",
+  "Great work! Keep it up! 👏",
+  "Amazing shot! What camera did you use?",
+  "Where was this taken? I need to visit!",
+  "This made my day! 😊",
+  "You're so talented! ✨",
+  "Can't believe I missed this! 😱",
+  "Wow, just wow! 🤩",
+  "So beautiful! 💫",
+  "This is goals right here! 🎯",
+  "I need to try this! 🔥",
+  "Incredible work as always! 🌟",
+  "Count me in! 🙌",
+  "This looks amazing! 📸",
+  "Perfection! 👌",
+  "Love the energy here! ⚡",
+  "So proud of you! 🎉",
+  "This gave me chills! 🥶",
+  "Absolutely beautiful! 😍",
+  "You never disappoint! 💯",
+  "Living your best life! 🙏",
+  "This is art! 🎨",
+  "Iconic! 👑",
+  "The vibes are immaculate! ✨",
+  "Need this in my life! 💜",
+  "This is everything! ❤️",
+  "Legendary! ⭐",
+  "Pure magic! 🪄",
 ];
 
 // ============================================
-// POSTS
+// GENERATE USERS
 // ============================================
-const posts: MockPost[] = [
-  {
-    id: 1,
-    content: "Just had an amazing sunset photoshoot! The colors were absolutely breathtaking today. 🌅 Can't wait to share more photos with everyone!",
-    img: "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg",
-    createdAt: "2026-06-03T10:30:00Z",
-    userId: "u1",
-    user: users[0],
-    likes: 123,
-    liked: false,
-    commentCount: 99,
-  },
-  {
-    id: 2,
-    content: "Exploring the streets of Tokyo! 🇯🇵 Every corner is a new adventure. The food, the culture, the people — absolutely incredible experience!",
-    img: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    createdAt: "2026-06-02T15:20:00Z",
-    userId: "u2",
-    user: users[1],
-    likes: 234,
-    liked: true,
-    commentCount: 56,
-  },
-  {
-    id: 3,
-    content: "New track just dropped! 🎵 Spent the last 3 months working on this album. Link in bio!",
-    img: null,
-    createdAt: "2026-06-01T09:00:00Z",
-    userId: "u5",
-    user: users[4],
-    likes: 456,
-    liked: false,
-    commentCount: 78,
-  },
-  {
-    id: 4,
-    content: "Morning yoga session done! 💪 Starting the day right. Who else loves morning workouts?",
-    img: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    createdAt: "2026-05-30T07:15:00Z",
-    userId: "u4",
-    user: users[3],
-    likes: 89,
-    liked: true,
-    commentCount: 34,
-  },
-  {
-    id: 5,
-    content: "Just finished reading 'The Great Gatsby' for the third time. Such a masterpiece! 📚 What are you reading right now?",
-    img: null,
-    createdAt: "2026-05-28T20:00:00Z",
-    userId: "u3",
-    user: users[2],
-    likes: 67,
-    liked: false,
-    commentCount: 45,
-  },
-  {
-    id: 6,
-    content: "Weekend hiking trip was incredible! The views from the top were worth every step. 🏔️",
-    img: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    createdAt: "2026-05-25T14:30:00Z",
-    userId: "u1",
-    user: users[0],
-    likes: 198,
-    liked: true,
-    commentCount: 23,
-  },
-  {
-    id: 7,
-    content: "New café in town! ☕ Best latte art I've ever seen. Highly recommend!",
-    img: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
-    createdAt: "2026-05-22T11:45:00Z",
-    userId: "u3",
-    user: users[2],
-    likes: 145,
-    liked: false,
-    commentCount: 12,
-  },
-  {
-    id: 8,
-    content: "Throwback to my Paris trip last spring. The Eiffel Tower never gets old! 🗼",
-    img: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg",
-    createdAt: "2026-05-20T18:00:00Z",
-    userId: "u2",
-    user: users[1],
-    likes: 312,
-    liked: true,
-    commentCount: 67,
-  },
+const USER_COUNT = 500;
+
+function generateUsername(name: string, surname: string): string {
+  const prefix = RNG() > 0.5 ? pick(USERNAME_PREFIXES) + "_" : "";
+  const suffix = RNG() > 0.7 ? `_${randInt(1, 999)}` : "";
+  return (prefix + name.toLowerCase() + "_" + surname.toLowerCase() + suffix).replace(/[^a-z0-9_]/g, "");
+}
+
+const generatedUsers: MockUser[] = [];
+const allFirstNames = [...FIRST_NAMES_M, ...FIRST_NAMES_F];
+
+for (let i = 0; i < USER_COUNT; i++) {
+  const name = pick(allFirstNames);
+  const surname = pick(LAST_NAMES);
+  generatedUsers.push({
+    id: `u${i + 1}`,
+    username: generateUsername(name, surname),
+    name,
+    surname,
+    avatar: pexelAvatar(),
+    cover: pexelCover(),
+    description: pick(BIOS),
+    city: pick(CITIES),
+    school: pick(SCHOOLS),
+    work: pick(COMPANIES),
+    website: `https://${name.toLowerCase()}${pick(WEBSITES)}`,
+    createdAt: randDateStr(new Date("2022-01-01"), new Date("2025-12-31")),
+  });
+}
+
+const users = generatedUsers;
+
+// ============================================
+// Image pool for posts (landscape/nature)
+// ============================================
+const POST_IMG_POOL = [
+  "35360579","35350413","35565461","34374535","35655771","18465582",
+  "35729138","35701815","35680942","35639714","35586994","35577172",
+  "35563658","35548297","35528023","35515960","35500894","35487966",
+  "35474906","35459874","35438821","35421139","35409963","35396873",
+  "35382479","35369567","35357186","35342149","35329736","35317558",
+  "35305062","35291387","35278481","35266321","35253964","35241895",
+  "35228723","35216378","35204037","35192852","35180583","35169063",
+  "35157343","35144974","35126636","35114204","35102341","35090740",
+  "35078829","35067414","35055479","35042831","35030704","35018940",
+  "35007035","34994106","34982942","34971057","34959733","34947430",
+  "34935582","34923707","34912292","34900875","34888162","34875644",
+  "34863638","34852157","34840173","34828140","34816170","34804041",
+  "34791787","34780380","34768842","34757172","34745402","34733854",
+  "34722286","34710569","34698826","34687236","34675622","34663847",
+  "34652037","34640393","34628701","34617039","34605380","34593774",
+  "34582218","34570614","34559065","34547396","34535786","34524191",
+  "34512587","34500961","34489372","34477758","34466192","34454602",
+  "34442976","34431373","34419730","34408128","34396469","34384883",
+  "34373221","34361660","34350003","34338372","34326737","34315117",
+  "34303492","34291859","34280237","34268627","34257021","34245454",
+];
+
+function postImage(): string | null {
+  return RNG() > 0.4 ? pexelUrl(pick(POST_IMG_POOL)) : null;
+}
+
+// ============================================
+// Short video pool (Pexels free stock videos)
+// ============================================
+const VIDEO_POOL = [
+  "https://player.vimeo.com/external/476697255.sd.mp4?s=da2e2d202020654c4693a7a30a0f8d92d01a5ec4&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/505554239.sd.mp4?s=f58a85f96611f7a9866a395eacfeb2aea3855739&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/517615022.sd.mp4?s=8c5aa3ed1b5ce020a0a2cba5e0b7e390ba7f6c2a&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/543780806.sd.mp4?s=60dd8d6d35e17b5f9e2b2aafb4bc03e7f54e2096&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/552481870.sd.mp4?s=c6e3f67022c20e70ebe6007ec4188010bb575ab6&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/571313891.sd.mp4?s=ba59597b11cd7e58cf4bae1cbe8d42a32ece01c4&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/320879520.sd.mp4?s=691f4586dd521bdeb229fbb62449417490e6b545&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/449799674.sd.mp4?s=1953a62ac53ebe99a4d1013ced1b4c12bf9ba0aa&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/446932740.sd.mp4?s=6bb0eec6eab3125603df91a8a002e68b082ea4dc&profile_id=165&oauth2_token_id=57447761",
+  "https://player.vimeo.com/external/485379263.sd.mp4?s=4e3a6b8035ae474d7568145cac0c7735665b12d7&profile_id=165&oauth2_token_id=57447761",
+];
+
+const VIDEO_TEXTS = [
+  "Check out this amazing timelapse! 🎥",
+  "Morning vibes captured on video 🌅",
+  "Quick tour of my favorite spot! 🏙️",
+  "Watch till the end! You won't believe what happens 😱",
+  "Nature at its finest 🍃🎥",
+  "Behind the scenes of today's shoot 🎬",
+  "City life never sleeps 🌃✨",
+  "A moment of peace and tranquility 🧘",
+  "Speeding things up a bit ⏩🔥",
+  "Perfect loop, don't @ me 🔄😎",
 ];
 
 // ============================================
-// COMMENTS
+// GENERATE POSTS (~1500 posts with images + ~200 video posts)
 // ============================================
-const comments: Record<number, MockComment[]> = {
-  1: [
-    { id: 1, content: "Absolutely stunning photo! The colors are incredible! 🔥", createdAt: "2026-06-03T11:00:00Z", userId: "u2", user: users[1], likes: 12 },
-    { id: 2, content: "Where was this taken? I need to visit this place!", createdAt: "2026-06-03T11:30:00Z", userId: "u3", user: users[2], likes: 5 },
-    { id: 3, content: "Great shot! What camera did you use?", createdAt: "2026-06-03T12:00:00Z", userId: "u4", user: users[3], likes: 8 },
-  ],
-  2: [
-    { id: 4, content: "Tokyo is on my bucket list! 🇯🇵", createdAt: "2026-06-02T16:00:00Z", userId: "u1", user: users[0], likes: 15 },
-    { id: 5, content: "The food there is amazing! Try the ramen at Shinjuku!", createdAt: "2026-06-02T17:00:00Z", userId: "u5", user: users[4], likes: 9 },
-  ],
-  4: [
-    { id: 6, content: "I love morning yoga too! 🙏", createdAt: "2026-05-30T08:00:00Z", userId: "u1", user: users[0], likes: 7 },
-    { id: 7, content: "What's your favorite flow?", createdAt: "2026-05-30T09:00:00Z", userId: "u5", user: users[4], likes: 3 },
-  ],
-};
+const POST_COUNT = 1700;
+const generatedPosts: MockPost[] = [];
+
+for (let i = 0; i < POST_COUNT; i++) {
+  const user = users[i % users.length];
+  const createdAt = randDate(new Date("2025-06-01"), new Date("2026-06-08"));
+
+  // 10% of posts are videos
+  const isVideo = RNG() < 0.1;
+  const img = isVideo ? pick(VIDEO_POOL) : postImage();
+
+  generatedPosts.push({
+    id: i + 1,
+    content: isVideo ? pick(VIDEO_TEXTS) : pick(POST_TEXTS),
+    img,
+    createdAt,
+    userId: user.id,
+    user,
+    likes: randInt(5, 999),
+    liked: RNG() > 0.7,
+    commentCount: randInt(0, 150),
+  });
+}
+
+// Sort by date descending
+generatedPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const posts = generatedPosts;
 
 // ============================================
-// STORIES
+// GENERATE COMMENTS (~3000 comments)
 // ============================================
-const stories: MockStory[] = [
-  { id: 1, img: "https://images.pexels.com/photos/35122521/pexels-photo-35122521.jpeg", userId: "u1", user: users[0], createdAt: "2026-06-03T08:00:00Z" },
-  { id: 2, img: "https://images.pexels.com/photos/35496265/pexels-photo-35496265.jpeg", userId: "u2", user: users[1], createdAt: "2026-06-03T09:00:00Z" },
-  { id: 3, img: "https://images.pexels.com/photos/35525012/pexels-photo-35525012.jpeg", userId: "u3", user: users[2], createdAt: "2026-06-03T07:00:00Z" },
-  { id: 4, img: "https://images.pexels.com/photos/35590309/pexels-photo-35590309.jpeg", userId: "u4", user: users[3], createdAt: "2026-06-02T22:00:00Z" },
-  { id: 5, img: "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg", userId: "u5", user: users[4], createdAt: "2026-06-03T06:00:00Z" },
-];
+const generatedComments: Record<number, MockComment[]> = {};
+let commentId = 1;
+
+for (const post of posts.slice(0, 600)) { // comment on first 600 posts
+  const count = randInt(0, 8);
+  const commenters = pickN(users, Math.min(count + 2, users.length));
+  const arr: MockComment[] = [];
+  for (const commenter of commenters) {
+    arr.push({
+      id: commentId++,
+      content: pick(COMMENT_TEXTS),
+      createdAt: randDate(new Date(post.createdAt), new Date("2026-06-08")),
+      userId: commenter.id,
+      user: commenter,
+      likes: randInt(0, 50),
+    });
+  }
+  generatedComments[post.id] = arr;
+}
+
+const comments = generatedComments;
 
 // ============================================
-// FRIEND REQUESTS
+// GENERATE STORIES (1 per user = 500 stories)
 // ============================================
-const friendRequests: MockFriendRequest[] = [
-  { id: 1, user: users[1], createdAt: "2026-06-03T10:00:00Z" },
-  { id: 2, user: users[3], createdAt: "2026-06-02T15:00:00Z" },
-  { id: 3, user: users[4], createdAt: "2026-06-01T09:00:00Z" },
-];
+const generatedStories: MockStory[] = [];
+for (let i = 0; i < users.length; i++) {
+  const user = users[i];
+  generatedStories.push({
+    id: i + 1,
+    img: user.avatar, // stories use user's own avatar/selfie
+    userId: user.id,
+    user,
+    createdAt: randDate(new Date("2026-06-01"), new Date("2026-06-08")),
+  });
+}
+generatedStories.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const stories = generatedStories;
+
+// ============================================
+// GENERATE FRIEND REQUESTS (~20)
+// ============================================
+const generatedFriendRequests: MockFriendRequest[] = [];
+for (let i = 0; i < 20; i++) {
+  const user = pick(users.slice(1, 101)); // avoid current user (u1)
+  if (!generatedFriendRequests.find(r => r.user.id === user.id)) {
+    generatedFriendRequests.push({
+      id: i + 1,
+      user,
+      createdAt: randDate(new Date("2026-05-01"), new Date("2026-06-08")),
+    });
+  }
+}
+
+const friendRequests = generatedFriendRequests.slice(0, 5); // show only 5
 
 // ============================================
 // BIRTHDAYS
 // ============================================
-const birthdays: MockUser[] = [users[2], users[4]];
+const birthdays: MockUser[] = pickN(users, 12);
 
 // ============================================
-// MARKETPLACE
+// GENERATE MARKETPLACE ITEMS (~30)
 // ============================================
-const marketplaceItems: MockMarketplaceItem[] = [
-  { id: 1, title: "Vintage Camera", price: "$299", img: "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg", location: "Denver, CO", userId: "u1", user: users[0], createdAt: "2026-06-01" },
-  { id: 2, title: "Gaming Laptop", price: "$1,200", img: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg", location: "New York, NY", userId: "u2", user: users[1], createdAt: "2026-05-30" },
-  { id: 3, title: "Acoustic Guitar", price: "$450", img: "https://images.pexels.com/photos/35634366/pexels-photo-35634366.jpeg", location: "Nashville, TN", userId: "u5", user: users[4], createdAt: "2026-05-28" },
-  { id: 4, title: "Mountain Bike", price: "$850", img: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg", location: "San Francisco, CA", userId: "u3", user: users[2], createdAt: "2026-05-25" },
-  { id: 5, title: "Yoga Mat Premium", price: "$79", img: "https://images.pexels.com/photos/35443625/pexels-photo-35443625.jpeg", location: "Los Angeles, CA", userId: "u4", user: users[3], createdAt: "2026-05-22" },
-  { id: 6, title: "Designer Watch", price: "$1,500", img: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg", location: "New York, NY", userId: "u2", user: users[1], createdAt: "2026-05-20" },
+const MARKETPLACE_TITLES = [
+  "Vintage Camera","Gaming Laptop","Acoustic Guitar","Mountain Bike","Yoga Mat Premium",
+  "Designer Watch","Leather Jacket","Smart TV 55","Electric Scooter","Coffee Machine",
+  "Vintage Vinyl Collection","MacBook Pro M3","iPhone 15 Pro","PS5 Console",
+  "Drone with 4K Camera","Wireless Headphones","Mechanical Keyboard","Gaming Chair",
+  "Trekking Backpack","Tent 4 Seasons","Electric Guitar Fender","DJ Controller",
+  "Sony Mirrorless Camera","Tablet Pro 12.9","Smart Watch Ultra","Road Bike",
+  "Record Player Vintage","Polaroid Camera","Board Game Collection","Artwork Original",
+  "Designer Handbag","Sunglasses (Ray-Ban)","Running Shoes (New)","Dumbbells Set 20kg",
+  "Skateboard Custom","Surfboard 6'2\"","Winter Jacket North Face","Camping Stove",
+];
+const MARKETPLACE_PRICES = [
+  "$49","$79","$99","$149","$199","$249","$299","$349","$399","$449",
+  "$499","$549","$599","$699","$799","$899","$999","$1,099","$1,299","$1,499",
+  "$1,699","$1,999","$2,499","$2,999","$3,499","$4,999",
 ];
 
-// ============================================
-// EVENTS
-// ============================================
-const events: MockEvent[] = [
-  { id: 1, title: "Summer Music Festival", date: "Jul 15, 2026", location: "Central Park, NY", img: "https://images.pexels.com/photos/17584747/pexels-photo-17584747.jpeg", attendees: 1250 },
-  { id: 2, title: "Tech Conference 2026", date: "Aug 5, 2026", location: "Moscone Center, SF", img: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg", attendees: 3200 },
-  { id: 3, title: "Art Gallery Opening", date: "Jun 20, 2026", location: "SoHo, NY", img: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg", attendees: 450 },
-  { id: 4, title: "Food Truck Festival", date: "Jul 4, 2026", location: "Golden Gate Park, SF", img: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg", attendees: 5000 },
-];
+const generatedMarketplace: MockMarketplaceItem[] = [];
+for (let i = 0; i < 30; i++) {
+  const user = pick(users);
+  generatedMarketplace.push({
+    id: i + 1,
+    title: pick(MARKETPLACE_TITLES),
+    price: pick(MARKETPLACE_PRICES),
+    img: pexelUrl(pick(POST_IMG_POOL)),
+    location: user.city,
+    userId: user.id,
+    user,
+    createdAt: randDateStr(new Date("2026-01-01"), new Date("2026-06-01")),
+  });
+}
+
+const marketplaceItems = generatedMarketplace;
 
 // ============================================
-// GROUPS
+// GENERATE EVENTS (~16)
 // ============================================
-const groups: MockGroup[] = [
-  { id: 1, name: "Photography Enthusiasts", img: "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg", members: 15230, category: "Arts" },
-  { id: 2, name: "Tech Startups Club", img: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg", members: 8750, category: "Technology" },
-  { id: 3, name: "Food Lovers United", img: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg", members: 23400, category: "Food" },
-  { id: 4, name: "Fitness Journey", img: "https://images.pexels.com/photos/35443625/pexels-photo-35443625.jpeg", members: 12100, category: "Health" },
-  { id: 5, name: "Travel Adventures", img: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg", members: 19800, category: "Travel" },
-  { id: 6, name: "Music Makers", img: "https://images.pexels.com/photos/35634366/pexels-photo-35634366.jpeg", members: 9800, category: "Music" },
+const EVENT_NAMES = [
+  "Summer Music Festival","Tech Conference 2026","Art Gallery Opening","Food Truck Festival",
+  "Startup Pitch Night","Yoga in the Park","Photography Workshop","Wine Tasting Evening",
+  "Beach Cleanup Day","Marathon 2026","Book Fair","Film Festival",
+  "Fashion Week","Gaming Tournament","Charity Gala","Farmers Market Weekend",
+  "Coding Bootcamp Meetup","Dance Workshop","Comedy Night","Jazz Concert",
+  "Marine Biology Expo","Astronomy Night","Cooking Class","Design Thinking Workshop",
+  "Science Fair","Robotics Competition","Gardening Workshop","Pet Adoption Day",
+  "Virtual Reality Expo","Sustainable Living Fair",
+];
+const EVENT_LOCATIONS = [
+  "Central Park, NY","Moscone Center, SF","SoHo, NY","Golden Gate Park, SF",
+  "Madison Square Garden, NY","Staples Center, LA","Wrigley Field, Chicago",
+  "Convention Center, Austin","Pier 17, NY","Union Square, SF",
+  "Ibirapuera Park, SP","Maracanã, RJ","Mineirão, BH","Arena Fonte Nova, BA",
+  "Parque das Nações, Lisbon","Hyde Park, London","Tiergarten, Berlin",
+  "Shinjuku Park, Tokyo","Royal Botanic Gardens, Sydney","Stanley Park, Vancouver",
 ];
 
+const generatedEvents: MockEvent[] = [];
+for (let i = 0; i < 18; i++) {
+  const month = randInt(6, 12);
+  const day = randInt(1, 28);
+  generatedEvents.push({
+    id: i + 1,
+    title: pick(EVENT_NAMES),
+    date: `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][month - 1]} ${day}, 2026`,
+    location: pick(EVENT_LOCATIONS),
+    img: pexelUrl(pick(COVER_POOL)),
+    attendees: randInt(100, 15000),
+  });
+}
+
+const events = generatedEvents;
+
 // ============================================
-// HELPERS
+// GENERATE GROUPS (~18)
+// ============================================
+const GROUP_NAMES = [
+  "Photography Enthusiasts","Tech Startups Club","Food Lovers United","Fitness Journey",
+  "Travel Adventures","Music Makers","Book Worms Club","Film Critics Circle",
+  "Art & Design Studio","Gaming Community","Yoga & Meditation","Wine Connoisseurs",
+  "Pet Lovers","Hiking Explorers","Dance Crew","Coding Ninjas",
+  "Fashion Forward","Gardening Club","Volunteer Heroes","Science Minds",
+  "Coffee Addicts Anonymous","Writers Guild","Cooking Masters","Vintage Collectors",
+];
+const GROUP_CATEGORIES = [
+  "Arts","Technology","Food","Health","Travel","Music","Books","Film",
+  "Design","Gaming","Wellness","Lifestyle","Pets","Outdoors","Sports",
+  "Education","Fashion","Nature","Community","Science",
+];
+
+const generatedGroups: MockGroup[] = [];
+for (let i = 0; i < 18; i++) {
+  generatedGroups.push({
+    id: i + 1,
+    name: pick(GROUP_NAMES),
+    img: pexelUrl(pick(COVER_POOL)),
+    members: randInt(500, 50000),
+    category: pick(GROUP_CATEGORIES),
+  });
+}
+
+const groups = generatedGroups;
+
+// ============================================
+// NOTIFICATIONS (~30)
+// ============================================
+const generatedNotifications: MockNotification[] = [];
+for (let i = 0; i < 30; i++) {
+  const friend = pick(users.slice(1, 30));
+  const type = pick<MockNotification["type"]>(["like","comment","follow","friend_request"]);
+  const postId = type === "like" || type === "comment" ? pick(posts).id : undefined;
+
+  let content = "";
+  if (type === "like") content = "curtiu seu post";
+  else if (type === "comment") content = `comentou no seu post: "${pick(COMMENT_TEXTS).slice(0, 30)}"`;
+  else if (type === "follow") content = "começou a seguir você";
+  else content = "enviou uma solicitação de amizade";
+
+  generatedNotifications.push({
+    id: i + 1,
+    type,
+    user: friend,
+    postId,
+    content,
+    createdAt: randDate(new Date("2026-05-01"), new Date("2026-06-08")),
+    read: RNG() > 0.6,
+  });
+}
+generatedNotifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const notifications = generatedNotifications;
+
+// ============================================
+// CHAT / CONVERSATIONS (~20)
+// ============================================
+const CHAT_TEXTS = [
+  "Oi! Tudo bem?","Tudo ótimo e você?","Vamos marcar algo esse fim de semana!",
+  "Adorei as fotos!","Que legal!","Bora tocar esse fds?",
+  "Vou sim, confirmado!","Show!","Até mais tarde!",
+  "E aí, conseguiu ver?","Ficou top!","Podemos nos encontrar amanhã?",
+  "Claro! Que horas?","Oi, sumida!","Saudades!",
+  "Vamos almoçar juntos?","Boa ideia!","Te aviso quando chegar",
+  "Tudo certo por aqui","Obrigado pela ajuda!","De nada! 😊",
+  "Feliz aniversário! 🎂","Muito obrigado!","Que foto linda!",
+  "Vou compartilhar","Incrível!","Parabéns! 👏",
+  "Bom dia! 🌅","Boa noite! 🌙","Até logo!",
+];
+
+const generatedConversations: MockConversation[] = [];
+for (let i = 0; i < 20; i++) {
+  const friend = pick(users.slice(1, 50));
+  const msgCount = randInt(2, 8);
+  const msgs: MockMessage[] = [];
+  let lastDate = new Date("2026-05-20");
+  for (let j = 0; j < msgCount; j++) {
+    const msgDate = randDate(lastDate, new Date("2026-06-08"));
+    lastDate = new Date(msgDate);
+    msgs.push({
+      id: msgs.length + 1,
+      senderId: j % 2 === 0 ? friend.id : "u1",
+      text: pick(CHAT_TEXTS),
+      createdAt: msgDate,
+      read: RNG() > 0.3 || j < msgCount - 1,
+    });
+  }
+  const lastMsg = msgs[msgs.length - 1];
+  generatedConversations.push({
+    id: i + 1,
+    user: friend,
+    lastMessage: lastMsg.text,
+    lastMessageAt: lastMsg.createdAt,
+    unread: msgs.filter(m => m.senderId !== "u1" && !m.read).length,
+    online: RNG() > 0.5,
+    messages: msgs,
+  });
+}
+generatedConversations.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+
+const conversations = generatedConversations;
+
+// ============================================
+// HELPERS (same interface as before)
 // ============================================
 
 export function getCurrentUser(): MockUser {
-  return users[0];
+  return users[0]; // u1 = "James Smith"
 }
 
 export function getUserById(id: string): MockUser | undefined {
@@ -422,123 +811,6 @@ export function getEvents(): MockEvent[] {
 export function getGroups(): MockGroup[] {
   return groups;
 }
-
-// ============================================
-// NOTIFICATIONS
-// ============================================
-const notifications: MockNotification[] = [
-  {
-    id: 1,
-    type: "like",
-    user: users[1],
-    postId: 3,
-    content: "curtiu seu post",
-    createdAt: "2026-06-03T14:30:00Z",
-    read: false,
-  },
-  {
-    id: 2,
-    type: "comment",
-    user: users[2],
-    postId: 1,
-    content: "comentou no seu post: \"Incrível! 🔥\"",
-    createdAt: "2026-06-03T13:00:00Z",
-    read: false,
-  },
-  {
-    id: 3,
-    type: "follow",
-    user: users[3],
-    content: "começou a seguir você",
-    createdAt: "2026-06-03T11:00:00Z",
-    read: false,
-  },
-  {
-    id: 4,
-    type: "friend_request",
-    user: users[4],
-    content: "enviou uma solicitação de amizade",
-    createdAt: "2026-06-03T10:00:00Z",
-    read: false,
-  },
-  {
-    id: 5,
-    type: "like",
-    user: users[2],
-    postId: 5,
-    content: "curtiu seu post",
-    createdAt: "2026-06-02T20:00:00Z",
-    read: true,
-  },
-  {
-    id: 6,
-    type: "comment",
-    user: users[4],
-    postId: 2,
-    content: "comentou no seu post: \"Que lugar é esse?\"",
-    createdAt: "2026-06-02T18:00:00Z",
-    read: true,
-  },
-];
-
-// ============================================
-// CHAT / CONVERSATIONS
-// ============================================
-const conversations: MockConversation[] = [
-  {
-    id: 1,
-    user: users[1],
-    lastMessage: "Vamos marcar algo esse fim de semana!",
-    lastMessageAt: "2026-06-03T15:00:00Z",
-    unread: 2,
-    online: true,
-    messages: [
-      { id: 1, senderId: "u2", text: "Oi! Tudo bem?", createdAt: "2026-06-03T14:00:00Z", read: true },
-      { id: 2, senderId: "u1", text: "Tudo ótimo! E você?", createdAt: "2026-06-03T14:05:00Z", read: true },
-      { id: 3, senderId: "u2", text: "Também! Que tal a gente se encontrar?", createdAt: "2026-06-03T14:30:00Z", read: true },
-      { id: 4, senderId: "u2", text: "Vamos marcar algo esse fim de semana!", createdAt: "2026-06-03T15:00:00Z", read: false },
-    ],
-  },
-  {
-    id: 2,
-    user: users[2],
-    lastMessage: "Adorei as fotos do seu último post!",
-    lastMessageAt: "2026-06-02T16:00:00Z",
-    unread: 0,
-    online: false,
-    messages: [
-      { id: 5, senderId: "u3", text: "Suas fotos estão incríveis!", createdAt: "2026-06-02T15:00:00Z", read: true },
-      { id: 6, senderId: "u1", text: "Obrigado! Fiz com meu novo equipamento", createdAt: "2026-06-02T15:30:00Z", read: true },
-      { id: 7, senderId: "u3", text: "Adorei as fotos do seu último post!", createdAt: "2026-06-02T16:00:00Z", read: true },
-    ],
-  },
-  {
-    id: 3,
-    user: users[3],
-    lastMessage: "A aula de yoga amanhã está confirmada!",
-    lastMessageAt: "2026-06-01T09:00:00Z",
-    unread: 0,
-    online: true,
-    messages: [
-      { id: 8, senderId: "u4", text: "Vai ter aula amanhã?", createdAt: "2026-06-01T08:00:00Z", read: true },
-      { id: 9, senderId: "u1", text: "Sim! Confirmado", createdAt: "2026-06-01T08:30:00Z", read: true },
-      { id: 10, senderId: "u4", text: "A aula de yoga amanhã está confirmada!", createdAt: "2026-06-01T09:00:00Z", read: true },
-    ],
-  },
-  {
-    id: 4,
-    user: users[4],
-    lastMessage: "Bora tocar esse fds?",
-    lastMessageAt: "2026-05-30T22:00:00Z",
-    unread: 0,
-    online: false,
-    messages: [
-      { id: 11, senderId: "u5", text: "E aí, conseguiu ouvir a demo?", createdAt: "2026-05-30T21:00:00Z", read: true },
-      { id: 12, senderId: "u1", text: "Sim, ficou top! Vamos ensaiar", createdAt: "2026-05-30T21:30:00Z", read: true },
-      { id: 13, senderId: "u5", text: "Bora tocar esse fds?", createdAt: "2026-05-30T22:00:00Z", read: true },
-    ],
-  },
-];
 
 export function getNotifications(): MockNotification[] {
   return notifications;

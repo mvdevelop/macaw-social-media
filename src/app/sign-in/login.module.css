@@ -20,12 +20,12 @@
 
   background: linear-gradient(
     to right,
-    #0052ff,
-    #4340ff,
-    #6825ff,
-    #8500ff,
-    #a300ff,
-    #c100ff
+    #4A8CFF,
+    #6A7CFF,
+    #7C5CFC,
+    #8B5CF6,
+    #9A5DFF,
+    #A855F7
   );
 
   color: white;
@@ -199,6 +199,10 @@
   justify-content: center;
   align-items: center;
   padding: 32px 24px;
+}
+
+:global(.dark) .login {
+  background: #1f2937;
 }
 
 @media (min-width: 768px) {

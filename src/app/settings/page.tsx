@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FiCamera, FiSave, FiTrash2, FiImage } from "react-icons/fi";
 import { processUpload } from "@/lib/image-utils";
+import { useTranslation } from "@/context/LanguageProvider";
 
 interface Profile {
   id: string;
@@ -24,6 +25,7 @@ interface Profile {
 
 export default function SettingsPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -63,7 +65,7 @@ export default function SettingsPage() {
   };
 
   const handleDeletePost = async (postId: number) => {
-    if (!confirm("Delete this post?")) return;
+    if (!confirm(t.settings.confirmDelete)) return;
     try {
       await deletePost(postId);
       setPosts(posts.filter((p) => p.id !== postId));
@@ -77,7 +79,7 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Profile Form */}
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 md:p-8 space-y-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Settings</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t.settings.title}</h1>
 
           {/* Cover preview */}
           {profile.cover && (
@@ -100,7 +102,7 @@ export default function SettingsPage() {
             <div className="flex flex-wrap gap-2">
               <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                 <FiCamera size={16} />
-                Avatar
+                {t.settings.avatar}
                 <input type="file" name="avatar" accept="image/*" className="hidden"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
@@ -121,7 +123,7 @@ export default function SettingsPage() {
               </label>
               <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                 <FiImage size={16} />
-                Cover
+                {t.settings.cover}
                 <input type="file" name="cover" accept="image/*" className="hidden"
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
@@ -144,16 +146,16 @@ export default function SettingsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputField label="First Name" name="name" defaultValue={profile.name} />
-            <InputField label="Last Name" name="surname" defaultValue={profile.surname} />
-            <InputField label="City" name="city" defaultValue={profile.city} />
-            <InputField label="School" name="school" defaultValue={profile.school} />
-            <InputField label="Work" name="work" defaultValue={profile.work} />
-            <InputField label="Website" name="website" defaultValue={profile.website} />
+            <InputField label={t.settings.firstName} name="name" defaultValue={profile.name} />
+            <InputField label={t.settings.lastName} name="surname" defaultValue={profile.surname} />
+            <InputField label={t.settings.city} name="city" defaultValue={profile.city} />
+            <InputField label={t.settings.school} name="school" defaultValue={profile.school} />
+            <InputField label={t.settings.work} name="work" defaultValue={profile.work} />
+            <InputField label={t.settings.website} name="website" defaultValue={profile.website} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bio</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.settings.bio}</label>
             <textarea
               name="description"
               rows={3}
@@ -168,19 +170,19 @@ export default function SettingsPage() {
             className="flex items-center gap-2 bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white px-6 py-2.5 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
           >
             <FiSave size={16} />
-            {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
+            {saving ? t.settings.saving : saved ? t.settings.saved : t.settings.saveChanges}
           </button>
         </form>
 
         {/* My Posts */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 md:p-8">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">My Posts ({posts.length})</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">{t.settings.myPosts} ({posts.length})</h2>
           <div className="space-y-3">
             {posts.map((post) => (
               <div key={post.id} className="flex items-start justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-700">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2">{post.content}</p>
-                  {post.img && <p className="text-xs text-blue-500 mt-1">📷 Has image</p>}
+                  {post.img && <p className="text-xs text-blue-500 mt-1">{t.settings.hasImage}</p>}
                   <p className="text-xs text-gray-400 mt-1">{new Date(post.created_at).toLocaleDateString()}</p>
                 </div>
                 <button
@@ -192,7 +194,7 @@ export default function SettingsPage() {
               </div>
             ))}
             {posts.length === 0 && (
-              <p className="text-sm text-gray-400 text-center py-4">No posts yet.</p>
+              <p className="text-sm text-gray-400 text-center py-4">{t.settings.noPosts}</p>
             )}
           </div>
         </div>

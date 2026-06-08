@@ -6,8 +6,11 @@ import { useState, useRef, useEffect } from "react";
 import { FiImage, FiVideo, FiX } from "react-icons/fi";
 import { processUpload } from "@/lib/image-utils";
 import { createClient } from "@/lib/supabase/client";
+import { getCurrentUser } from "@/lib/mock-data";
+import { useTranslation } from "@/context/LanguageProvider";
 
 const AddPost = () => {
+  const { t } = useTranslation();
   const [preview, setPreview] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "video" | null>(null);
   const [mediaBlob, setMediaBlob] = useState<Blob | null>(null);
@@ -16,8 +19,12 @@ const AddPost = () => {
   const fileRef = useRef<HTMLInputElement>(null);
   const [avatar, setAvatar] = useState("");
 
-  // Carrega avatar do usuário real
+  // Carrega avatar do usuário real (com fallback mock)
   useEffect(() => {
+    // Fallback imediato com mock data
+    const mock = getCurrentUser();
+    setAvatar(mock.avatar);
+
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
@@ -101,7 +108,7 @@ const AddPost = () => {
       <div className="flex-1">
         <form action={handleSubmit} className="flex flex-col gap-3">
           <textarea
-            placeholder="What's on your mind?"
+            placeholder={t.addPost.placeholder}
             className="w-full bg-gray-50 dark:bg-gray-700 dark:text-white rounded-lg p-3 outline-none resize-none min-h-[80px]"
             name="content"
             required
@@ -141,7 +148,7 @@ const AddPost = () => {
                 className="flex items-center gap-2 text-blue-500 hover:text-blue-600 transition"
               >
                 <FiImage size={20} />
-                <span className="text-sm font-medium">Image</span>
+                <span className="text-sm font-medium">{t.addPost.image}</span>
               </button>
               <button
                 type="button"
@@ -149,7 +156,7 @@ const AddPost = () => {
                 className="flex items-center gap-2 text-purple-500 hover:text-purple-600 transition"
               >
                 <FiVideo size={20} />
-                <span className="text-sm font-medium">Video</span>
+                <span className="text-sm font-medium">{t.addPost.video}</span>
               </button>
             </div>
             <input
@@ -162,9 +169,9 @@ const AddPost = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+              className="bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
             >
-              {submitting ? "Posting..." : "Send"}
+              {submitting ? t.addPost.posting : t.addPost.send}
             </button>
           </div>
         </form>

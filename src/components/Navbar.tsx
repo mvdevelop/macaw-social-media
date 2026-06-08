@@ -9,11 +9,14 @@ import LanguageSwitch from "./LanguageSwitch";
 import SearchModal from "./SearchModal";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { useAuth } from "@/context/AuthProvider";
+import { useTranslation } from "@/context/LanguageProvider";
 import { useState, useRef, useEffect } from "react";
 import { FiSearch, FiLogOut, FiSettings, FiChevronDown, FiUser } from "react-icons/fi";
+import MacawIcon from "@/components/MacawIcon";
 
 const Navbar = () => {
   const { user, loading, signOut } = useAuth();
+  const { t } = useTranslation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,17 +39,17 @@ const Navbar = () => {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-[#0052FF] to-[#C100FF] h-16" />
+      <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] h-16" />
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#0052FF] via-[#6825FF] to-[#C100FF] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
       <div className="h-16 flex items-center justify-between">
         {/* Left - Logo */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🦜</span>
+            <MacawIcon size={28} className="text-white" />
             <span className="text-white font-bold text-lg hidden sm:block">Macaw</span>
           </Link>
         </div>
@@ -54,16 +57,16 @@ const Navbar = () => {
         {/* Center - Navigation */}
         <div className="hidden md:flex items-center gap-1">
           <Link href="/" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Home
+            {t.nav.home}
           </Link>
           <Link href="/friends" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Friends
+            {t.nav.friends}
           </Link>
           <Link href="/marketplace" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Marketplace
+            {t.nav.marketplace}
           </Link>
           <Link href="/groups" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Groups
+            {t.nav.groups}
           </Link>
         </div>
 
@@ -75,7 +78,7 @@ const Navbar = () => {
             className="hidden sm:flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white/80 px-3 py-2 rounded-lg transition text-sm"
           >
             <FiSearch size={16} />
-            <span className="hidden lg:inline">Search</span>
+            <span className="hidden lg:inline">{t.nav.search}</span>
           </button>
 
           {/* Theme + Language */}
@@ -122,7 +125,7 @@ const Navbar = () => {
                   onClick={() => setDropdownOpen(false)}
                 >
                   <FiUser size={16} className="text-gray-400" />
-                  Profile
+                  {t.profile.myProfile}
                 </Link>
 
                 <Link
@@ -132,7 +135,7 @@ const Navbar = () => {
                   onClick={() => setDropdownOpen(false)}
                 >
                   <FiSettings size={16} className="text-gray-400" />
-                  Settings
+                  {t.nav.settings}
                 </Link>
 
                 <button
@@ -143,7 +146,7 @@ const Navbar = () => {
                   className="flex items-center gap-3 w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition"
                 >
                   <FiLogOut size={16} />
-                  Sign Out
+                  {t.nav.signOut}
                 </button>
               </div>
             )}

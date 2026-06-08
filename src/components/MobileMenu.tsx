@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { FiX, FiMenu } from "react-icons/fi";
+import { useTranslation } from "@/context/LanguageProvider";
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className="md:hidden">
@@ -14,13 +16,46 @@ const MobileMenu = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed left-0 top-16 w-full h-[calc(100vh-64px)] bg-white flex flex-col items-center justify-center gap-8 font-medium text-xl z-50 shadow-xl">
-          <Link href="/" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Home</Link>
-          <Link href="/friends" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Friends</Link>
-          <Link href="/marketplace" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Marketplace</Link>
-          <Link href="/groups" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Groups</Link>
-          <Link href="/events" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Events</Link>
-          <Link href="/sign-in" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-blue-500 transition">Login</Link>
+        <div className="fixed left-0 top-16 w-full h-[calc(100vh-64px)] bg-white dark:bg-gray-900 flex flex-col items-center justify-start gap-1 font-medium text-base z-50 shadow-xl overflow-y-auto pt-8">
+          <Link href="/" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.home}
+          </Link>
+          <Link href="/my-posts" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.myPosts}
+          </Link>
+          <Link href="/activity" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.activity}
+          </Link>
+          <Link href="/friends" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.friends}
+          </Link>
+          <Link href="/marketplace" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.marketplace}
+          </Link>
+          <Link href="/groups" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.groups}
+          </Link>
+          <Link href="/events" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.events.title}
+          </Link>
+          <Link href="/albums" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.albums}
+          </Link>
+          <Link href="/videos" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.videos}
+          </Link>
+          <Link href="/news" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.news}
+          </Link>
+          <Link href="/courses" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.courses}
+          </Link>
+          <Link href="/lists" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.lists}
+          </Link>
+          <Link href="/settings" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.settings}
+          </Link>
         </div>
       )}
     </div>

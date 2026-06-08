@@ -9,6 +9,7 @@ import RightMenu from "@/components/RightMenu";
 import Stories from "@/components/Stories";
 import Link from "next/link";
 import { FiUsers, FiCamera, FiCompass } from "react-icons/fi";
+import MacawIcon from "@/components/MacawIcon";
 
 const Homepage = () => {
   const { user, loading } = useAuth();
@@ -16,9 +17,9 @@ const Homepage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0052FF] via-[#6825FF] to-[#C100FF] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex items-center justify-center">
         <div className="text-white text-center">
-          <div className="text-6xl mb-4">🦜</div>
+          <MacawIcon size={56} className="mx-auto mb-4 text-white" />
           <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
         </div>
       </div>
@@ -28,10 +29,10 @@ const Homepage = () => {
   // ===== NÃO LOGADO =====
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#0052FF] via-[#6825FF] to-[#C100FF] flex flex-col">
+      <div className="min-h-screen bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex flex-col">
         <nav className="flex items-center justify-between px-6 md:px-12 py-6">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">🦜</span>
+            <MacawIcon size={36} className="text-white" />
             <span className="text-white text-2xl font-bold">{t.landing.title}</span>
           </div>
           <div className="flex gap-4">
@@ -46,7 +47,7 @@ const Homepage = () => {
 
         <div className="flex-1 flex items-center justify-center px-6 pb-16">
           <div className="max-w-4xl text-center text-white">
-            <div className="text-8xl mb-6">🦜</div>
+            <MacawIcon size={96} className="text-white mx-auto mb-6" />
             <h1 className="text-6xl md:text-8xl font-bold mb-4">{t.landing.title}</h1>
             <p className="text-2xl md:text-3xl font-light mb-3">{t.landing.subtitle}</p>
             <p className="text-lg md:text-xl text-blue-100 mb-12 max-w-2xl mx-auto leading-relaxed">

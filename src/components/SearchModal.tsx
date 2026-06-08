@@ -61,7 +61,7 @@ export default function SearchModal({ open, onClose }: Props) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search users, posts..."
+            placeholder={t.search.placeholder}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm dark:text-white"
@@ -84,7 +84,7 @@ export default function SearchModal({ open, onClose }: Props) {
                     : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 }`}
               >
-                {tab === "all" ? "All" : tab === "users" ? "People" : "Posts"}
+                {tab === "all" ? t.search.all : tab === "users" ? t.search.people : t.search.posts}
               </button>
             ))}
           </div>
@@ -95,7 +95,7 @@ export default function SearchModal({ open, onClose }: Props) {
           {!query ? (
             <div className="py-8 text-center text-gray-400 dark:text-gray-500 text-sm">
               <FiSearch size={32} className="mx-auto mb-3 opacity-50" />
-              Type to search users and posts
+              {t.search.empty}
             </div>
           ) : (
             <>
@@ -103,7 +103,7 @@ export default function SearchModal({ open, onClose }: Props) {
               {(activeTab === "all" || activeTab === "users") && users.length > 0 && (
                 <div className="mb-2">
                   {activeTab === "all" && (
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">People</p>
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t.search.people}</p>
                   )}
                   {users.map((user) => (
                     <Link
@@ -126,7 +126,7 @@ export default function SearchModal({ open, onClose }: Props) {
               {(activeTab === "all" || activeTab === "posts") && posts.length > 0 && (
                 <div>
                   {activeTab === "all" && (
-                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Posts</p>
+                    <p className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">{t.search.posts}</p>
                   )}
                   {posts.map((post) => (
                     <div
@@ -146,7 +146,7 @@ export default function SearchModal({ open, onClose }: Props) {
 
               {users.length === 0 && posts.length === 0 && (
                 <div className="py-8 text-center text-gray-400 text-sm">
-                  No results found for &quot;{query}&quot;
+                  {t.search.noResults} &quot;{query}&quot;
                 </div>
               )}
             </>

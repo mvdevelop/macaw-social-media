@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { useTranslation } from "@/context/LanguageProvider";
 import {
   FiMessageSquare, FiX, FiSend, FiMinus, FiChevronLeft,
 } from "react-icons/fi";
@@ -29,6 +30,7 @@ interface SupabaseConversation {
 }
 
 export default function ChatPanel() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [conversations, setConversations] = useState<any[]>([]);
@@ -227,7 +229,7 @@ export default function ChatPanel() {
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     if (days === 0) return formatTime(dateStr);
-    if (days === 1) return "Yesterday";
+    if (days === 1) return t.chat.yesterday;
     return date.toLocaleDateString();
   };
 
@@ -259,7 +261,7 @@ export default function ChatPanel() {
           )}
           <FiMessageSquare size={18} />
           <span className="font-semibold text-sm">
-            {activeConv ? activeConv.user?.name : "Messages"}
+            {activeConv ? activeConv.user?.name : t.chat.messages}
           </span>
           {activeConv?.online && (
             <span className="w-2 h-2 rounded-full bg-green-400" />
@@ -300,7 +302,7 @@ export default function ChatPanel() {
                 <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 rounded-xl px-3 py-2">
                   <input
                     type="text"
-                    placeholder="Type a message..."
+                    placeholder={t.chat.typeMessage}
                     value={newMsg}
                     onChange={(e) => setNewMsg(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -319,7 +321,7 @@ export default function ChatPanel() {
           ) : (
             <div className="flex-1 overflow-y-auto">
               {conversations.length === 0 ? (
-                <div className="py-8 text-center text-gray-400 text-sm">No conversations yet</div>
+                <div className="py-8 text-center text-gray-400 text-sm">{t.chat.noConversations}</div>
               ) : (
                 conversations.map((conv: any) => (
                   <div

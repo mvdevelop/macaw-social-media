@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { createComment, likeComment } from "@/lib/actions";
-import { getCommentsByPostId } from "@/lib/mock-data";
+import { getCommentsByPostId, getCurrentUser } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/client";
 import { getOrFetch } from "@/lib/cache";
 import { FiHeart, FiCornerDownRight } from "react-icons/fi";
@@ -25,9 +25,23 @@ const Comments = ({ postId }: { postId: number }) => {
   const [replyTo, setReplyTo] = useState<{ id: number; name: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [userAvatar, setUserAvatar] = useState("");
   const mountedRef = useRef(true);
   const replyInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
+
+  // Carrega avatar do usuário logado
+  useEffect(() => {
+    const mock = getCurrentUser();
+    setUserAvatar(mock.avatar);
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from("users").select("avatar").eq("id", user.id).single().then(({ data }) => {
+        if (data?.avatar && mountedRef.current) setUserAvatar(data.avatar);
+      });
+    });
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -85,7 +99,7 @@ const Comments = ({ postId }: { postId: number }) => {
       const optimistic: CommentItem = {
         id: Date.now(), content: newComment, createdAt: new Date().toISOString(),
         userId: "", parentId: replyTo?.id || null,
-        user: { id: "", name: "You", surname: "", avatar: "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg" },
+        user: { id: "", name: "You", surname: "", avatar: userAvatar || "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg" },
         likes: 0,
       };
       setComments([...comments, optimistic]);
@@ -135,7 +149,7 @@ const Comments = ({ postId }: { postId: number }) => {
       {/* Comment input */}
       <form onSubmit={handleSubmit} className="flex items-center gap-3">
         <Image
-          src="https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg"
+          src={userAvatar || "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg"}
           alt="" width={32} height={32}
           className="w-8 h-8 rounded-full object-cover shrink-0"
         />

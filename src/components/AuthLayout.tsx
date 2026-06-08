@@ -5,6 +5,7 @@ import { languages } from "@/lib/i18n";
 import { useState, useRef, useEffect } from "react";
 import { FiGlobe, FiCheck } from "react-icons/fi";
 import { Heart, MessageCircle, Users, Camera, Compass } from "lucide-react";
+import MacawIcon from "@/components/MacawIcon";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useTranslation();
@@ -22,11 +23,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row font-sans">
       {/* LADO ESQUERDO: Painel Informativo com Gradiente */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#0052FF] via-[#6825FF] to-[#C100FF] p-8 md:p-16 flex flex-col justify-between relative overflow-hidden text-white min-h-[500px] md:min-h-screen">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] p-8 md:p-16 flex flex-col justify-between relative overflow-hidden text-white min-h-[500px] md:min-h-screen">
         {/* Logo e Language Switcher */}
         <div className="flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold">🦜 Macaw</span>
+            <MacawIcon size={28} className="text-white" />
+            <span className="text-2xl font-bold">Macaw</span>
           </div>
 
           {/* Language Selector */}

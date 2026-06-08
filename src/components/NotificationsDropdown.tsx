@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiBell, FiHeart, FiMessageCircle, FiUserPlus, FiUserCheck, FiShare2 } from "react-icons/fi";
+import { useTranslation } from "@/context/LanguageProvider";
 import { createClient } from "@/lib/supabase/client";
 import { markNotificationRead, markAllNotificationsRead } from "@/lib/actions";
 import { getNotifications, getUnreadNotificationCount } from "@/lib/mock-data";
@@ -27,6 +28,7 @@ interface Notification {
 }
 
 export default function NotificationsDropdown() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -141,12 +143,12 @@ export default function NotificationsDropdown() {
   const getContent = (notif: any) => {
     const name = `${notif.actor?.name || ""} ${notif.actor?.surname || ""}`.trim();
     switch (notif.type) {
-      case "like": return <><span className="font-semibold">{name}</span> liked your post</>;
-      case "comment": return <><span className="font-semibold">{name}</span> commented on your post</>;
-      case "follow": return <><span className="font-semibold">{name}</span> started following you</>;
-      case "friend_request": return <><span className="font-semibold">{name}</span> sent you a friend request</>;
-      case "share": return <><span className="font-semibold">{name}</span> shared your post</>;
-      case "message": return <><span className="font-semibold">{name}</span> sent you a message</>;
+      case "like": return <><span className="font-semibold">{name}</span> {t.notifications.liked}</>;
+      case "comment": return <><span className="font-semibold">{name}</span> {t.notifications.commented}</>;
+      case "follow": return <><span className="font-semibold">{name}</span> {t.notifications.followed}</>;
+      case "friend_request": return <><span className="font-semibold">{name}</span> {t.notifications.friendRequest}</>;
+      case "share": return <><span className="font-semibold">{name}</span> {t.notifications.shared}</>;
+      case "message": return <><span className="font-semibold">{name}</span> {t.notifications.message}</>;
       default: return "";
     }
   };
@@ -191,10 +193,10 @@ export default function NotificationsDropdown() {
         <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-            <h3 className="font-semibold text-gray-800 dark:text-white text-sm">Notifications</h3>
+            <h3 className="font-semibold text-gray-800 dark:text-white text-sm">{t.notifications.title}</h3>
             {unreadCount > 0 && (
               <button onClick={handleMarkAllRead} className="text-xs text-blue-500 hover:text-blue-600 font-medium">
-                Mark all read
+                {t.notifications.markAllRead}
               </button>
             )}
           </div>
@@ -202,7 +204,7 @@ export default function NotificationsDropdown() {
           {/* List */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-8 text-center text-gray-400 text-sm">No notifications yet</div>
+              <div className="py-8 text-center text-gray-400 text-sm">{t.notifications.empty}</div>
             ) : (
               notifications.map((notif) => (
                 <div

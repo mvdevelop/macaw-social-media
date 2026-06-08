@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslation } from "@/context/LanguageProvider";
+import MacawIcon from "@/components/MacawIcon";
 import styles from "../login.module.css";
 
 export default function SignUpPage() {
@@ -68,7 +69,7 @@ export default function SignUpPage() {
   return (
     <div className={styles.container}>
       <section className={styles.hero}>
-        <div className={styles.logo}>🦜 <span>Macaw</span></div>
+        <div className={styles.logo}><MacawIcon size={24} className="text-white inline" /> <span>Macaw</span></div>
         <div className={styles.content}>
           <h1>{t.landing.subtitle}</h1>
           <p>{t.landing.description}</p>

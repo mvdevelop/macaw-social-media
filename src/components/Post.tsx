@@ -35,9 +35,9 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
-    if (diffHrs < 1) return `${Math.floor(diffMs / (1000 * 60))}m ago`;
-    if (diffHrs < 24) return `${diffHrs}h ago`;
-    return `${Math.floor(diffHrs / 24)}d ago`;
+    if (diffHrs < 1) return `${Math.floor(diffMs / (1000 * 60))}${t.feed.minAgo}`;
+    if (diffHrs < 24) return `${diffHrs}${t.feed.hoursAgo}`;
+    return `${Math.floor(diffHrs / 24)}${t.feed.daysAgo}`;
   };
 
   const handleLike = async () => {
@@ -65,7 +65,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
   };
 
   const handleDelete = async () => {
-    if (!confirm("Delete this post?")) return;
+    if (!confirm(t.feed.confirmDelete)) return;
     try {
       await deletePost(post.id);
       onDelete?.(post.id);
@@ -73,7 +73,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     setMenuOpen(false);
   };
 
-  const isVideo = post.img?.includes("post-videos") || post.img?.endsWith(".mp4") || post.img?.endsWith(".webm");
+  const isVideo = post.img?.includes("post-videos") || post.img?.includes("vimeo") || post.img?.includes("player.") || post.img?.endsWith(".mp4") || post.img?.endsWith(".webm");
 
   return (
     <div className="flex flex-col gap-4">
@@ -99,13 +99,13 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
                 onClick={() => { setEditing(true); setMenuOpen(false); }}
                 className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
               >
-                <FiEdit2 size={14} /> Edit
+                <FiEdit2 size={14} /> {t.feed.edit}
               </button>
               <button
                 onClick={handleDelete}
                 className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 transition"
               >
-                <FiTrash2 size={14} /> Delete
+                <FiTrash2 size={14} /> {t.feed.delete}
               </button>
             </div>
           )}
@@ -122,11 +122,11 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
           <div className="flex gap-2 justify-end">
             <button onClick={() => { setEditing(false); setEditContent(post.content); }}
               className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition">
-              <FiX size={14} /> Cancel
+              <FiX size={14} /> {t.feed.cancel}
             </button>
             <button onClick={handleEdit} disabled={savingEdit}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50">
-              <FiCheck size={14} /> {savingEdit ? "Saving..." : "Save"}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white rounded-lg hover:opacity-90 transition disabled:opacity-50">
+              <FiCheck size={14} /> {savingEdit ? t.feed.saving : t.feed.save}
             </button>
           </div>
         </div>
