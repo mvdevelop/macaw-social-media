@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo e Language Switcher */}
         <div className="flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <MacawIcon size={28} className="text-white" />
+            <MacawIcon size={36} className="text-white" />
             <span className="text-2xl font-bold">Macaw</span>
           </div>
 

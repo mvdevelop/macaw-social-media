@@ -12,3 +12,19 @@
   /* For Firefox */
   scrollbar-width: none;
 }
+
+/* Stagger fade-in animation for feed */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeSlideIn {
+  animation: fadeSlideIn 0.35s ease-out forwards;
+}

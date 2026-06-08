@@ -39,12 +39,12 @@ const Navbar = () => {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] h-16" />
+      <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] dark:from-[#1e1e2e] dark:via-[#2d2d44] dark:to-[#1a1a2e] h-16" />
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <div className="bg-gradient-to-r from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] dark:from-[#1e1e2e] dark:via-[#2d2d44] dark:to-[#1a1a2e] px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
       <div className="h-16 flex items-center justify-between">
         {/* Left - Logo */}
         <div className="flex items-center gap-3">

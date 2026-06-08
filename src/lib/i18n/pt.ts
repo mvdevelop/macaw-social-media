@@ -81,6 +81,8 @@ const pt: Translations = {
     minAgo: "min atrás",
     hoursAgo: "h atrás",
     daysAgo: "d atrás",
+    shuffle: "Embaralhar",
+    allCaughtUp: "Você viu todos os posts",
   },
 
   // Search

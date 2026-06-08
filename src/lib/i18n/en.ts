@@ -84,6 +84,8 @@ const en = {
     minAgo: "m ago",
     hoursAgo: "h ago",
     daysAgo: "d ago",
+    shuffle: "Shuffle",
+    allCaughtUp: "You've seen all posts",
   },
 
   // Search

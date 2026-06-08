@@ -5,19 +5,43 @@ import { getPosts } from "@/lib/mock-data";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { getOrFetch } from "@/lib/cache";
+import { useTranslation } from "@/context/LanguageProvider";
+import { FiRefreshCw, FiShuffle } from "react-icons/fi";
 import type { MockPost } from "@/lib/mock-data";
 
 const CACHE_KEY = "feed:posts";
 const PAGE_SIZE = 10;
+const STAGGER_DELAY = 50; // ms between each post animation
+
+// Seeded shuffle (Fisher-Yates with Date.now seed so it's different each time)
+function shuffleArray<T>(arr: T[]): T[] {
+  const copy = [...arr];
+  let seed = Date.now();
+  const rng = () => {
+    seed = (seed * 16807 + 0) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 const Feed = () => {
+  const { t } = useTranslation();
   const [posts, setPosts] = useState<MockPost[]>([]);
+  const [displayPosts, setDisplayPosts] = useState<MockPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [animatingIds, setAnimatingIds] = useState<Set<number>>(new Set());
+  const [currentBatch, setCurrentBatch] = useState(0);
   const mountedRef = useRef(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const allPostsRef = useRef<MockPost[]>([]);
 
   // Fetch initial posts
   useEffect(() => {
@@ -55,10 +79,17 @@ const Feed = () => {
 
         if (mountedRef.current) {
           setPosts(data);
+          setDisplayPosts(data);
+          allPostsRef.current = data;
           setHasMore(data.length >= PAGE_SIZE);
         }
       } catch {
-        if (mountedRef.current) setPosts(getPosts());
+        if (mountedRef.current) {
+          const fallback = getPosts();
+          setPosts(fallback);
+          setDisplayPosts(fallback);
+          allPostsRef.current = fallback;
+        }
       } finally {
         if (mountedRef.current) setLoading(false);
       }
@@ -67,6 +98,32 @@ const Feed = () => {
     fetchPosts();
     return () => { mountedRef.current = false; };
   }, []);
+
+  // Handle refresh/shuffle
+  const handleRefresh = useCallback(() => {
+    if (refreshing) return;
+    setRefreshing(true);
+
+    // Shuffle the current posts
+    const shuffled = shuffleArray(displayPosts);
+    allPostsRef.current = shuffled;
+
+    // Animate stagger: add ids one by one
+    const ids = new Set(shuffled.map(p => p.id));
+    setAnimatingIds(ids);
+
+    // Set display after a tiny delay for animation to register
+    setTimeout(() => {
+      setDisplayPosts(shuffled);
+      setCurrentBatch(prev => prev + 1);
+    }, 50);
+
+    // Remove animation class after stagger completes
+    setTimeout(() => {
+      setAnimatingIds(new Set());
+      setRefreshing(false);
+    }, shuffled.length * STAGGER_DELAY + 300);
+  }, [refreshing, displayPosts]);
 
   // Load more posts (infinite scroll)
   const loadMore = useCallback(async () => {
@@ -102,6 +159,7 @@ const Feed = () => {
           likes: 0, liked: false, commentCount: 0,
         }));
         setPosts((prev) => [...prev, ...mapped]);
+        setDisplayPosts((prev) => [...prev, ...mapped]);
         setPage(nextPage);
         setHasMore(data.length >= PAGE_SIZE);
       } else {
@@ -147,6 +205,7 @@ const Feed = () => {
             likes: 0, liked: false, commentCount: 0,
           };
           setPosts((prev) => [mapped, ...prev]);
+          setDisplayPosts((prev) => [mapped, ...prev]);
         }
       )
       .subscribe();
@@ -178,11 +237,54 @@ const Feed = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {posts.map((post, index) => (
-        <div key={post.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors">
-          <Post post={post} onDelete={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))} />
+      {/* Refresh/Shuffle bar */}
+      {displayPosts.length > 0 && (
+        <div className="flex items-center justify-between px-1">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            {displayPosts.length} posts
+          </p>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow transition disabled:opacity-50"
+            title="Refresh feed"
+          >
+            <FiRefreshCw
+              size={14}
+              className={`transition-all ${refreshing ? "animate-spin" : ""}`}
+            />
+            <FiShuffle size={12} />
+            <span>{t.feed.shuffle || "Shuffle"}</span>
+          </button>
         </div>
-      ))}
+      )}
+
+      {/* Posts with stagger animation */}
+      {displayPosts.map((post, index) => {
+        const isNewBatch = animatingIds.has(post.id);
+        const delay = isNewBatch ? index * STAGGER_DELAY : 0;
+
+        return (
+          <div
+            key={`${post.id}-${currentBatch}`}
+            className={`p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors ${
+              isNewBatch ? "animate-fadeSlideIn" : ""
+            }`}
+            style={{
+              animationDelay: isNewBatch ? `${delay}ms` : "0ms",
+              animationFillMode: "backwards",
+            }}
+          >
+            <Post
+              post={post}
+              onDelete={(id) => {
+                setPosts((prev) => prev.filter((p) => p.id !== id));
+                setDisplayPosts((prev) => prev.filter((p) => p.id !== id));
+              }}
+            />
+          </div>
+        );
+      })}
 
       {/* Sentinel para infinite scroll */}
       <div ref={sentinelRef} className="h-4" />
@@ -193,8 +295,8 @@ const Feed = () => {
         </div>
       )}
 
-      {!hasMore && posts.length > 0 && (
-        <p className="text-center text-gray-400 text-sm py-4">You've seen all posts</p>
+      {!hasMore && displayPosts.length > 0 && (
+        <p className="text-center text-gray-400 text-sm py-4">{t.feed.allCaughtUp || "You've seen all posts"}</p>
       )}
     </div>
   );

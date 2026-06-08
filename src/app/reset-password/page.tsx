@@ -15,11 +15,18 @@ export default function ResetPasswordPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verifica se tem o hash de recovery na URL (enviado pelo Supabase)
-    const hash = window.location.hash;
-    if (!hash || !hash.includes("type=recovery")) {
-      setError(t.resetPassword.invalidLink);
-    }
+    // Verifica se tem sessão ativa (vinda do recovery page)
+    const checkSession = async () => {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+
+      // Fallback: verifica se ainda tem hash de recovery na URL (acesso direto)
+      const hash = window.location.hash;
+      if (!session && (!hash || !hash.includes("type=recovery"))) {
+        setError(t.resetPassword.invalidLink);
+      }
+    };
+    checkSession();
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
@@ -73,7 +80,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#0052FF] to-[#6825FF] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
             >
               {loading ? t.resetPassword.updating : t.resetPassword.updatePassword}
             </button>

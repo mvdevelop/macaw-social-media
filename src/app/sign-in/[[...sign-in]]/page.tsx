@@ -47,7 +47,7 @@ export default function SignInPage() {
     setLoading(true);
     const supabase = createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${location.origin}/auth/callback?type=reset`,
+      redirectTo: `${location.origin}/auth/recovery`,
     });
     if (error) {
       setError(error.message);
@@ -79,7 +79,7 @@ export default function SignInPage() {
   return (
     <div className={styles.container}>
       <section className={styles.hero}>
-        <div className={styles.logo}><MacawIcon size={24} className="text-white inline" /> <span>Macaw</span></div>
+        <div className={styles.logo}><MacawIcon size={36} className="text-white inline-block align-middle" /> <span className="align-middle ml-1">Macaw</span></div>
         <div className={styles.content}>
           <h1>{t.landing.subtitle}</h1>
           <p>{t.landing.description}</p>
@@ -120,9 +120,9 @@ export default function SignInPage() {
             <input type="text" placeholder={t.auth.emailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required />
             <input type="password" placeholder={t.auth.passwordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} required />
             <div className="flex justify-end -mt-2">
-              <button type="button" onClick={handleForgotPassword} className="text-xs text-blue-400 hover:text-blue-300 transition cursor-pointer">
+              <span onClick={handleForgotPassword} className="text-sm font-semibold text-[#4340ff] hover:text-[#6825FF] hover:underline cursor-pointer transition">
                 {t.auth.forgotPassword}
-              </button>
+              </span>
             </div>
             <button type="submit" disabled={loading}>{loading ? t.auth.signingIn : t.auth.login}</button>
           </form>

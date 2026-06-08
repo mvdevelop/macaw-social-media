@@ -69,7 +69,7 @@ export default function SignUpPage() {
   return (
     <div className={styles.container}>
       <section className={styles.hero}>
-        <div className={styles.logo}><MacawIcon size={24} className="text-white inline" /> <span>Macaw</span></div>
+        <div className={styles.logo}><MacawIcon size={36} className="text-white inline-block align-middle" /> <span className="align-middle ml-1">Macaw</span></div>
         <div className={styles.content}>
           <h1>{t.landing.subtitle}</h1>
           <p>{t.landing.description}</p>

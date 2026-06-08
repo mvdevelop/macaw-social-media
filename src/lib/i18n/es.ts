@@ -81,6 +81,8 @@ const es: Translations = {
     minAgo: "min atrás",
     hoursAgo: "h atrás",
     daysAgo: "d atrás",
+    shuffle: "Mezclar",
+    allCaughtUp: "Has visto todas las publicaciones",
   },
 
   // Search
