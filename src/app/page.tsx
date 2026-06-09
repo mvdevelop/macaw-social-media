@@ -2,6 +2,8 @@
 
 import { useAuth } from "@/context/AuthProvider";
 import { useTranslation } from "@/context/LanguageProvider";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import AddPost from "@/components/AddPost";
 import Feed from "@/components/Feed";
 import LeftMenu from "@/components/LeftMenu";
@@ -10,12 +12,31 @@ import Stories from "@/components/Stories";
 import Link from "next/link";
 import { FiUsers, FiCamera, FiCompass } from "react-icons/fi";
 import MacawIcon from "@/components/MacawIcon";
+import { isProfileComplete } from "@/lib/onboarding";
 
 const Homepage = () => {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
+  const router = useRouter();
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
-  if (loading) {
+  // Redireciona novos usuários para o onboarding
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      setCheckingOnboarding(false);
+      return;
+    }
+    isProfileComplete().then(({ needsOnboarding }) => {
+      if (needsOnboarding) {
+        router.push("/onboarding");
+      } else {
+        setCheckingOnboarding(false);
+      }
+    }).catch(() => setCheckingOnboarding(false));
+  }, [user, loading, router]);
+
+  if (loading || checkingOnboarding) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex items-center justify-center">
         <div className="text-white text-center">

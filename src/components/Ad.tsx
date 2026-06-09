@@ -100,42 +100,30 @@ const Ad = ({ size }: { size: "sm" | "md" | "lg" }) => {
 
       {/* Fallback visual ad — sempre visível */}
       <div className={`flex flex-col gap-3`}>
-        <a
-          href={ad.link}
-          target="_blank"
-          rel="noopener sponsored nofollow"
-          className={`relative w-full ${heightMap[size]} rounded-lg overflow-hidden block group`}
+        <div
+          className={`relative w-full ${heightMap[size]} rounded-lg overflow-hidden group cursor-default`}
         >
           <img
             src={ad.image}
             alt={ad.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        </a>
+        </div>
 
-        <a
-          href={ad.link}
-          target="_blank"
-          rel="noopener sponsored nofollow"
-          className="flex items-center gap-3 hover:opacity-80 transition"
-        >
+        <div className="flex items-center gap-3">
           <img src={ad.logo} alt="" width={24} height={24} className="rounded-full w-6 h-6 object-cover bg-gray-100" />
           <span className="text-blue-500 font-medium text-sm">{ad.title}</span>
-        </a>
+        </div>
 
         <p className={`text-gray-500 dark:text-gray-400 ${size === "sm" ? "text-xs" : "text-sm"}`}>
           {ad.description}
         </p>
 
-        <a
-          href={ad.link}
-          target="_blank"
-          rel="noopener sponsored nofollow"
-          className="block w-full text-center bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-xs font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+        <button disabled
+          className="block w-full text-center bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 py-2 rounded-lg text-xs font-medium cursor-not-allowed"
         >
-          {t.common.learnMore}
-        </a>
+          {t.common.learnMore} — em breve
+        </button>
       </div>
     </div>
   );

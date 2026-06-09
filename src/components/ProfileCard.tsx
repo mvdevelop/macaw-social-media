@@ -104,20 +104,26 @@ const ProfileCard = () => {
 
   if (!profile) return null;
 
-  const displayCover = profile.cover || "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg";
-  const displayAvatar = profile.avatar || "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg";
+  // Fallback visual: gradient em vez de imagem fake
+  const displayCover = profile.cover || "";
+  const displayAvatar = profile.avatar || "";
+  const initials = (profile.name?.charAt(0)?.toUpperCase() || "U") + (profile.surname?.charAt(0)?.toUpperCase() || "");
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-colors">
       {/* Cover */}
       <Link href={`/profile/${profile.id}`} className="block relative h-24 group">
-        <Image
-          src={displayCover}
-          alt=""
-          fill
-          sizes="(max-width: 768px) 100vw, 280px"
-          className="object-cover"
-        />
+        {displayCover ? (
+          <Image
+            src={displayCover}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 280px"
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-[#4A8CFF]/20 via-[#7C5CFC]/20 to-[#A855F7]/20 dark:from-[#1e1e2e] dark:via-[#2d2d44] dark:to-[#1a1a2e]" />
+        )}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
         <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
           <FiCamera size={14} className="text-white" />
@@ -131,13 +137,19 @@ const ProfileCard = () => {
             href={`/profile/${profile.id}`}
             className="relative -mt-10 w-20 h-20 rounded-full ring-4 ring-white dark:ring-gray-800 overflow-hidden group"
           >
-            <Image
-              src={displayAvatar}
-              alt=""
-              width={80}
-              height={80}
-              className="rounded-full object-cover w-20 h-20"
-            />
+            {displayAvatar ? (
+              <Image
+                src={displayAvatar}
+                alt=""
+                width={80}
+                height={80}
+                className="rounded-full object-cover w-20 h-20"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#4A8CFF] to-[#A855F7] flex items-center justify-center text-white text-xl font-bold">
+                {initials || "U"}
+              </div>
+            )}
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-full" />
           </Link>
         </div>

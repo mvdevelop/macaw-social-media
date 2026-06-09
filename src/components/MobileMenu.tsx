@@ -23,11 +23,11 @@ const MobileMenu = () => {
           <Link href="/my-posts" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.sidebar.myPosts}
           </Link>
-          <Link href="/activity" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            {t.sidebar.activity}
+          <Link href="/reels" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            Reels
           </Link>
-          <Link href="/friends" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            {t.nav.friends}
+          <Link href="/messenger" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            Messenger
           </Link>
           <Link href="/marketplace" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.nav.marketplace}

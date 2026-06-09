@@ -8,13 +8,13 @@ import RightMenu from "@/components/RightMenu";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { followUser, updateProfile, updateProfileCover } from "@/lib/actions";
+import { followUser, updateProfile, updateProfileCover, getOrCreateConversation } from "@/lib/actions";
 import { processUpload } from "@/lib/image-utils";
 import { getUserById, getPostsByUserId, getCurrentUser, getStories } from "@/lib/mock-data";
 import { useTranslation } from "@/context/LanguageProvider";
 import {
   FiCalendar, FiMapPin, FiUserPlus, FiUserCheck,
-  FiCamera, FiEdit2, FiSettings, FiCheck, FiX, FiArrowLeft,
+  FiCamera, FiEdit2, FiSettings, FiCheck, FiX, FiArrowLeft, FiSend,
 } from "react-icons/fi";
 
 interface ProfileUser {
@@ -162,6 +162,18 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
     else setFollowersCount((c) => c + 1);
     try { await followUser(id); }
     catch { setIsFollowing(isFollowing); }
+  };
+
+  const handleSendMessage = async () => {
+    if (!currentUserId) return;
+    try {
+      const convId = await getOrCreateConversation(id);
+      if (convId) {
+        router.push(`/?chat=${convId}`);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -344,15 +356,22 @@ export default function ProfilePage({ params }: { params: Promise<{ id: string }
                 {/* Actions */}
                 <div className="flex items-center gap-3">
                   {!isOwnProfile ? (
-                    <button onClick={handleFollowToggle}
-                      className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-sm transition ${
-                        isFollowing
-                          ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 hover:text-red-500"
-                          : "bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white hover:opacity-90"
-                      }`}>
-                      {isFollowing ? <FiUserCheck size={16} /> : <FiUserPlus size={16} />}
-                      {isFollowing ? t.profile.following : t.profile.follow}
-                    </button>
+                    <>
+                      <button onClick={handleFollowToggle}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-sm transition ${
+                          isFollowing
+                            ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-100 hover:text-red-500"
+                            : "bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white hover:opacity-90"
+                        }`}>
+                        {isFollowing ? <FiUserCheck size={16} /> : <FiUserPlus size={16} />}
+                        {isFollowing ? t.profile.following : t.profile.follow}
+                      </button>
+                      <button onClick={handleSendMessage}
+                        className="flex items-center gap-2 px-5 py-2 rounded-lg font-semibold text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <FiSend size={16} />
+                        Message
+                      </button>
+                    </>
                   ) : currentUserId && !isMockUser ? (
                     <button onClick={() => router.push("/settings")}
                       className="flex items-center gap-2 px-6 py-2 rounded-lg font-semibold text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">

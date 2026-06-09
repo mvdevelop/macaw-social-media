@@ -9,6 +9,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage, markConversationRead } from "@/lib/actions";
 import { getConversations, getConversationById, getTotalUnreadMessages, getCurrentUser } from "@/lib/mock-data";
+import { useOnlinePresence } from "@/lib/useOnlinePresence";
 import type { MockConversation, MockMessage } from "@/lib/mock-data";
 
 interface SupabaseMessage {
@@ -41,6 +42,9 @@ export default function ChatPanel() {
   const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUser = getCurrentUser();
+
+  // Online presence tracking
+  const { isOnline } = useOnlinePresence();
 
   // Load current user and conversations
   useEffect(() => {
@@ -274,7 +278,7 @@ export default function ChatPanel() {
           <span className="font-semibold text-sm">
             {activeConv ? activeConv.user?.name : t.chat.messages}
           </span>
-          {activeConv?.online && (
+          {(activeConv?.online || (activeConv?.user?.id && isOnline(activeConv.user.id))) && (
             <span className="w-2 h-2 rounded-full bg-green-400" />
           )}
         </div>
@@ -347,7 +351,7 @@ export default function ChatPanel() {
                         width={44} height={44}
                         className="w-11 h-11 rounded-full object-cover"
                       />
-                      {conv.online && (
+                      {(conv.online || isOnline(conv.user?.id)) && (
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
                       )}
                     </div>

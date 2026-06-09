@@ -4,16 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import Comments from "./Comments";
 import { useState, useRef, useEffect } from "react";
-import { likePost, sharePost, deletePost, updatePost } from "@/lib/actions";
-import { FiHeart, FiMessageCircle, FiShare2, FiMoreHorizontal, FiEdit2, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { likePost, sharePost, deletePost, updatePost, toggleBookmark } from "@/lib/actions";
+import {
+  FiHeart, FiMessageCircle, FiShare2, FiBookmark,
+  FiMoreHorizontal, FiEdit2, FiTrash2, FiCheck, FiX,
+} from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
+import { createClient } from "@/lib/supabase/client";
 import type { MockPost } from "@/lib/mock-data";
 
 const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => void }) => {
   const [liked, setLiked] = useState(post.liked);
   const [likes, setLikes] = useState(post.likes);
+  const [bookmarked, setBookmarked] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [shareAnim, setShareAnim] = useState(false);
+  const [bookmarkAnim, setBookmarkAnim] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content);
@@ -21,7 +27,6 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
-  // Close menu on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -30,6 +35,25 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [menuOpen]);
+
+  // Verifica se o post está salvo pelo usuário real
+  useEffect(() => {
+    const checkBookmark = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data } = await supabase
+          .from("bookmarks")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("post_id", post.id)
+          .maybeSingle();
+        setBookmarked(!!data);
+      } catch {}
+    };
+    checkBookmark();
+  }, [post.id]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -49,10 +73,34 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     try { await likePost(post.id); } catch { setLiked(liked); setLikes(post.likes); }
   };
 
-  const handleShare = async () => {
+  const handleBookmark = async () => {
+    setBookmarked(!bookmarked);
+    setBookmarkAnim(true);
+    setTimeout(() => setBookmarkAnim(false), 300);
+    try { await toggleBookmark(post.id); } catch { setBookmarked(bookmarked); }
+  };
+
+  const handleShareClick = async () => {
     setShareAnim(true);
     setTimeout(() => setShareAnim(false), 300);
-    try { await sharePost(post.id); } catch (err) { console.error(err); }
+
+    // Tenta Web Share API
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: `Post by ${post.user.name}`,
+          text: post.content,
+          url: `${window.location.origin}/profile/${post.user.id}`,
+        });
+        return;
+      } catch {}
+    }
+
+    // Fallback: copia link
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/profile/${post.user.id}`);
+      alert("Link copied to clipboard!");
+    } catch {}
   };
 
   const handleEdit = async () => {
@@ -154,6 +202,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
 
       <hr className="border-gray-100 dark:border-gray-700" />
 
+      {/* Action buttons: Like, Comment, Share, Bookmark */}
       <div className="flex items-center justify-between">
         <button onClick={handleLike}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
@@ -166,10 +215,17 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
           <FiMessageCircle size={20} />
           <span className="text-sm font-medium">{t.feed.comment}</span>
         </button>
-        <button onClick={handleShare}
+        <button onClick={handleShareClick}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${shareAnim ? "scale-110" : ""}`}>
           <FiShare2 size={20} />
           <span className="text-sm font-medium">{t.feed.share}</span>
+        </button>
+        <button onClick={handleBookmark}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+            bookmarked ? "text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+          } ${bookmarkAnim ? "scale-110" : ""}`}>
+          <FiBookmark size={20} fill={bookmarked ? "currentColor" : "none"} />
+          <span className="text-sm font-medium">{bookmarked ? "Saved" : "Save"}</span>
         </button>
       </div>
 
