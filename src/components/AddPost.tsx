@@ -178,7 +178,7 @@ const AddPost = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50"
+              className="bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] text-white px-6 py-2 rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 active:scale-95"
             >
               {submitting ? t.addPost.posting : t.addPost.send}
             </button>

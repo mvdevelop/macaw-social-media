@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { FiX, FiChevronLeft, FiChevronRight, FiPause, FiPlay } from "react-icons/fi";
+import { FiX, FiChevronLeft, FiChevronRight, FiPause, FiPlay, FiShare2 } from "react-icons/fi";
 
 interface StoryUser {
   id: string;
@@ -199,6 +199,22 @@ export default function StoryViewer({ stories, initialIndex, onClose }: StoryVie
           {current.user.name}
         </span>
       </div>
+
+      {/* Share button */}
+      <button
+        onClick={() => {
+          const text = `Check out ${current.user.name}'s story on Macaw!`;
+          if (typeof navigator !== "undefined" && navigator.share) {
+            navigator.share({ title: "Macaw Story", text, url: window.location.href }).catch(() => {});
+          } else {
+            navigator.clipboard.writeText(window.location.href).catch(() => {});
+          }
+        }}
+        className="absolute top-6 right-14 z-20 flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-medium hover:bg-white/30 transition active:scale-90"
+      >
+        <FiShare2 size={14} />
+        Share
+      </button>
 
       {/* Story image */}
       <div

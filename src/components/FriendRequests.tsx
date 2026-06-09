@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { acceptFriendRequest, rejectFriendRequest } from "@/lib/actions";
 import { getFriendRequests } from "@/lib/mock-data";
+import { FiUserPlus } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
 
 const FriendRequests = () => {
@@ -78,7 +79,10 @@ const FriendRequests = () => {
       </div>
 
       {requests.length === 0 ? (
-        <p className="text-gray-400 dark:text-gray-500 text-xs text-center py-2">{t.friends.noRequests}</p>
+        <div className="flex flex-col items-center gap-2 py-4">
+          <FiUserPlus size={22} className="text-gray-300 dark:text-gray-600" />
+          <p className="text-gray-400 dark:text-gray-500 text-xs text-center">{t.friends.noRequests}</p>
+        </div>
       ) : (
         requests.slice(0, 3).map((req) => (
           <div key={req.id} className="flex items-center justify-between">

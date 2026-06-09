@@ -209,7 +209,7 @@ export default function NotificationsDropdown() {
               notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className={`flex items-start gap-3 px-4 py-3 transition cursor-pointer ${
+                  className={`flex items-start gap-3 px-4 py-3 transition cursor-pointer group ${
                     notif.read
                       ? "hover:bg-gray-50 dark:hover:bg-gray-700"
                       : "bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-50 dark:hover:bg-blue-900/30"
@@ -236,7 +236,15 @@ export default function NotificationsDropdown() {
                     <p className="text-xs text-gray-400 mt-0.5">{formatTime(notif.created_at)}</p>
                   </div>
                   {!notif.read && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-2" />
+                    <div className="flex items-center gap-2 shrink-0 mt-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleMarkRead(notif.id); }}
+                        className="opacity-0 group-hover:opacity-100 text-[10px] text-blue-500 hover:text-blue-600 font-medium transition"
+                      >
+                        Mark read
+                      </button>
+                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    </div>
                   )}
                 </div>
               ))

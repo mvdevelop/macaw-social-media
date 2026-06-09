@@ -237,6 +237,16 @@ const Feed = () => {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Pull-to-refresh hint */}
+      {displayPosts.length > 0 && (
+        <div className="text-center py-0.5 opacity-60">
+          <div className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center justify-center gap-1">
+            <FiRefreshCw size={10} />
+            <span>Pull to refresh</span>
+          </div>
+        </div>
+      )}
+
       {/* Refresh/Shuffle bar */}
       {displayPosts.length > 0 && (
         <div className="flex items-center justify-between px-1">

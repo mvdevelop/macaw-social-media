@@ -284,7 +284,7 @@ export interface MockGroup {
 
 export interface MockNotification {
   id: number;
-  type: "like" | "comment" | "follow" | "friend_request";
+  type: "like" | "comment" | "follow" | "friend_request" | "share" | "message";
   user: MockUser;
   postId?: number;
   content: string;
@@ -695,12 +695,14 @@ const groups = generatedGroups;
 const generatedNotifications: MockNotification[] = [];
 for (let i = 0; i < 30; i++) {
   const friend = pick(users.slice(1, 30));
-  const type = pick<MockNotification["type"]>(["like","comment","follow","friend_request"]);
-  const postId = type === "like" || type === "comment" ? pick(posts).id : undefined;
+  const type = pick<MockNotification["type"]>(["like","comment","follow","friend_request","share","message"]);
+  const postId = type === "like" || type === "comment" || type === "share" ? pick(posts).id : undefined;
 
   let content = "";
   if (type === "like") content = "curtiu seu post";
   else if (type === "comment") content = `comentou no seu post: "${pick(COMMENT_TEXTS).slice(0, 30)}"`;
+  else if (type === "share") content = "compartilhou seu post";
+  else if (type === "message") content = "enviou uma mensagem";
   else if (type === "follow") content = "começou a seguir você";
   else content = "enviou uma solicitação de amizade";
 

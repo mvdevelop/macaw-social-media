@@ -6,10 +6,11 @@ import Comments from "./Comments";
 import { useState, useRef, useEffect } from "react";
 import { likePost, sharePost, deletePost, updatePost, toggleBookmark } from "@/lib/actions";
 import {
-  FiHeart, FiMessageCircle, FiShare2, FiBookmark,
+  FiHeart, FiMessageCircle, FiMessageSquare, FiShare2, FiBookmark,
   FiMoreHorizontal, FiEdit2, FiTrash2, FiCheck, FiX,
 } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
+import { useToast } from "@/context/ToastProvider";
 import { createClient } from "@/lib/supabase/client";
 import type { MockPost } from "@/lib/mock-data";
 
@@ -26,6 +27,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
   const [savingEdit, setSavingEdit] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -103,6 +105,16 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     } catch {}
   };
 
+  const handleShareToChat = async () => {
+    const text = `${post.content}\n\n${window.location.origin}/profile/${post.user.id}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast("Post copied to clipboard! Share it in a chat.", "success");
+    } catch {
+      showToast("Failed to copy", "error");
+    }
+  };
+
   const handleEdit = async () => {
     if (!editContent.trim() || savingEdit) return;
     setSavingEdit(true);
@@ -151,6 +163,12 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
                 className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
               >
                 <FiEdit2 size={14} /> {t.feed.edit}
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); handleShareToChat(); }}
+                className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition"
+              >
+                <FiMessageSquare size={14} /> Share to Chat
               </button>
               <button
                 onClick={handleDelete}
@@ -205,23 +223,23 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
       {/* Action buttons: Like, Comment, Share, Bookmark */}
       <div className="flex items-center justify-between">
         <button onClick={handleLike}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition active:scale-90 ${
             liked ? "text-red-500 bg-red-50 dark:bg-red-900/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
           } ${animating ? "scale-110" : ""}`}>
           <FiHeart size={20} fill={liked ? "currentColor" : "none"} />
           <span className="text-sm font-medium">{t.feed.like}</span>
         </button>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-90">
           <FiMessageCircle size={20} />
           <span className="text-sm font-medium">{t.feed.comment}</span>
         </button>
         <button onClick={handleShareClick}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition ${shareAnim ? "scale-110" : ""}`}>
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-90 ${shareAnim ? "scale-110" : ""}`}>
           <FiShare2 size={20} />
           <span className="text-sm font-medium">{t.feed.share}</span>
         </button>
         <button onClick={handleBookmark}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition active:scale-90 ${
             bookmarked ? "text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
           } ${bookmarkAnim ? "scale-110" : ""}`}>
           <FiBookmark size={20} fill={bookmarked ? "currentColor" : "none"} />
