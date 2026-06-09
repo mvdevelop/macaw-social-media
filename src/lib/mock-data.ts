@@ -170,14 +170,16 @@ const AVATAR_POOL = [
   "35548297","35528023","35515960","35500894","35487966","35474906","35459874",
   "35438821","35421139","35409963","35396873","35382479","35369567","35357186",
   "35342149","35329736","35317558","35305062","35291387","35278481","35266321",
-  "35253964","35241895","35228723","35216378","35204037","35192852","35180583",
-  "35169063","35157343","35144974","35126636","35114204","35102341","35090740",
-  "35078829","35067414","35055479","35042831","35030704","35018940","35007035",
-  "34994106","34982942","34971057","34959733","34947430","34935582","34923707",
-  "34912292","34900875","34888162","34875644","34863638","34852157","34840173",
-  "34828140","34816170","34804041","34791787","34780380","34768842","34757172",
-  "34745402","34733854","34722286","34710569","34698826","34687236","34675622",
-  "34663847","34652037","34640393","34628701","34617039","34605380","34593774",
+  "35253964","2379004","35228723","220453","697509","428328","2381069",
+  "415829","35157343","91227","3785079","1681010","1130626","1933873",
+  "874158","1874585","146531","1239291","1065084","1840608","1656684",
+  "428333","3785429","35144974","1874585","146531","1239291","1065084",
+  "1840608","1656684","34994106","3785429","34971057","34959733","91227",
+  "2381069","428328","220453","697509","415829","3785079","1681010",
+  "1130626","1933873","874158","34912292","34900875","34888162","34875644",
+  "34863638","2379004","34840173","415829","34791787","34780380","91227",
+  "3785079","34757172","1681010","1130626","1933873","874158","1874585",
+  "146531","1239291","1065084","1840608","1656684","428333","3785429",
 ];
 const COVER_POOL = [
   "2504709","17584747","35350413","35565461","34374535","35655771","18465582",
@@ -185,10 +187,10 @@ const COVER_POOL = [
   "35586994","35577172","35563658","35548297","35528023","35515960","35500894",
   "35487966","35474906","35459874","35438821","35421139","35409963","35396873",
   "35382479","35369567","35357186","35342149","35329736","35317558","35305062",
-  "35291387","35278481","35266321","35253964","35241895","35228723","35216378",
-  "35204037","35192852","35180583","35169063","35157343","35144974","35126636",
-  "35114204","35102341","35090740","35078829","35067414","35055479","35042831",
-  "35030704","35018940","35007035","34994106","34982942","34971057","34959733",
+  "35291387","35278481","35266321","35253964","2379004","35228723","220453",
+  "697509","428328","2381069","35157343","91227","3785079","1681010",
+  "1130626","1933873","874158","1874585","146531","1239291","1065084",
+  "1840608","1656684","428333","3785429","34971057","34959733","415829",
 ];
 
 function pexelUrl(id: string): string {
@@ -382,7 +384,7 @@ const COMMENT_TEXTS = [
 // ============================================
 // GENERATE USERS
 // ============================================
-const USER_COUNT = 500;
+const USER_COUNT = 2000;
 
 function generateUsername(name: string, surname: string): string {
   const prefix = RNG() > 0.5 ? pick(USERNAME_PREFIXES) + "_" : "";
@@ -448,16 +450,19 @@ function postImage(): string | null {
 // Short video pool (Pexels free stock videos)
 // ============================================
 const VIDEO_POOL = [
-  "https://player.vimeo.com/external/476697255.sd.mp4?s=da2e2d202020654c4693a7a30a0f8d92d01a5ec4&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/505554239.sd.mp4?s=f58a85f96611f7a9866a395eacfeb2aea3855739&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/517615022.sd.mp4?s=8c5aa3ed1b5ce020a0a2cba5e0b7e390ba7f6c2a&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/543780806.sd.mp4?s=60dd8d6d35e17b5f9e2b2aafb4bc03e7f54e2096&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/552481870.sd.mp4?s=c6e3f67022c20e70ebe6007ec4188010bb575ab6&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/571313891.sd.mp4?s=ba59597b11cd7e58cf4bae1cbe8d42a32ece01c4&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/320879520.sd.mp4?s=691f4586dd521bdeb229fbb62449417490e6b545&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/449799674.sd.mp4?s=1953a62ac53ebe99a4d1013ced1b4c12bf9ba0aa&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/446932740.sd.mp4?s=6bb0eec6eab3125603df91a8a002e68b082ea4dc&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/485379263.sd.mp4?s=4e3a6b8035ae474d7568145cac0c7735665b12d7&profile_id=165&oauth2_token_id=57447761",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
 ];
 
 const VIDEO_TEXTS = [
@@ -476,7 +481,7 @@ const VIDEO_TEXTS = [
 // ============================================
 // GENERATE POSTS (~1500 posts with images + ~200 video posts)
 // ============================================
-const POST_COUNT = 1700;
+const POST_COUNT = 17000;
 const generatedPosts: MockPost[] = [];
 
 for (let i = 0; i < POST_COUNT; i++) {
@@ -511,7 +516,7 @@ const posts = generatedPosts;
 const generatedComments: Record<number, MockComment[]> = {};
 let commentId = 1;
 
-for (const post of posts.slice(0, 600)) { // comment on first 600 posts
+for (const post of posts.slice(0, 6000)) { // comment on first 6000 posts
   const count = randInt(0, 8);
   const commenters = pickN(users, Math.min(count + 2, users.length));
   const arr: MockComment[] = [];
@@ -533,7 +538,7 @@ const comments = generatedComments;
 // ============================================
 // GENERATE STORIES (5+ per user = 2500+ stories)
 // ============================================
-const STORIES_PER_USER = 5;
+const STORIES_PER_USER = 8; // realista — stories expiram em 24h
 const generatedStories: MockStory[] = [];
 let storyId = 1;
 

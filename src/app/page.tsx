@@ -38,7 +38,7 @@ const Homepage = () => {
 
   if (loading || checkingOnboarding) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex items-center justify-center">
+      <div className="fixed inset-0 z-[999] bg-gradient-to-br from-[#4A8CFF] via-[#7C5CFC] to-[#A855F7] flex items-center justify-center">
         <div className="text-white text-center">
           <MacawIcon size={56} className="mx-auto mb-4 text-white" />
           <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />

@@ -134,7 +134,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
     setMenuOpen(false);
   };
 
-  const isVideo = post.img?.includes("post-videos") || post.img?.includes("vimeo") || post.img?.includes("player.") || post.img?.endsWith(".mp4") || post.img?.endsWith(".webm");
+  const isVideo = post.img?.includes("post-videos") || post.img?.includes("vimeo") || post.img?.includes("player.") || post.img?.includes("storage.googleapis.com") || post.img?.endsWith(".mp4") || post.img?.endsWith(".webm") || post.img?.endsWith(".mov");
 
   return (
     <div className="flex flex-col gap-4">

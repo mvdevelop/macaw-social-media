@@ -64,6 +64,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.guim.co.uk',
       },
+      // Google Storage (videos)
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+      },
     ],
   },
 };

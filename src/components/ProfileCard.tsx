@@ -6,8 +6,8 @@ import { useAuth } from "@/context/AuthProvider";
 import { useTranslation } from "@/context/LanguageProvider";
 import { createClient } from "@/lib/supabase/client";
 import { getCurrentUser, getUserById, getPostsByUserId } from "@/lib/mock-data";
-import { useState, useEffect } from "react";
-import { FiCamera, FiEdit2 } from "react-icons/fi";
+import { useState, useEffect, useCallback } from "react";
+import { FiCamera } from "react-icons/fi";
 
 const ProfileCard = () => {
   const { user: authUser } = useAuth();
@@ -23,10 +23,38 @@ const ProfileCard = () => {
   } | null>(null);
   const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
 
+  const fetchStats = useCallback(async (uid: string | null, isMock: boolean) => {
+    if (isMock) {
+      const mock = getCurrentUser();
+      setStats({
+        posts: getPostsByUserId(mock.id).length,
+        followers: 365,
+        following: 128,
+      });
+      return;
+    }
+
+    if (!uid) return;
+    try {
+      const supabase = createClient();
+      const [postCount, followerCount, followingCount] = await Promise.all([
+        supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", uid),
+        supabase.from("followers").select("id", { count: "exact", head: true }).eq("following_id", uid),
+        supabase.from("followers").select("id", { count: "exact", head: true }).eq("follower_id", uid),
+      ]);
+      setStats({
+        posts: postCount.count ?? 0,
+        followers: followerCount.count ?? 0,
+        following: followingCount.count ?? 0,
+      });
+    } catch {
+      setStats((prev) => prev);
+    }
+  }, []);
+
   useEffect(() => {
     const loadProfile = async () => {
       if (!authUser) {
-        // Fallback: usa mock data quando não está autenticado
         const mock = getCurrentUser();
         setProfile({
           id: mock.id,
@@ -37,11 +65,7 @@ const ProfileCard = () => {
           cover: mock.cover,
           description: mock.description,
         });
-        setStats({
-          posts: getPostsByUserId(mock.id).length,
-          followers: 365,
-          following: 128,
-        });
+        fetchStats(null, true);
         return;
       }
 
@@ -55,13 +79,9 @@ const ProfileCard = () => {
 
         if (data && data.name) {
           setProfile({
-            id: data.id,
-            name: data.name,
-            surname: data.surname || "",
-            username: data.username || "",
-            avatar: data.avatar || "",
-            cover: data.cover || "",
-            description: data.description || "",
+            id: data.id, name: data.name, surname: data.surname || "",
+            username: data.username || "", avatar: data.avatar || "",
+            cover: data.cover || "", description: data.description || "",
           });
         } else {
           setProfile({
@@ -70,41 +90,77 @@ const ProfileCard = () => {
             surname: authUser.user_metadata?.surname || "",
             username: authUser.user_metadata?.username || authUser.email?.split("@")[0] || "",
             avatar: authUser.user_metadata?.avatar_url || "",
-            cover: "",
-            description: "",
+            cover: "", description: "",
           });
         }
 
-        // Busca contagens
-        const [postCount, followerCount, followingCount] = await Promise.all([
-          supabase.from("posts").select("id", { count: "exact", head: true }).eq("user_id", authUser.id),
-          supabase.from("followers").select("id", { count: "exact", head: true }).eq("following_id", authUser.id),
-          supabase.from("followers").select("id", { count: "exact", head: true }).eq("follower_id", authUser.id),
-        ]);
-        setStats({
-          posts: postCount.count ?? 0,
-          followers: followerCount.count ?? 0,
-          following: followingCount.count ?? 0,
-        });
+        fetchStats(authUser.id, false);
       } catch {
-        // Fallback em caso de erro
         setProfile({
           id: authUser.id,
           name: authUser.user_metadata?.name || authUser.email?.split("@")[0] || "User",
           surname: authUser.user_metadata?.surname || "",
           username: authUser.user_metadata?.username || "",
           avatar: authUser.user_metadata?.avatar_url || "",
-          cover: "",
-          description: "",
+          cover: "", description: "",
         });
       }
     };
     loadProfile();
-  }, [authUser]);
+  }, [authUser, fetchStats]);
+
+  // ─── Realtime: escuta mudanças em posts e followers ──────────
+  useEffect(() => {
+    if (!authUser) return;
+
+    const supabase = createClient();
+
+    // Canal para posts
+    const postsChannel = supabase
+      .channel("profile-stats-posts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts", filter: `user_id=eq.${authUser.id}` },
+        () => fetchStats(authUser.id, false)
+      )
+      .subscribe();
+
+    // Canal para followers (quando alguém me segue/deixa de seguir)
+    const followersChannel = supabase
+      .channel("profile-stats-followers")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "followers", filter: `following_id=eq.${authUser.id}` },
+        () => fetchStats(authUser.id, false)
+      )
+      .subscribe();
+
+    // Canal para following (quando eu sigo/deixo de seguir)
+    const followingChannel = supabase
+      .channel("profile-stats-following")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "followers", filter: `follower_id=eq.${authUser.id}` },
+        () => fetchStats(authUser.id, false)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(followersChannel);
+      supabase.removeChannel(followingChannel);
+    };
+  }, [authUser, fetchStats]);
+
+  // ─── Polling de fallback a cada 15s ───────────────────────────
+  useEffect(() => {
+    if (!authUser) return;
+    const interval = setInterval(() => fetchStats(authUser.id, false), 15000);
+    return () => clearInterval(interval);
+  }, [authUser, fetchStats]);
 
   if (!profile) return null;
 
-  // Fallback visual: gradient em vez de imagem fake
   const displayCover = profile.cover || "";
   const displayAvatar = profile.avatar || "";
   const initials = (profile.name?.charAt(0)?.toUpperCase() || "U") + (profile.surname?.charAt(0)?.toUpperCase() || "");
@@ -159,52 +215,36 @@ const ProfileCard = () => {
             {profile.name} {profile.surname}
           </h3>
           {profile.username && (
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              @{profile.username}
-            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">@{profile.username}</p>
           )}
         </Link>
 
-        {/* Bio */}
         {profile.description && (
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2 leading-relaxed line-clamp-2">
             {profile.description}
           </p>
         )}
 
-        {/* Stats */}
+        {/* Stats — dinâmicos! */}
         <div className="flex items-center justify-around mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
           <div className="text-center">
-            <span className="block text-sm font-bold text-gray-800 dark:text-white">
-              {stats.posts}
-            </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              {t.profile.posts}
-            </span>
+            <span className="block text-sm font-bold text-gray-800 dark:text-white">{stats.posts}</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t.profile.posts}</span>
           </div>
           <div className="text-center">
             <span className="block text-sm font-bold text-gray-800 dark:text-white">
-              {stats.followers >= 1000
-                ? `${(stats.followers / 1000).toFixed(1)}k`
-                : stats.followers}
+              {stats.followers >= 1000 ? `${(stats.followers / 1000).toFixed(1)}k` : stats.followers}
             </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              {t.profile.followers}
-            </span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t.profile.followers}</span>
           </div>
           <div className="text-center">
             <span className="block text-sm font-bold text-gray-800 dark:text-white">
-              {stats.following >= 1000
-                ? `${(stats.following / 1000).toFixed(1)}k`
-                : stats.following}
+              {stats.following >= 1000 ? `${(stats.following / 1000).toFixed(1)}k` : stats.following}
             </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-              {t.profile.following}
-            </span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t.profile.following}</span>
           </div>
         </div>
 
-        {/* Botão Perfil */}
         <Link
           href={`/profile/${profile.id}`}
           className="block mt-3 text-center text-xs font-semibold text-white bg-gradient-to-r from-[#4A8CFF] to-[#A855F7] py-2 rounded-lg hover:opacity-90 transition active:scale-[0.98]"

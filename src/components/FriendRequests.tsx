@@ -72,14 +72,13 @@ const FriendRequests = () => {
   if (loading) return null;
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-3 transition-colors h-full">
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-3 transition-colors">
       <div className="flex justify-between items-center font-medium shrink-0">
         <span className="text-gray-500 dark:text-gray-400">{t.common.friendRequests}</span>
         <Link href="/friends" className="text-blue-500 text-xs">{t.common.seeAll}</Link>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col">
-        {requests.length === 0 ? (
+      {requests.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-4">
           <FiUserPlus size={22} className="text-gray-300 dark:text-gray-600" />
           <p className="text-gray-400 dark:text-gray-500 text-xs text-center">{t.friends.noRequests}</p>
@@ -109,7 +108,6 @@ const FriendRequests = () => {
           </div>
         ))
       )}
-        </div>
       </div>
   );
 };

@@ -15,16 +15,19 @@ import { useTranslation } from "@/context/LanguageProvider";
 // POOL DE VÍDEOS GRATUITOS DA WEB (10 URLs únicas reutilizadas)
 // ============================================================
 const VIDEO_URLS = [
-  "https://player.vimeo.com/external/476697255.sd.mp4?s=da2e2d202020654c4693a7a30a0f8d92d01a5ec4&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/505554239.sd.mp4?s=f58a85f96611f7a9866a395eacfeb2aea3855739&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/517615022.sd.mp4?s=8c5aa3ed1b5ce020a0a2cba5e0b7e390ba7f6c2a&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/543780806.sd.mp4?s=60dd8d6d35e17b5f9e2b2aafb4bc03e7f54e2096&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/552481870.sd.mp4?s=c6e3f67022c20e70ebe6007ec4188010bb575ab6&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/571313891.sd.mp4?s=ba59597b11cd7e58cf4bae1cbe8d42a32ece01c4&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/320879520.sd.mp4?s=691f4586dd521bdeb229fbb62449417490e6b545&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/449799674.sd.mp4?s=1953a62ac53ebe99a4d1013ced1b4c12bf9ba0aa&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/446932740.sd.mp4?s=6bb0eec6eab3125603df91a8a002e68b082ea4dc&profile_id=165&oauth2_token_id=57447761",
-  "https://player.vimeo.com/external/485379263.sd.mp4?s=4e3a6b8035ae474d7568145cac0c7735665b12d7&profile_id=165&oauth2_token_id=57447761",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
 ];
 
 const THUMBNAIL_POOL = [

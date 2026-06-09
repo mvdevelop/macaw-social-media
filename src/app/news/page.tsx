@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/LanguageProvider";
-import { FiGlobe, FiArrowLeft, FiClock, FiExternalLink, FiRefreshCw } from "react-icons/fi";
+import { FiGlobe, FiArrowLeft, FiClock, FiExternalLink, FiRefreshCw, FiShuffle } from "react-icons/fi";
 
 interface NewsArticle {
   title: string;
@@ -16,369 +15,301 @@ interface NewsArticle {
   category: string;
 }
 
-// Fallback curated news (usadas quando a API não responde)
-const fallbackNews: NewsArticle[] = [
-  {
-    title: "New Study Reveals Benefits of Digital Detox",
-    description: "Researchers find that taking regular breaks from social media can significantly improve mental health and productivity.",
-    url: "https://news.google.com",
-    source: "Tech Daily",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Global Climate Summit Reaches Historic Agreement",
-    description: "World leaders commit to ambitious new targets for reducing carbon emissions by 2030.",
-    url: "https://news.google.com",
-    source: "World News",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    category: "world",
-  },
-  {
-    title: "Revolutionary AI Tool Helps Diagnose Diseases Faster",
-    description: "New artificial intelligence system shows 99% accuracy in detecting early signs of common diseases.",
-    url: "https://news.google.com",
-    source: "Science Today",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg",
-    category: "science",
-  },
-  {
-    title: "Electric Vehicle Sales Surge Worldwide",
-    description: "EV market share reaches new record high as more consumers switch to sustainable transportation.",
-    url: "https://news.google.com",
-    source: "Auto Weekly",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    category: "business",
-  },
-  {
-    title: "Major Cryptocurrency Reaches All-Time High",
-    description: "Bitcoin and Ethereum lead the rally as institutional adoption accelerates across global markets.",
-    url: "https://news.google.com",
-    source: "Crypto Insider",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35291387/pexels-photo-35291387.jpeg",
-    category: "business",
-  },
-  {
-    title: "NASA Announces New Mission to Jupiter's Moon",
-    description: "The Europa Clipper mission will search for signs of life beneath the icy surface of Europa.",
-    url: "https://news.google.com",
-    source: "Space Today",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
-    category: "science",
-  },
-  {
-    title: "Breakthrough in Quantum Computing Achieved",
-    description: "Scientists have successfully demonstrated a quantum processor with 1000+ qubits, a major milestone.",
-    url: "https://news.google.com",
-    source: "Physics World",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Premier League Transfer Window Breaks Records",
-    description: "Clubs spent over £2 billion this summer as top talents move between Europe's biggest teams.",
-    url: "https://news.google.com",
-    source: "Sports Net",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
-    category: "sports",
-  },
-  {
-    title: "Olympic Committee Announces 2032 Host City",
-    description: "Brisbane prepares to welcome the world as the official host of the 2032 Summer Olympics.",
-    url: "https://news.google.com",
-    source: "Olympic Review",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    category: "sports",
-  },
-  {
-    title: "Hollywood Writers' Strike Ends After 148 Days",
-    description: "Studios and writers reach a landmark deal addressing AI use and streaming residuals.",
-    url: "https://news.google.com",
-    source: "Entertainment Weekly",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35538741/pexels-photo-35538741.jpeg",
-    category: "general",
-  },
-  {
-    title: "World Population Reaches 9 Billion",
-    description: "Demographers note population growth is slowing but regional disparities remain significant.",
-    url: "https://news.google.com",
-    source: "Global Times",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    category: "world",
-  },
-  {
-    title: "New Renewable Energy Record Set in Europe",
-    description: "Wind and solar generated 40% of EU electricity for the first time this spring.",
-    url: "https://news.google.com",
-    source: "Green Energy Journal",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    category: "world",
-  },
-  {
-    title: "5G Networks Now Cover 90% of Urban Areas",
-    description: "Major carriers complete the nationwide rollout, bringing faster speeds to millions.",
-    url: "https://news.google.com",
-    source: "Telecom Review",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35291387/pexels-photo-35291387.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Archaeologists Discover Ancient City in the Amazon",
-    description: "LiDAR technology reveals a lost civilization's urban center beneath dense rainforest canopy.",
-    url: "https://news.google.com",
-    source: "History Today",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    category: "science",
-  },
-  {
-    title: "Global Food Prices Drop for Third Consecutive Month",
-    description: "FAO reports decrease in cereal and vegetable oil prices, offering relief to consumers worldwide.",
-    url: "https://news.google.com",
-    source: "Economic Times",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg",
-    category: "business",
-  },
-  {
-    title: "New Treatment Shows Promise for Alzheimer's Disease",
-    description: "Clinical trials reveal a drug that slows cognitive decline by up to 60% in early-stage patients.",
-    url: "https://news.google.com",
-    source: "Medical Journal",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg",
-    category: "science",
-  },
-  {
-    title: "Tennis Star Announces Retirement After 20 Years",
-    description: "The former world number one will retire at the end of the season after a legendary career.",
-    url: "https://news.google.com",
-    source: "Sports Illustrated",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
-    category: "sports",
-  },
-  {
-    title: "Major Tech Merger Shakes Silicon Valley",
-    description: "Two of the biggest names in AI are joining forces in a $45 billion deal that redefines the industry.",
-    url: "https://news.google.com",
-    source: "Silicon Beat",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg",
-    category: "business",
-  },
-  {
-    title: "Japan Launches World's First Wooden Satellite",
-    description: "The environmentally friendly satellite aims to reduce space debris and inspire sustainable engineering.",
-    url: "https://news.google.com",
-    source: "Space News",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Record-Breaking Heatwave Affects Southern Europe",
-    description: "Temperatures exceed 45°C in several countries, prompting health warnings and travel disruptions.",
-    url: "https://news.google.com",
-    source: "Weather Channel",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    category: "world",
-  },
-  {
-    title: "Award-Winning Film Breaks Box Office Records",
-    description: "The critically acclaimed drama becomes the highest-grossing independent film of all time.",
-    url: "https://news.google.com",
-    source: "Screen Daily",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35538741/pexels-photo-35538741.jpeg",
-    category: "general",
-  },
-  {
-    title: "Universal Basic Income Pilot Shows Promising Results",
-    description: "Two-year study finds recipients report improved mental health and increased entrepreneurial activity.",
-    url: "https://news.google.com",
-    source: "Policy Review",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    category: "world",
-  },
-  {
-    title: "Deep Sea Expedition Discovers New Marine Species",
-    description: "Over 30 previously unknown species found in the unexplored depths of the Pacific Ocean.",
-    url: "https://news.google.com",
-    source: "Oceanographic",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    category: "science",
-  },
-  {
-    title: "Electric Airplane Completes First Commercial Flight",
-    description: "The short-haul route marks the beginning of a new era in sustainable aviation.",
-    url: "https://news.google.com",
-    source: "Aviation Weekly",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35291387/pexels-photo-35291387.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Chess Grandmaster Breaks World Record",
-    description: "The 19-year-old prodigy achieves the highest Elo rating in history after an undefeated tournament run.",
-    url: "https://news.google.com",
-    source: "Game Theory",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
-    category: "sports",
-  },
-  {
-    title: "World's Largest Vertical Farm Opens in Singapore",
-    description: "The 30-story facility can produce 500 tons of vegetables annually using 95% less water.",
-    url: "https://news.google.com",
-    source: "Food Future",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg",
-    category: "general",
-  },
-  {
-    title: "Endangered Species Makes Remarkable Comeback",
-    description: "Conservation efforts pay off as the population of the once nearly-extinct species triples in a decade.",
-    url: "https://news.google.com",
-    source: "Wildlife Trust",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg",
-    category: "world",
-  },
-  {
-    title: "New High-Speed Rail Connects Three Countries",
-    description: "The cross-border line cuts travel time from 8 hours to just 2.5 hours between capitals.",
-    url: "https://news.google.com",
-    source: "Transport Today",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Researchers Develop Plastic That Biodegrades in 30 Days",
-    description: "The plant-based material could revolutionize packaging and help solve the plastic pollution crisis.",
-    url: "https://news.google.com",
-    source: "Materials Science",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg",
-    category: "science",
-  },
-  {
-    title: "Global E-Sports Viewership Surpasses Traditional Sports",
-    description: "Over 600 million viewers tuned in for the biggest gaming tournament of the year.",
-    url: "https://news.google.com",
-    source: "E-Sports Insider",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg",
-    category: "sports",
-  },
-  {
-    title: "Major City Becomes Fully Carbon Neutral",
-    description: "The capital city achieved its net-zero goal five years ahead of schedule through green policies.",
-    url: "https://news.google.com",
-    source: "Green Cities",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
-    category: "world",
-  },
-  {
-    title: "Social Media Platform Introduces End-to-End Encryption",
-    description: "The update affects billions of users and represents a major shift in online privacy standards.",
-    url: "https://news.google.com",
-    source: "Tech Radar",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Innovative Desalination Plant Provides Fresh Water to Drought Region",
-    description: "Solar-powered facility now supplies 50 million gallons of clean water daily to the arid region.",
-    url: "https://news.google.com",
-    source: "Water Solutions",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
-    category: "science",
-  },
-  {
-    title: "World's Oldest Known Painting Found in Indonesian Cave",
-    description: "The 45,000-year-old depiction of wild pigs challenges previous timelines of human artistic expression.",
-    url: "https://news.google.com",
-    source: "Archaeology Today",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    category: "general",
-  },
-  {
-    title: "Robotic Exoskeleton Helps Paralyzed Patients Walk Again",
-    description: "New lightweight design powered by AI adapts to each user's unique movement patterns.",
-    url: "https://news.google.com",
-    source: "Medical Innovation",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg",
-    category: "science",
-  },
-  {
-    title: "International Space Station Celebrates 30 Years",
-    description: "A look back at three decades of scientific discovery and international collaboration in orbit.",
-    url: "https://news.google.com",
-    source: "Space Chronicle",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
-    category: "science",
-  },
-  {
-    title: "Guitar Legend Announces Farewell World Tour",
-    description: "The iconic musician will perform in 50 cities across 6 continents for one last tour.",
-    url: "https://news.google.com",
-    source: "Music Weekly",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg",
-    category: "general",
-  },
-  {
-    title: "World Hunger Rates Fall to Historic Low",
-    description: "UN report shows global hunger has decreased by 60% over the past two decades thanks to coordinated aid.",
-    url: "https://news.google.com",
-    source: "Development News",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-    category: "world",
-  },
-  {
-    title: "Augmented Reality Glasses Go Mainstream",
-    description: "The latest AR glasses weigh just 80 grams and offer all-day battery life for everyday use.",
-    url: "https://news.google.com",
-    source: "Gadget Review",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35291387/pexels-photo-35291387.jpeg",
-    category: "technology",
-  },
-  {
-    title: "Marathon Runner Completes 100th Race at Age 80",
-    description: "Inspiring athlete proves age is just a number, finishing her 100th marathon in under 5 hours.",
-    url: "https://news.google.com",
-    source: "Running World",
-    publishedAt: new Date().toISOString(),
-    urlToImage: "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
-    category: "sports",
-  },
+// ─── Pools para geração de notícias ─────────────────────────────
+const NEWS_TITLES = [
+  "New Study Reveals Benefits of Digital Detox",
+  "Global Climate Summit Reaches Historic Agreement",
+  "Revolutionary AI Tool Helps Diagnose Diseases Faster",
+  "Electric Vehicle Sales Surge Worldwide",
+  "Major Cryptocurrency Reaches All-Time High",
+  "NASA Announces New Mission to Jupiter's Moon",
+  "Breakthrough in Quantum Computing Achieved",
+  "Premier League Transfer Window Breaks Records",
+  "Olympic Committee Announces 2032 Host City",
+  "Hollywood Writers' Strike Ends After 148 Days",
+  "World Population Reaches 9 Billion",
+  "New Renewable Energy Record Set in Europe",
+  "5G Networks Now Cover 90% of Urban Areas",
+  "Archaeologists Discover Ancient City in the Amazon",
+  "Global Food Prices Drop for Third Consecutive Month",
+  "New Treatment Shows Promise for Alzheimer's Disease",
+  "Tennis Star Announces Retirement After 20 Years",
+  "Major Tech Merger Shakes Silicon Valley",
+  "Japan Launches World's First Wooden Satellite",
+  "Record-Breaking Heatwave Affects Southern Europe",
+  "Award-Winning Film Breaks Box Office Records",
+  "Universal Basic Income Pilot Shows Promising Results",
+  "Deep Sea Expedition Discovers New Marine Species",
+  "Electric Airplane Completes First Commercial Flight",
+  "Chess Grandmaster Breaks World Record",
+  "World's Largest Vertical Farm Opens in Singapore",
+  "Endangered Species Makes Remarkable Comeback",
+  "New High-Speed Rail Connects Three Countries",
+  "Researchers Develop Plastic That Biodegrades in 30 Days",
+  "Global E-Sports Viewership Surpasses Traditional Sports",
+  "Major City Becomes Fully Carbon Neutral",
+  "Social Media Platform Introduces End-to-End Encryption",
+  "Innovative Desalination Plant Provides Fresh Water to Drought Region",
+  "World's Oldest Known Painting Found in Indonesian Cave",
+  "Robotic Exoskeleton Helps Paralyzed Patients Walk Again",
+  "International Space Station Celebrates 30 Years",
+  "Guitar Legend Announces Farewell World Tour",
+  "World Hunger Rates Fall to Historic Low",
+  "Augmented Reality Glasses Go Mainstream",
+  "Marathon Runner Completes 100th Race at Age 80",
+  "Scientists Discover New Earth-Like Planet in Habitable Zone",
+  "Self-Driving Taxis Launch in Major European Cities",
+  "Breakthrough Battery Technology Doubles EV Range",
+  "Global Ocean Cleanup Project Reaches Milestone",
+  "New Species of Orchid Discovered in Madagascar",
+  "Revolutionary Gene Therapy Cures Rare Disease",
+  "World's Tallest Skyscraper Completed in Dubai",
+  "AI-Powered Translation Breaks Language Barriers",
+  "Major Earthquake Relief Effort Mobilizes International Aid",
+  "Fusion Energy Milestone Brings Clean Power Closer",
+  "Indoor Vertical Farming Revolutionizes Agriculture",
+  "World's First 3D-Printed Heart Successfully Transplanted",
+  "Global Internet Access Reaches 90% of Population",
+  "New Cybersecurity Threat Prompts Worldwide Alert",
+  "Breakthrough in Plastic Recycling Technology",
+  "World's Largest Telescope Captures First Images",
+  "Renewable Hydrogen Production Costs Drop 50%",
+  "International Treaty Bans Deep-Sea Mining",
+  "New Vaccine Shows Promise Against Multiple Cancers",
+  "Global Tourism Rebounds to Pre-Pandemic Levels",
+  "Revolutionary Water Purification System Saves Lives",
+  "World's Fastest Computer Breaks Exascale Barrier",
+  "New Antimicrobial Resistance Strategy Announced",
+  "Global Reforestation Project Plants 1 Billion Trees",
+  "Breakthrough in Brain-Computer Interface Technology",
+  "World's First Commercial Hypersonic Flight Completed",
+  "New Early Warning System for Tsunamis Deployed",
+  "Global Agreement on Plastic Waste Reduction Signed",
+  "Revolutionary Battery Storage System Powers 10,000 Homes",
+  "New CRISPR Therapy Shows Promise for Sickle Cell Disease",
+  "World's Largest Offshore Wind Farm Begins Operations",
+  "AI System Predicts Weather Patterns with 95% Accuracy",
+  "Global Initiative to Protect Coral Reefs Launched",
+  "New Desalination Technology Cuts Energy Use by 80%",
+  "World's First Carbon-Neutral Container Ship Sets Sail",
+  "Breakthrough in Sustainable Aviation Fuel Production",
+  "New Quantum Sensor Detects Underground Resources",
+  "Global Mental Health Initiative Reaches 100 Countries",
+  "Revolutionary Farming Technique Restores Degraded Soil",
+  "World's Largest Battery Storage Facility Goes Online",
+  "New Ocean Monitoring System Tracks Climate Change",
+  "Breakthrough in Water Splitting Produces Clean Hydrogen",
+  "Global Electric Bus Fleet Reaches 500,000 Vehicles",
+  "New AI Model Accelerates Drug Discovery Process",
+  "World's First Fully Recyclable Building Completed",
+  "Revolutionary Cooling System Cuts Energy Use by 60%",
+  "Global Mangrove Restoration Project Exceeds Targets",
+  "New Brain Implant Restores Vision to Blind Patients",
+  "World's Largest Rooftop Solar Installation Completed",
+  "Breakthrough in Carbon Capture Technology Achieved",
+  "New Autonomous Drone Delivery Service Launches",
+  "Global E-Waste Recycling Rate Reaches 50%",
+  "Revolutionary Paint Cools Buildings Without Energy",
+  "World's First Hydrogen-Powered Train Enters Service",
+  "New Smart Grid Technology Prevents Power Outages",
+  "Global Ocean Temperature Monitoring Network Expanded",
+  "Breakthrough in Biodegradable Electronics Achieved",
+  "New Vertical Wind Turbines Double Energy Output",
+  "World's Largest Green Hydrogen Plant Breaks Ground",
+  "Revolutionary Desalination Method Uses Solar Power Only",
 ];
+
+const NEWS_DESCRIPTIONS = [
+  "Researchers find that taking regular breaks from social media can significantly improve mental health and productivity.",
+  "World leaders commit to ambitious new targets for reducing carbon emissions by 2030.",
+  "New artificial intelligence system shows 99% accuracy in detecting early signs of common diseases.",
+  "EV market share reaches new record high as more consumers switch to sustainable transportation.",
+  "Bitcoin and Ethereum lead the rally as institutional adoption accelerates across global markets.",
+  "The Europa Clipper mission will search for signs of life beneath the icy surface of Europa.",
+  "Scientists have successfully demonstrated a quantum processor with 1000+ qubits, a major milestone.",
+  "Clubs spent over £2 billion this summer as top talents move between Europe's biggest teams.",
+  "Brisbane prepares to welcome the world as the official host of the 2032 Summer Olympics.",
+  "Studios and writers reach a landmark deal addressing AI use and streaming residuals.",
+  "Demographers note population growth is slowing but regional disparities remain significant.",
+  "Wind and solar generated 40% of EU electricity for the first time this spring.",
+  "Major carriers complete the nationwide rollout, bringing faster speeds to millions.",
+  "LiDAR technology reveals a lost civilization's urban center beneath dense rainforest canopy.",
+  "FAO reports decrease in cereal and vegetable oil prices, offering relief to consumers worldwide.",
+  "Clinical trials reveal a drug that slows cognitive decline by up to 60% in early-stage patients.",
+  "The former world number one will retire at the end of the season after a legendary career.",
+  "Two of the biggest names in AI are joining forces in a $45 billion deal that redefines the industry.",
+  "The environmentally friendly satellite aims to reduce space debris and inspire sustainable engineering.",
+  "Temperatures exceed 45°C in several countries, prompting health warnings and travel disruptions.",
+  "The critically acclaimed drama becomes the highest-grossing independent film of all time.",
+  "Two-year study finds recipients report improved mental health and increased entrepreneurial activity.",
+  "Over 30 previously unknown species found in the unexplored depths of the Pacific Ocean.",
+  "The short-haul route marks the beginning of a new era in sustainable aviation.",
+  "The 19-year-old prodigy achieves the highest Elo rating in history after an undefeated tournament run.",
+  "The 30-story facility can produce 500 tons of vegetables annually using 95% less water.",
+  "Conservation efforts pay off as the population of the once nearly-extinct species triples in a decade.",
+  "The cross-border line cuts travel time from 8 hours to just 2.5 hours between capitals.",
+  "The plant-based material could revolutionize packaging and help solve the plastic pollution crisis.",
+  "Over 600 million viewers tuned in for the biggest gaming tournament of the year.",
+  "The capital city achieved its net-zero goal five years ahead of schedule through green policies.",
+  "The update affects billions of users and represents a major shift in online privacy standards.",
+  "Solar-powered facility now supplies 50 million gallons of clean water daily to the arid region.",
+  "The 45,000-year-old depiction of wild pigs challenges previous timelines of human artistic expression.",
+  "New lightweight design powered by AI adapts to each user's unique movement patterns.",
+  "A look back at three decades of scientific discovery and international collaboration in orbit.",
+  "The iconic musician will perform in 50 cities across 6 continents for one last tour.",
+  "UN report shows global hunger has decreased by 60% over the past two decades thanks to coordinated aid.",
+  "The latest AR glasses weigh just 80 grams and offer all-day battery life for everyday use.",
+  "Inspiring athlete proves age is just a number, finishing her 100th marathon in under 5 hours.",
+  "The newly discovered planet shows signs of liquid water and a stable atmosphere similar to early Earth.",
+  "Passengers can now book autonomous rides across 12 European cities with 99.9% safety record.",
+  "New solid-state battery technology enables electric vehicles to travel over 800 miles on a single charge.",
+  "The Ocean Cleanup initiative has successfully removed over 100,000 tons of plastic from the Great Pacific Garbage Patch.",
+  "Botanists have identified a rare orchid species that blooms only once every decade in the remote forests of Madagascar.",
+  "A groundbreaking gene therapy has successfully treated patients with Duchenne muscular dystrophy in clinical trials.",
+  "The new 1 km tall structure features revolutionary wind turbines embedded in its facade, generating 30% of its energy needs.",
+  "Real-time translation earbuds now support over 100 languages with near-perfect accuracy in natural conversations.",
+  "Coordinated rescue efforts have saved thousands of lives following the 7.8 magnitude earthquake that struck the region.",
+  "The experimental reactor sustained a fusion reaction for over 5 minutes, producing more energy than consumed.",
+  "Automated vertical farms in urban centers now produce 50% of leafy greens consumed in Singapore.",
+  "Surgeons successfully transplanted a 3D-printed heart using the patient's own stem cells, eliminating rejection risk.",
+  "Global internet connectivity reaches 90% as satellite constellations provide broadband to remote regions.",
+  "A sophisticated cyberattack targeting critical infrastructure has prompted coordinated international defense measures.",
+  "A new chemical process breaks down mixed plastics into their original components, enabling infinite recycling.",
+  "The Extremely Large Telescope captures images of exoplanets with unprecedented clarity and detail.",
+  "Green hydrogen production costs drop below $2 per kilogram, making it competitive with fossil fuels.",
+  "Nations agree to ban deep-sea mining in international waters to protect fragile marine ecosystems.",
+  "A personalized cancer vaccine shows remarkable results in Phase 3 trials, reducing tumor size by 70%.",
+  "International tourism numbers return to 2019 levels as travel restrictions are lifted worldwide.",
+  "A portable water purification device powered by sunlight can now provide clean water for 100 people per day.",
+  "The exascale supercomputer performs over 1 quintillion calculations per second, enabling breakthrough scientific simulations.",
+  "A global action plan to combat antimicrobial resistance includes new surveillance systems and stewardship programs.",
+  "Community-led reforestation projects have successfully planted over 1 billion trees across 50 countries.",
+  "Neuralink's latest brain implant allows paralyzed patients to control digital devices with thought alone.",
+  "The first commercial hypersonic flight crossed the Atlantic in under 90 minutes, marking a new era in travel.",
+  "An advanced tsunami detection network using deep-sea sensors now provides 30-minute advance warnings.",
+  "195 countries sign a landmark treaty committing to reduce single-use plastic production by 50% by 2030.",
+  "The grid-scale battery system can power 10,000 homes for 24 hours, stabilizing renewable energy supply.",
+  "CRISPR-based therapy successfully edits the faulty gene in sickle cell patients, offering a potential cure.",
+  "The offshore wind farm generates enough clean electricity to power 2 million homes annually.",
+  "The AI weather model outperforms traditional forecasting methods, especially for extreme weather events.",
+  "A global partnership to restore and protect coral reefs has secured $10 billion in funding.",
+  "The new membrane technology reduces the energy required for desalination by 80%, making it affordable for developing nations.",
+  "The world's first cargo ship powered entirely by green hydrogen has completed its maiden voyage.",
+  "A new process converts captured CO2 and renewable hydrogen into sustainable aviation fuel at scale.",
+  "Quantum sensors can now map underground water reserves and mineral deposits with remarkable precision.",
+  "A World Health Organization initiative brings mental health services to 100 countries through digital platforms.",
+  "Indigenous farming techniques combined with modern technology restore soil health and increase crop yields.",
+  "The massive battery facility can store 1,000 megawatt-hours of energy, enough to power 50,000 homes.",
+  "A network of autonomous ocean drones monitors temperature, acidity, and pollution levels across the globe.",
+  "Scientists achieve a breakthrough in splitting water molecules using sunlight, producing hydrogen at record efficiency.",
+  "The global electric bus fleet reduces CO2 emissions by 15 million tons annually across 200 cities.",
+  "Machine learning algorithms analyze millions of chemical compounds in days, accelerating drug discovery tenfold.",
+  "The building is constructed entirely from recycled materials and can be fully disassembled and reused.",
+  "The innovative cooling system uses radiative cooling technology to reduce air conditioning energy consumption by 60%.",
+  "The global mangrove restoration initiative has exceeded its target by 20%, restoring 500,000 hectares of coastline.",
+  "Brain implant technology restores basic vision to blind patients by directly stimulating the visual cortex.",
+  "The massive solar installation spans 500 acres and provides clean energy to 50,000 households.",
+  "Direct air capture technology now removes 1 million tons of CO2 from the atmosphere annually.",
+  "Autonomous drones now deliver packages to remote areas, reducing delivery times from days to hours.",
+  "The global electronics recycling rate reaches 50% thanks to new regulations and consumer awareness campaigns.",
+  "The special paint reflects 95% of sunlight, keeping buildings cool without air conditioning in hot climates.",
+  "The hydrogen-powered train produces only water vapor and can travel 600 miles on a single tank.",
+  "AI-powered smart grids predict demand and prevent outages with 99.9% reliability across major cities.",
+  "An expanded network of ocean sensors provides real-time data on sea temperature, helping predict climate patterns.",
+  "Researchers develop electronic components that fully biodegrade in soil within 30 days, reducing e-waste.",
+  "The innovative vertical turbine design captures wind from any direction and produces twice the energy of traditional turbines.",
+  "The green hydrogen plant will produce 100 tons of hydrogen daily using only solar and wind power.",
+];
+
+const NEWS_SOURCES = [
+  "Tech Daily","World News","Science Today","Auto Weekly","Crypto Insider",
+  "Space Today","Physics World","Sports Net","Olympic Review","Entertainment Weekly",
+  "Global Times","Green Energy Journal","Telecom Review","History Today","Economic Times",
+  "Medical Journal","Sports Illustrated","Silicon Beat","Space News","Weather Channel",
+  "Screen Daily","Policy Review","Oceanographic","Aviation Weekly","Game Theory",
+  "Food Future","Wildlife Trust","Transport Today","Materials Science","E-Sports Insider",
+  "Green Cities","Tech Radar","Water Solutions","Archaeology Today","Medical Innovation",
+  "Space Chronicle","Music Weekly","Development News","Gadget Review","Running World",
+  "Astro Journal","Mobility Weekly","Energy Review","Ocean Today","Botany Daily",
+  "Gene Therapy News","Architecture Digest","Language Tech","Disaster Relief","Fusion World",
+  "AgriTech Review","Surgical Innovation","Connectivity Report","Cyber Defense","Chemistry World",
+  "Astronomy Magazine","Hydrogen Economy","Marine Policy","Oncology Today","Travel Weekly",
+  "Water Innovation","Computing News","Health Policy","Forestry Today","NeuroTech",
+  "Aviation Now","Geology Today","Environmental Policy","Energy Storage","Genetics Journal",
+  "Wind Power Monthly","Meteorology Today","Marine Biology","Desalination News","Maritime Weekly",
+  "Carbon Capture Journal","Quantum Computing","Mental Health Today","Soil Science",
+  "Battery Technology","Ocean Engineering","Solar Energy","EV World","Drug Discovery",
+  "Sustainable Build","HVAC Innovation","Mangrove Foundation","NeuroScience Daily",
+  "Solar Industry","Climate Solutions","Logistics Tech","Recycling Today","Materials Today",
+  "Hydrogen Fuel News","Smart Grid","Climate Monitor","E-Waste Journal","Building Science",
+];
+
+const NEWS_CATEGORIES = ["general","technology","world","science","business","sports"];
+
+const NEWS_IMAGES = [
+  "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
+  "https://images.pexels.com/photos/35565461/pexels-photo-35565461.jpeg",
+  "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg",
+  "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
+  "https://images.pexels.com/photos/35291387/pexels-photo-35291387.jpeg",
+  "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
+  "https://images.pexels.com/photos/35360579/pexels-photo-35360579.jpeg",
+  "https://images.pexels.com/photos/35655771/pexels-photo-35655771.jpeg",
+  "https://images.pexels.com/photos/35538741/pexels-photo-35538741.jpeg",
+  "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg",
+  "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg",
+  "https://images.pexels.com/photos/35525012/pexels-photo-35525012.jpeg",
+  "https://images.pexels.com/photos/35496265/pexels-photo-35496265.jpeg",
+  "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg",
+  "https://images.pexels.com/photos/35590309/pexels-photo-35590309.jpeg",
+  "https://images.pexels.com/photos/35459874/pexels-photo-35459874.jpeg",
+  "https://images.pexels.com/photos/35487966/pexels-photo-35487966.jpeg",
+  "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
+  "https://images.pexels.com/photos/35350413/pexels-photo-35350413.jpeg",
+  "https://images.pexels.com/photos/35634366/pexels-photo-35634366.jpeg",
+];
+
+// ─── Seeded PRNG ─────────────────────────────────────────────────
+function createRng(seed: number) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function pick<T>(arr: T[], rng: () => number): T {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+// ─── Generate 400 fallback news articles ─────────────────────────
+function generateFallbackNews(): NewsArticle[] {
+  const rng = createRng(Date.now());
+  const articles: NewsArticle[] = [];
+  const usedTitles = new Set<string>();
+
+  for (let i = 0; i < 400; i++) {
+    let title = pick(NEWS_TITLES, rng);
+    // Avoid exact duplicates
+    while (usedTitles.has(title)) title = `${title} — Update ${i}`;
+    usedTitles.add(title);
+
+    articles.push({
+      title,
+      description: pick(NEWS_DESCRIPTIONS, rng),
+      url: "https://news.google.com",
+      source: pick(NEWS_SOURCES, rng),
+      publishedAt: new Date(Date.now() - Math.floor(rng() * 7 * 24 * 60 * 60 * 1000)).toISOString(),
+      urlToImage: pick(NEWS_IMAGES, rng),
+      category: pick(NEWS_CATEGORIES, rng),
+    });
+  }
+
+  articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+  return articles;
+}
 
 // RSS feeds de fontes de notícias gratuitas
 const RSS_FEEDS = [
@@ -405,19 +336,46 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diffHrs / 24)}d`;
 }
 
+const sidebarAds = [
+  { image: "https://images.pexels.com/photos/35538741/pexels-photo-35538741.jpeg", title: "BigChef Rio de Janeiro", desc: "Restaurante premiado com a melhor culinária da cidade.", link: "https://www.instagram.com" },
+  { image: "https://images.pexels.com/photos/35525012/pexels-photo-35525012.jpeg", title: "TechHub Coworking", desc: "O melhor espaço de coworking para devs criativos.", link: "https://www.notion.so" },
+  { image: "https://images.pexels.com/photos/35496265/pexels-photo-35496265.jpeg", title: "Flow Academy", desc: "Cursos online de fotografia, design e programação.", link: "https://www.coursera.org" },
+  { image: "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg", title: "GreenLife Suplementos", desc: "Suplementos naturais. 20% off na primeira compra.", link: "https://www.amazon.com" },
+  { image: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg", title: "Surf Camp Brasil", desc: "Aprenda a surfar na melhor praia do Brasil!", link: "https://www.airbnb.com" },
+  { image: "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg", title: "Livraria Cult", desc: "Os melhores livros com desconto exclusivo para membros.", link: "https://www.amazon.com" },
+];
+
+function AdCard({ ad, size }: { ad: typeof sidebarAds[0]; size: "sm" | "md" }) {
+  // Doubled heights: md → h-72, sm → h-56
+  const h = size === "md" ? "h-72" : "h-56";
+  return (
+    <a href={ad.link} target="_blank" rel="noopener sponsored nofollow" className="block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group">
+      <div className={`relative w-full ${h} overflow-hidden`}>
+        <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+      </div>
+      <div className="p-4">
+        <h4 className="text-sm font-semibold text-gray-800 dark:text-white group-hover:text-blue-500 transition-colors">{ad.title}</h4>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{ad.desc}</p>
+        <span className="inline-block mt-2 text-[10px] font-medium text-blue-500 uppercase tracking-wider">Sponsored</span>
+      </div>
+    </a>
+  );
+}
+
 export default function NewsPage() {
   const { t } = useTranslation();
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchNews = async () => {
-    setLoading(true);
+  const fetchNews = useCallback(async () => {
+    setRefreshing(true);
     setError(null);
 
     try {
-      // Tenta converter RSS para JSON via rss2json (serviço gratuito)
       const results = await Promise.allSettled(
         RSS_FEEDS.map(async (feed) => {
           const res = await fetch(
@@ -448,7 +406,6 @@ export default function NewsPage() {
       }
 
       if (allArticles.length > 0) {
-        // Deduplica por título e ordena por data
         const seen = new Set<string>();
         const unique = allArticles.filter((a) => {
           const key = a.title.slice(0, 50);
@@ -459,20 +416,22 @@ export default function NewsPage() {
         unique.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
         setArticles(unique.slice(0, 50));
       } else {
-        setArticles(fallbackNews);
+        // Fallback: gera 400 notícias frescas
+        setArticles(generateFallbackNews());
       }
     } catch (err) {
       console.error("News fetch error:", err);
-      setArticles(fallbackNews);
+      setArticles(generateFallbackNews());
       setError("Could not fetch live news. Showing curated stories.");
     } finally {
       setLoading(false);
+      setTimeout(() => setRefreshing(false), 300);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [fetchNews]);
 
   const filtered = activeCategory === "All"
     ? articles
@@ -482,7 +441,15 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 md:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="flex gap-6 max-w-7xl mx-auto">
+        {/* Left sidebar — 2 ads (hidden below xl) */}
+        <aside className="hidden xl:flex flex-col w-72 shrink-0 gap-6">
+          <AdCard ad={sidebarAds[0]} size="md" />
+          <AdCard ad={sidebarAds[1]} size="sm" />
+        </aside>
+
+        {/* Main content */}
+        <div className="flex-1 min-w-0 max-w-4xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -494,10 +461,11 @@ export default function NewsPage() {
           </div>
           <button
             onClick={fetchNews}
-            disabled={loading}
+            disabled={refreshing}
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-500 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow transition disabled:opacity-50"
           >
-            <FiRefreshCw size={14} className={loading ? "animate-spin" : ""} />
+            <FiRefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+            <FiShuffle size={12} />
             Refresh
           </button>
         </div>
@@ -547,7 +515,7 @@ export default function NewsPage() {
               >
                 <div className="relative h-64 md:h-80">
                   {featured.urlToImage ? (
-                    <Image src={featured.urlToImage} alt={featured.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-[1.02] transition duration-500" />
+                    <img src={featured.urlToImage} alt={featured.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 flex items-center justify-center">
                       <FiGlobe size={48} className="text-gray-300 dark:text-gray-600" />
@@ -578,7 +546,7 @@ export default function NewsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filtered.slice(1).map((article, index) => (
                 <a
-                  key={`${article.url}-${index}`}
+                  key={`${article.url}-${index}-${article.title.slice(0, 20)}`}
                   href={article.url}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -586,7 +554,7 @@ export default function NewsPage() {
                 >
                   <div className="relative h-44">
                     {article.urlToImage ? (
-                      <Image src={article.urlToImage} alt={article.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-105 transition duration-300" />
+                      <img src={article.urlToImage} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
                         <FiGlobe size={32} className="text-gray-400" />
@@ -619,9 +587,24 @@ export default function NewsPage() {
                 <p className="text-lg">No news in this category</p>
               </div>
             )}
+
+            {/* Load count indicator */}
+            {!loading && (
+              <div className="text-center text-xs text-gray-400 mt-4">
+                Showing {filtered.length} of {articles.length} articles
+              </div>
+            )}
           </>
         )}
       </div>
+
+      {/* Right sidebar — 3 ads (hidden below lg) */}
+      <aside className="hidden lg:flex flex-col w-72 shrink-0 gap-6">
+        <AdCard ad={sidebarAds[2]} size="sm" />
+        <AdCard ad={sidebarAds[3]} size="md" />
+        <AdCard ad={sidebarAds[4]} size="sm" />
+      </aside>
+    </div>
     </div>
   );
 }
