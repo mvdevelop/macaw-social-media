@@ -223,6 +223,10 @@ const en = {
     title: "Groups",
     join: "Join",
     members: "members",
+    allCategories: "All Categories",
+    discover: "Discover groups that match your interests",
+    myGroups: "My Groups",
+    categories: "Categories",
   },
 
   // Common

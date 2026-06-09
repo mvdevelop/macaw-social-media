@@ -39,6 +39,31 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.imgur.com',
       },
+      // News sources (RSS feeds)
+      {
+        protocol: 'https',
+        hostname: 'static01.nyt.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ichef.bbci.co.uk',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.bbc.co.uk',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.zenfs.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'a57.foxnews.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.guim.co.uk',
+      },
     ],
   },
 };

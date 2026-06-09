@@ -8,6 +8,7 @@ import { getOrFetch } from "@/lib/cache";
 import { useTranslation } from "@/context/LanguageProvider";
 import { FiRefreshCw, FiShuffle } from "react-icons/fi";
 import type { MockPost } from "@/lib/mock-data";
+import { clearCache } from "@/lib/cache";
 
 const CACHE_KEY = "feed:posts";
 const PAGE_SIZE = 10;
@@ -53,7 +54,7 @@ const Feed = () => {
           const supabase = createClient();
           const { data, error } = await supabase
             .from("posts")
-            .select("*, user:users(*)")
+            .select("*, user:users(*), comments:comments(count)")
             .order("created_at", { ascending: false })
             .limit(PAGE_SIZE);
 
@@ -71,7 +72,7 @@ const Feed = () => {
                 avatar: "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
                 cover: "", description: "", city: "", school: "", work: "", website: "", createdAt: "",
               },
-              likes: 0, liked: false, commentCount: 0,
+              likes: 0, liked: false, commentCount: p.comments?.[0]?.count ?? 0,
             }));
           }
           return getPosts();
@@ -138,7 +139,7 @@ const Feed = () => {
 
       const { data, error } = await supabase
         .from("posts")
-        .select("*, user:users(*)")
+        .select("*, user:users(*), comments:comments(count)")
         .order("created_at", { ascending: false })
         .range(from, to);
 
@@ -156,7 +157,7 @@ const Feed = () => {
             avatar: "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
             cover: "", description: "", city: "", school: "", work: "", website: "", createdAt: "",
           },
-          likes: 0, liked: false, commentCount: 0,
+          likes: 0, liked: false, commentCount: p.comments?.[0]?.count ?? 0,
         }));
         setPosts((prev) => [...prev, ...mapped]);
         setDisplayPosts((prev) => [...prev, ...mapped]);
@@ -204,6 +205,8 @@ const Feed = () => {
             user: user || { id: newPost.user_id, username: "user", name: "User", surname: "", avatar: "", cover: "", description: "", city: "", school: "", work: "", website: "", createdAt: "" },
             likes: 0, liked: false, commentCount: 0,
           };
+          // Invalida o cache para que a próxima carga inicial busque dados frescos
+          clearCache(CACHE_KEY);
           setPosts((prev) => [mapped, ...prev]);
           setDisplayPosts((prev) => [mapped, ...prev]);
         }

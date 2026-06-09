@@ -215,6 +215,10 @@ const es: Translations = {
     title: "Grupos",
     join: "Unirse",
     members: "miembros",
+    allCategories: "Todas las Categorías",
+    discover: "Descubre grupos que combinen con tus intereses",
+    myGroups: "Mis Grupos",
+    categories: "Categorías",
   },
 
   common: {

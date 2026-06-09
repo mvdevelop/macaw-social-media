@@ -669,15 +669,51 @@ const GROUP_NAMES = [
   "Pet Lovers","Hiking Explorers","Dance Crew","Coding Ninjas",
   "Fashion Forward","Gardening Club","Volunteer Heroes","Science Minds",
   "Coffee Addicts Anonymous","Writers Guild","Cooking Masters","Vintage Collectors",
+  "Digital Nomads","Street Photography","Vegan Recipes","Trail Running",
+  "Indie Game Dev","Urban Sketching","Minimalist Lifestyle","Board Game Night",
+  "Drone Pilots","K-Pop Fans","Motorcycle Riders","Astronomy Club",
+  "Sushi Lovers","Retro Computing","Beekeeping 101","Pottery & Ceramics",
+  "Cryptocurrency Traders","Horseback Riding","Scuba Diving Club","Parkour Athletes",
+  "Esports Team","Origami Artists","Bird Watching","Home Brewing",
+  "Rock Climbing","Magic The Gathering","Calligraphy Studio","Cycling Club",
+  "Sustainable Fashion","Woodworking Workshop","Jazz Appreciation","Martial Arts",
+  "Surfing Community","Chess Masters","Knitting Circle","Astrology Fans",
+  "Formula 1 Fans","Tattoo Artists","Comic Book Collectors","Sim Racing",
+  "Sailing Club","Lockpicking Sport","Lego Builders","Hackerspace",
+  "Mountain Biking","Stand-Up Comedy","Wine Making","Metal Detecting",
+  "Bushcraft & Survival","Ham Radio Operators","3D Printing Hub","Robotics Club",
+  "Urban Gardening","Rowing Club","Cricket Fans","Basketball Analytics",
+  "Scale Modeling","Sewing & Tailoring","Whiskey Tasting","Freestyle Rap",
+  "Classic Car Restorers","Mushroom Foraging","Ghost Hunting","Knife Making",
+  "Animation Fans","Extreme Ironing","CrossFit Community","Kite Flying Club",
+  "Paragliding Club","Slackline Community","Ethical Hacking","Seed Swapping",
+  "Indie Music Producers","Battle Rap League","Skateboard Builders","Antiques Roadshow Fans",
+  "VHS Collectors","Tiny House Movement","Van Life","Permaculture Design",
+  "Jewelry Making","Leathercraft","Soap Making","Urban Exploration",
+  "Pixel Art","Chiptune Music","Roblox Devs","Minecraft Architects",
+  "Speedrunning","Retro Gaming","VR Enthusiasts","Tabletop RPG",
+  "Warhammer 40k","Model Railroads","Fermentation Station","Hot Sauce Makers",
+  "Bonsai Artists","Ikebana","Tea Ceremony","Meditation Circle",
+  "Piano Lovers","Beatboxing","Acapella Group","Songwriters Circle",
+  "Podcasters United","YouTube Creators","Twitch Streamers","Content Strategy",
+  "AI Art Club","No Code Devs","Blockchain Gaming","NFT Collectors",
+  "Plant Parenthood","Zero Waste","Eco Activism","Solar Punk",
+  "History Reenactors","Medieval Faires","Cosplay Crafters","LARP Adventures",
+  "Dungeons & Dragons","Cyberpunk Fans","Star Wars Legends","Star Trek Club",
+  "Marvel Universe","DC Fans","Anime Lovers","Manga Readers",
+  "K-Drama Addicts","Bollywood Fans","Independent Cinema","Documentary Lovers",
+  "True Crime Podcast","Conspiracy Theories","Mystery Books","Horror Movie Club",
 ];
 const GROUP_CATEGORIES = [
   "Arts","Technology","Food","Health","Travel","Music","Books","Film",
   "Design","Gaming","Wellness","Lifestyle","Pets","Outdoors","Sports",
   "Education","Fashion","Nature","Community","Science",
+  "Cars","Photography","Dance","Business","History","Languages",
+  "Crafts","Fitness","Anime","Comedy",
 ];
 
 const generatedGroups: MockGroup[] = [];
-for (let i = 0; i < 18; i++) {
+for (let i = 0; i < 180; i++) {
   generatedGroups.push({
     id: i + 1,
     name: pick(GROUP_NAMES),
@@ -834,6 +870,16 @@ export function getEvents(): MockEvent[] {
 
 export function getGroups(): MockGroup[] {
   return groups;
+}
+
+export function getGroupCategories(): { name: string; count: number }[] {
+  const map = new Map<string, number>();
+  for (const g of groups) {
+    map.set(g.category, (map.get(g.category) || 0) + 1);
+  }
+  return Array.from(map.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 }
 
 export function getNotifications(): MockNotification[] {

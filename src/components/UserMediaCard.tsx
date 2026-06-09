@@ -32,7 +32,7 @@ const UserMediaCard = ({ userId }: { userId: string }) => {
     <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-4 transition-colors">
       <div className="flex justify-between items-center font-medium">
         <span className="text-gray-500 dark:text-gray-400">{t.profile.userMedia}</span>
-        <Link href="/" className="text-blue-500 text-xs">{t.profile.seeAll}</Link>
+        <Link href={`/profile/${userId}`} className="text-blue-500 text-xs">{t.profile.seeAll}</Link>
       </div>
 
       <div className="flex gap-3 justify-between flex-wrap">

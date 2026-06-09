@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslation } from "@/context/LanguageProvider";
 import {
-  FiMessageSquare, FiX, FiSend, FiMinus, FiChevronLeft,
+  FiMessageSquare, FiX, FiSend, FiMinus, FiChevronLeft, FiExternalLink,
 } from "react-icons/fi";
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage, markConversationRead } from "@/lib/actions";
@@ -275,9 +276,14 @@ export default function ChatPanel() {
             </button>
           )}
           <FiMessageSquare size={18} />
-          <span className="font-semibold text-sm">
+          <Link
+            href={activeConv ? "/messenger" : "#"}
+            className="font-semibold text-sm hover:underline flex items-center gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
             {activeConv ? activeConv.user?.name : t.chat.messages}
-          </span>
+            {activeConv && <FiExternalLink size={12} className="opacity-60" />}
+          </Link>
           {(activeConv?.online || (activeConv?.user?.id && isOnline(activeConv.user.id))) && (
             <span className="w-2 h-2 rounded-full bg-green-400" />
           )}

@@ -112,7 +112,7 @@ const Homepage = () => {
   // ===== LOGADO =====
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="flex gap-6 pt-6 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+      <div className="flex gap-6 pt-6 px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 min-h-[calc(100vh-4rem)]">
         <div className="hidden xl:block w-[20%]">
           <LeftMenu type="home" />
         </div>
@@ -124,7 +124,9 @@ const Homepage = () => {
           </div>
         </div>
         <div className="hidden lg:block w-[30%]">
-          <RightMenu />
+          <div className="h-full sticky top-20">
+            <RightMenu />
+          </div>
         </div>
       </div>
     </div>

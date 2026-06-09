@@ -10,12 +10,13 @@ const Birthdays = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-4 transition-colors">
-      <div className="flex justify-between items-center font-medium">
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md text-sm flex flex-col gap-3 transition-colors h-full">
+      <div className="flex justify-between items-center font-medium shrink-0">
         <span className="text-gray-500 dark:text-gray-400">{t.common.birthdays}</span>
       </div>
 
-      {birthdays.map((user) => (
+      <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto">
+        {birthdays.map((user) => (
         <div key={user.id} className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href={`/profile/${user.id}`}>
@@ -37,6 +38,7 @@ const Birthdays = () => {
           <span className="text-gray-700 dark:text-gray-200 font-semibold">{t.common.upcomingBirthdays}</span>
           <span className="text-gray-500 dark:text-gray-400">{t.common.seeOtherBirthdays}</span>
         </Link>
+      </div>
       </div>
     </div>
   );
