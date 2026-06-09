@@ -20,20 +20,24 @@ const MobileMenu = () => {
           <Link href="/" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.nav.home}
           </Link>
-          <Link href="/my-posts" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            {t.sidebar.myPosts}
+          <Link href="/groups" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.nav.groups}
           </Link>
           <Link href="/reels" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             Reels
           </Link>
-          <Link href="/messenger" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            Messenger
+          <Link href="/news" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.news.title}
           </Link>
           <Link href="/marketplace" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.nav.marketplace}
           </Link>
-          <Link href="/groups" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            {t.nav.groups}
+          <Link href="/messenger" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            Messenger
+          </Link>
+          <hr className="border-gray-100 dark:border-gray-700 my-2 mx-8" />
+          <Link href="/my-posts" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
+            {t.sidebar.myPosts}
           </Link>
           <Link href="/events" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.events.title}

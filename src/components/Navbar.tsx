@@ -58,20 +58,20 @@ const Navbar = () => {
           <Link href="/" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             {t.nav.home}
           </Link>
-          <Link href="/marketplace" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            {t.nav.marketplace}
-          </Link>
           <Link href="/groups" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             {t.nav.groups}
           </Link>
           <Link href="/reels" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             Reels
           </Link>
-          <Link href="/messenger" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
-            Messenger
-          </Link>
           <Link href="/news" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
             {t.news.title}
+          </Link>
+          <Link href="/marketplace" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+            {t.nav.marketplace}
+          </Link>
+          <Link href="/messenger" prefetch={true} className="text-white/80 hover:text-white px-4 py-2 rounded-lg hover:bg-white/10 transition text-sm font-medium">
+            Messenger
           </Link>
         </div>
 
