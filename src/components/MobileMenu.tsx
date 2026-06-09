@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { FiX, FiMenu } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
+import FriendRequests from "./FriendRequests";
+import Birthdays from "./Birthdays";
 
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +26,7 @@ const MobileMenu = () => {
             {t.nav.groups}
           </Link>
           <Link href="/reels" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            Reels
+            {t.nav.reels || "Reels"}
           </Link>
           <Link href="/news" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.news.title}
@@ -33,7 +35,7 @@ const MobileMenu = () => {
             {t.nav.marketplace}
           </Link>
           <Link href="/messenger" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
-            Messenger
+            {t.nav.messenger || "Messenger"}
           </Link>
           <hr className="border-gray-100 dark:border-gray-700 my-2 mx-8" />
           <Link href="/my-posts" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
@@ -60,6 +62,13 @@ const MobileMenu = () => {
           <Link href="/settings" prefetch={true} onClick={() => setIsOpen(false)} className="text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition px-8 py-3 w-full text-center">
             {t.nav.settings}
           </Link>
+
+          {/* Mobile-only: Friend Requests & Birthdays (RightMenu fica oculto no mobile) */}
+          <hr className="border-gray-100 dark:border-gray-700 my-2 mx-8" />
+          <div className="w-full px-4 mt-2 space-y-4">
+            <FriendRequests />
+            <Birthdays />
+          </div>
         </div>
       )}
     </div>

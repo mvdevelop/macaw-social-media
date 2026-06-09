@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import MobileMenu from "./MobileMenu";
 import ThemeToggle from "./ThemeToggle";
 import LanguageSwitch from "./LanguageSwitch";
-import SearchModal from "./SearchModal";
 import NotificationsDropdown from "./NotificationsDropdown";
 import { useAuth } from "@/context/AuthProvider";
 import { useTranslation } from "@/context/LanguageProvider";
 import { useState, useRef, useEffect } from "react";
 import { FiSearch, FiLogOut, FiSettings, FiChevronDown, FiUser } from "react-icons/fi";
 import MacawIcon from "@/components/MacawIcon";
+
+const SearchModal = dynamic(() => import("./SearchModal"), { ssr: false });
 
 const Navbar = () => {
   const { user, loading, signOut } = useAuth();

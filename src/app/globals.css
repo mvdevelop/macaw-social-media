@@ -28,3 +28,58 @@
 .animate-fadeSlideIn {
   animation: fadeSlideIn 0.35s ease-out forwards;
 }
+
+/* Subtle page transition */
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pageIn {
+  animation: pageIn 0.2s ease-out;
+}
+
+/* Toast slide-in animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.25s ease-out forwards;
+}
+
+/* Fade-in animation for scroll-to-top and other elements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Mobile bottom padding to clear the bottom nav bar */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: 3.5rem;
+  }
+}

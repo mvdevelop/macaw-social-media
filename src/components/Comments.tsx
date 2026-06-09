@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { createComment, likeComment } from "@/lib/actions";
 import { getCommentsByPostId, getCurrentUser } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/client";
-import { getOrFetch } from "@/lib/cache";
+import { getOrFetch, COMMENT_CACHE_TTL } from "@/lib/cache";
 import { FiHeart, FiCornerDownRight } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
 
@@ -59,7 +59,8 @@ const Comments = ({ postId }: { postId: number }) => {
     mountedRef.current = true;
     const fetchComments = async () => {
       try {
-        const data = await getOrFetch<CommentItem[]>(`comments:${postId}`, async () => {
+        const data = await getOrFetch<CommentItem[]>(`comments:${postId}`,
+          async () => {
           const supabase = createClient();
           const { data, error } = await supabase
             .from("comments")
@@ -79,7 +80,7 @@ const Comments = ({ postId }: { postId: number }) => {
           return getCommentsByPostId(postId).map((c: any) => ({
             ...c, parentId: null, likes: c.likes || 0,
           }));
-        });
+        }, COMMENT_CACHE_TTL);
         if (mountedRef.current) setComments(data);
       } catch {
         if (mountedRef.current) setComments(

@@ -3,7 +3,16 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
+import { validateEnv } from "@/lib/env";
+
+// Valida variáveis de ambiente no servidor
+if (typeof window === "undefined") {
+  validateEnv();
+}
 import ChatPanelWrapper from "@/components/ChatPanelWrapper";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import ScrollToTop from "@/components/ScrollToTop";
+import { ToastProvider } from "@/context/ToastProvider";
 import { AuthProvider } from "@/context/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageProvider";
 import { ThemeProvider } from "@/context/ThemeProvider";
@@ -27,8 +36,12 @@ export default function RootLayout({
           <AuthProvider>
             <LanguageProvider>
               <Navbar />
-              <main>{children}</main>
-              <ChatPanelWrapper />
+              <ToastProvider>
+                <main className="animate-pageIn">{children}</main>
+                <ChatPanelWrapper />
+                <MobileBottomNav />
+                <ScrollToTop />
+              </ToastProvider>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>

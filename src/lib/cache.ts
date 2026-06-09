@@ -8,7 +8,15 @@ interface CacheEntry<T> {
 
 const store = new Map<string, CacheEntry<any>>();
 
-const DEFAULT_TTL = 30_000; // 30 segundos
+const DEFAULT_TTL = (() => {
+  if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_CACHE_TTL) {
+    return parseInt(process.env.NEXT_PUBLIC_CACHE_TTL, 10) * 1000;
+  }
+  return 30_000; // 30 segundos
+})();
+
+// TTL mais curto para comentários (dados mais frescos)
+export const COMMENT_CACHE_TTL = 15_000; // 15 segundos
 
 export function getCached<T>(key: string): T | null {
   const entry = store.get(key);

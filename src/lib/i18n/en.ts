@@ -5,6 +5,8 @@ const en = {
     friends: "Friends",
     marketplace: "Marketplace",
     groups: "Groups",
+    reels: "Reels",
+    messenger: "Messenger",
     search: "Search",
     settings: "Settings",
     signOut: "Sign Out",

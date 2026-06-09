@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { createClient } from "@/lib/supabase/client";
 import { FiPlus } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
 import { useState, useEffect, useRef } from "react";
 import { getStories, getStoriesByUserId } from "@/lib/mock-data";
 import { clearCache } from "@/lib/cache";
-import StoryViewer from "./StoryViewer";
+
+const StoryViewer = dynamic(() => import("./StoryViewer"), { ssr: false });
 
 interface StoryUser {
   id: string;

@@ -6,6 +6,8 @@ const pt: Translations = {
     friends: "Amigos",
     marketplace: "Marketplace",
     groups: "Grupos",
+    reels: "Reels",
+    messenger: "Mensagens",
     search: "Pesquisar",
     settings: "Configurações",
     signOut: "Sair",

@@ -186,7 +186,7 @@ const Post = ({ post, onDelete }: { post: MockPost; onDelete?: (id: number) => v
       )}
 
       {post.img && !editing && (
-        <div className="w-full h-80 md:h-96 relative rounded-lg overflow-hidden bg-black">
+        <div className={`w-full h-80 md:h-96 relative rounded-lg overflow-hidden ${isVideo ? "bg-black" : "bg-gray-200 dark:bg-gray-700"}`}>
           {isVideo ? (
             <video src={post.img} controls className="w-full h-full object-contain" />
           ) : (
