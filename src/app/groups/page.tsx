@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { getGroups, getGroupCategories } from "@/lib/mock-data";
-import { FiUsers, FiGrid, FiChevronRight } from "react-icons/fi";
+import { FiUsers, FiGrid, FiChevronRight, FiSearch } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
 import { useState, useMemo } from "react";
 
@@ -10,11 +10,16 @@ export default function GroupsPage() {
   const [groups] = useState(() => getGroups());
   const categories = useMemo(() => getGroupCategories(), []);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
 
-  const filtered = selectedCategory
-    ? groups.filter((g) => g.category === selectedCategory)
-    : groups;
+  const filtered = groups.filter((g) => {
+    const matchesCategory = selectedCategory ? g.category === selectedCategory : true;
+    const matchesSearch = searchQuery
+      ? g.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="flex gap-6 p-4 md:p-8 max-w-7xl mx-auto">
@@ -109,6 +114,26 @@ export default function GroupsPage() {
               )}
             </p>
           </div>
+        </div>
+
+        {/* Search bar */}
+        <div className="relative mb-4">
+          <FiSearch size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search groups..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-md text-sm text-gray-800 dark:text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400/50 focus:border-blue-400 transition-all dark:border-gray-700"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition text-sm"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Mobile category selector */}

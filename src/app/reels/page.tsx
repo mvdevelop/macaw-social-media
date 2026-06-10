@@ -4,16 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import {
   FiHeart, FiMessageCircle, FiShare2, FiVolume2, FiVolumeX,
   FiChevronDown, FiMusic, FiSend, FiX, FiRefreshCw, FiUserPlus,
 } from "react-icons/fi";
 import { useTranslation } from "@/context/LanguageProvider";
 
-// ============================================================
-// POOL DE VÍDEOS GRATUITOS DA WEB (10 URLs únicas reutilizadas)
-// ============================================================
+// ─── Pools ──────────────────────────────────────────────────────
 const VIDEO_URLS = [
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -41,14 +38,6 @@ const THUMBNAIL_POOL = [
   "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg",
   "https://images.pexels.com/photos/35538741/pexels-photo-35538741.jpeg",
   "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg",
-  "https://images.pexels.com/photos/34374535/pexels-photo-34374535.jpeg",
-  "https://images.pexels.com/photos/35496265/pexels-photo-35496265.jpeg",
-  "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg",
-  "https://images.pexels.com/photos/35590309/pexels-photo-35590309.jpeg",
-  "https://images.pexels.com/photos/35525012/pexels-photo-35525012.jpeg",
-  "https://images.pexels.com/photos/35459874/pexels-photo-35459874.jpeg",
-  "https://images.pexels.com/photos/35487966/pexels-photo-35487966.jpeg",
-  "https://images.pexels.com/photos/12198960/pexels-photo-12198960.jpeg",
 ];
 
 const AVATAR_POOL = [
@@ -170,11 +159,12 @@ export default function ReelsPage() {
   const [likeCounts, setLikeCounts] = useState<Record<number, number>>({});
   const [loadedVideos, setLoadedVideos] = useState<Set<number>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
+  const [showNav, setShowNav] = useState(true);
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
   const touchStartY = useRef(0);
 
-  // ── Comments state ──
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentReelId, setCommentReelId] = useState<number | null>(null);
   const [commentText, setCommentText] = useState("");
@@ -182,11 +172,21 @@ export default function ReelsPage() {
   const [commentCounts, setCommentCounts] = useState<Record<number, number>>({});
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
-  // Refresh / shuffle
+  // Auto-hide nav
+  const resetNavTimeout = useCallback(() => {
+    setShowNav(true);
+    if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+    navTimeoutRef.current = setTimeout(() => setShowNav(false), 3000);
+  }, []);
+
+  useEffect(() => {
+    resetNavTimeout();
+    return () => { if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current); };
+  }, [currentIndex, resetNavTimeout]);
+
   const handleRefresh = useCallback(() => {
     if (refreshing) return;
     setRefreshing(true);
-    // Pausa todos os vídeos
     videoRefs.current.forEach((video) => video.pause());
     setReels(generateReels());
     setLikedSet(new Set());
@@ -197,15 +197,11 @@ export default function ReelsPage() {
     setCommentCounts({});
     setTimeout(() => {
       setRefreshing(false);
-      const el = document.getElementById("reel-0");
-      if (el) el.scrollIntoView({ behavior: "instant" });
+      document.getElementById("reel-0")?.scrollIntoView({ behavior: "instant" });
     }, 400);
   }, [refreshing]);
 
-  // Touch para mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-  };
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartY.current - e.changedTouches[0].clientY;
     if (Math.abs(diff) > 50) {
@@ -215,22 +211,15 @@ export default function ReelsPage() {
   };
 
   const scrollToReel = useCallback((index: number) => {
-    const el = document.getElementById(`reel-${index}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-      setCurrentIndex(index);
-    }
+    document.getElementById(`reel-${index}`)?.scrollIntoView({ behavior: "smooth" });
+    setCurrentIndex(index);
   }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.deltaY > 0 && currentIndex < reels.length - 1) {
-      scrollToReel(currentIndex + 1);
-    } else if (e.deltaY < 0 && currentIndex > 0) {
-      scrollToReel(currentIndex - 1);
-    }
+    if (e.deltaY > 0 && currentIndex < reels.length - 1) scrollToReel(currentIndex + 1);
+    else if (e.deltaY < 0 && currentIndex > 0) scrollToReel(currentIndex - 1);
   }, [currentIndex, reels.length, scrollToReel]);
 
-  // IntersectionObserver
   useEffect(() => {
     if (!containerRef.current || reels.length === 0) return;
     const observer = new IntersectionObserver(
@@ -249,7 +238,6 @@ export default function ReelsPage() {
     return () => observer.disconnect();
   }, [reels.length]);
 
-  // Play/pause
   useEffect(() => {
     videoRefs.current.forEach((video, id) => {
       const reelIndex = reels.findIndex((r) => r.id === id);
@@ -262,7 +250,6 @@ export default function ReelsPage() {
     });
   }, [currentIndex, reels]);
 
-  // Preload próximo vídeo
   useEffect(() => {
     const nextIdx = currentIndex + 1;
     if (nextIdx < reels.length) {
@@ -270,7 +257,6 @@ export default function ReelsPage() {
     }
   }, [currentIndex, reels]);
 
-  // Scroll comments to bottom
   useEffect(() => {
     if (commentsOpen) commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [commentsOpen, reelComments]);
@@ -316,11 +302,7 @@ export default function ReelsPage() {
   };
 
   const handleShare = async (reel: (typeof reels)[0]) => {
-    const shareData = {
-      title: `Macaw Reel by ${reel.user.name}`,
-      text: reel.description,
-      url: window.location.href,
-    };
+    const shareData = { title: `Macaw Reel by ${reel.user.name}`, text: reel.description, url: window.location.href };
     if (typeof navigator !== "undefined" && navigator.share) {
       try { await navigator.share(shareData); return; } catch {}
     }
@@ -330,8 +312,6 @@ export default function ReelsPage() {
     } catch {}
   };
 
-  const current = reels[currentIndex];
-
   return (
     <div
       ref={containerRef}
@@ -339,6 +319,7 @@ export default function ReelsPage() {
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onClick={resetNavTimeout}
     >
       {reels.map((reel, index) => {
         const isActive = index === currentIndex;
@@ -354,9 +335,9 @@ export default function ReelsPage() {
             data-index={index}
             className="h-screen snap-start snap-always relative flex items-center justify-center bg-black"
           >
-            {/* Vídeo */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black">
-              {isActive || loadedVideos.has(reel.id) ? (
+            {/* ─── VÍDEO ──────────────────────────────────────── */}
+            <div className="absolute inset-0">
+              {(isActive || loadedVideos.has(reel.id)) ? (
                 <video
                   ref={(el) => {
                     if (el) videoRefs.current.set(reel.id, el);
@@ -368,139 +349,235 @@ export default function ReelsPage() {
                   playsInline
                   muted={muted}
                   preload={isActive ? "auto" : "none"}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover scale-[1.02]"
                 />
               ) : (
                 <Image src={reel.thumbnail} alt="" fill sizes="100vw" className="object-cover" />
               )}
             </div>
 
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70 pointer-events-none" />
+            {/* ─── OVERLAY GRADIENTE SUAVE ────────────────────── */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent via-[40%] to-black/80 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent via-[60%] to-black/10 pointer-events-none" />
 
-            {/* Top bar */}
-            <div className="absolute top-0 left-0 right-0 z-10 p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => router.back()}
-                  className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition"
-                >
-                  <FiChevronDown size={20} className="rotate-180" />
-                </button>
-                {/* Refresh button */}
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition disabled:opacity-50"
-                  title="Refresh reels"
-                >
-                  <FiRefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
-                </button>
+            {/* ─── TOP BAR ────────────────────────────────────── */}
+            <div
+              className={`absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-black/40 to-transparent transition-opacity duration-500 ${
+                showNav ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => router.back()}
+                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition active:scale-90"
+                  >
+                    <FiChevronDown size={20} className="rotate-180" />
+                  </button>
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition disabled:opacity-40 active:scale-90"
+                    title="Refresh reels"
+                  >
+                    <FiRefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
+                  <span className="text-white text-xs font-semibold tabular-nums">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-white/40 text-xs">/</span>
+                  <span className="text-white/60 text-xs tabular-nums">
+                    {String(reels.length).padStart(2, "0")}
+                  </span>
+                </div>
               </div>
-              <span className="text-white/60 text-xs font-medium bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                {index + 1} / {reels.length}
-              </span>
             </div>
 
-            {/* Right side actions */}
-            <div className="absolute right-3 bottom-28 z-10 flex flex-col items-center gap-6">
+            {/* ─── SOUND TOGGLE ───────────────────────────────── */}
+            <button
+              onClick={(e) => { e.stopPropagation(); setMuted(!muted); }}
+              className={`absolute top-20 right-4 z-20 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition active:scale-90 ${
+                showNav ? "opacity-100" : "opacity-0 pointer-events-none"
+              } transition-opacity duration-500`}
+            >
+              {muted ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
+            </button>
+
+            {/* ─── AÇÕES LATERAIS ─────────────────────────────── */}
+            <div className="absolute right-4 bottom-32 z-20 flex flex-col items-center gap-5">
               {/* Like */}
-              <button onClick={() => handleLike(reel.id)} className="flex flex-col items-center gap-1 text-white">
-                <div className={`p-2 rounded-full bg-black/20 backdrop-blur-sm transition-all ${isLiked ? "scale-110" : "hover:scale-110"}`}>
-                  <FiHeart size={26} className={`drop-shadow-lg transition-colors ${isLiked ? "text-red-500 fill-red-500" : "text-white"}`} />
+              <button
+                onClick={(e) => { e.stopPropagation(); handleLike(reel.id); }}
+                className="flex flex-col items-center gap-1 text-white group"
+              >
+                <div
+                  className={`p-3 rounded-full backdrop-blur-md border transition-all duration-200 active:scale-90 ${
+                    isLiked
+                      ? "bg-red-500/20 border-red-400/40 scale-110"
+                      : "bg-white/10 border-white/20 group-hover:bg-white/20"
+                  }`}
+                >
+                  <FiHeart
+                    size={26}
+                    className={`transition-all duration-200 ${
+                      isLiked ? "text-red-400 fill-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "text-white"
+                    }`}
+                  />
                 </div>
-                <span className="text-xs font-semibold drop-shadow-lg">{formatCount(displayLikes)}</span>
+                <span className="text-[11px] font-bold text-white drop-shadow-lg">
+                  {formatCount(displayLikes)}
+                </span>
               </button>
 
               {/* Comment */}
-              <button onClick={() => handleOpenComments(reel.id)} className="flex flex-col items-center gap-1 text-white">
-                <div className="p-2 rounded-full bg-black/20 backdrop-blur-sm hover:scale-110 transition">
-                  <FiMessageCircle size={26} className="drop-shadow-lg" />
+              <button
+                onClick={(e) => { e.stopPropagation(); handleOpenComments(reel.id); }}
+                className="flex flex-col items-center gap-1 text-white group"
+              >
+                <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-all duration-200 active:scale-90">
+                  <FiMessageCircle size={26} className="text-white" />
                 </div>
-                <span className="text-xs font-semibold drop-shadow-lg">{formatCount(displayComments)}</span>
+                <span className="text-[11px] font-bold text-white drop-shadow-lg">
+                  {formatCount(displayComments)}
+                </span>
               </button>
 
               {/* Share */}
-              <button onClick={() => handleShare(reel)} className="flex flex-col items-center gap-1 text-white">
-                <div className="p-2 rounded-full bg-black/20 backdrop-blur-sm hover:scale-110 transition">
-                  <FiShare2 size={24} className="drop-shadow-lg" />
+              <button
+                onClick={(e) => { e.stopPropagation(); handleShare(reel); }}
+                className="flex flex-col items-center gap-1 text-white group"
+              >
+                <div className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 group-hover:bg-white/20 transition-all duration-200 active:scale-90">
+                  <FiShare2 size={24} className="text-white" />
                 </div>
-                <span className="text-xs font-semibold drop-shadow-lg">Share</span>
+                <span className="text-[11px] font-bold text-white drop-shadow-lg">Share</span>
               </button>
             </div>
 
-            {/* Bottom info */}
-            <div className="absolute bottom-6 left-4 right-16 z-10">
-              <Link href={`/profile/${reel.user.id}`} className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shrink-0">
-                  <Image src={reel.user.avatar} alt={reel.user.name} width={40} height={40} className="object-cover w-full h-full" />
+            {/* ─── INFO INFERIOR ──────────────────────────────── */}
+            <div className="absolute bottom-6 left-4 right-20 z-20">
+              {/* User */}
+              <Link
+                href={`/profile/${reel.user.id}`}
+                className="inline-flex items-center gap-3 mb-2 group"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative shrink-0">
+                  <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-white/60 ring-2 ring-black/20">
+                    <Image
+                      src={reel.user.avatar}
+                      alt={reel.user.name}
+                      width={44}
+                      height={44}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-black" />
                 </div>
-                <span className="text-white font-semibold text-sm drop-shadow-lg">
-                  @{reel.user.name.toLowerCase().replace(/\s/g, "")}
-                </span>
-                <span className="ml-2 px-3 py-1 rounded-full border border-white/40 text-white text-xs font-semibold hover:bg-white/20 transition cursor-pointer inline-flex items-center gap-1">
-                  <FiUserPlus size={12} /> Follow
-                </span>
+                <div>
+                  <span className="text-white font-bold text-sm drop-shadow-lg group-hover:text-blue-300 transition-colors">
+                    @{reel.user.name.toLowerCase().replace(/\s/g, "")}
+                  </span>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="ml-2 px-3 py-0.5 rounded-full bg-blue-500/60 backdrop-blur-sm border border-blue-400/40 text-white text-[10px] font-semibold hover:bg-blue-500/80 transition active:scale-90"
+                  >
+                    <FiUserPlus size={10} className="inline mr-0.5" /> Follow
+                  </button>
+                </div>
               </Link>
-              <p className="text-white text-sm drop-shadow-lg line-clamp-2">{reel.description}</p>
+
+              {/* Description */}
+              <p className="text-white/90 text-sm font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] line-clamp-2 mb-1">
+                {reel.description}
+              </p>
+
+              {/* Song */}
               {reel.song && (
-                <div className="flex items-center gap-2 mt-2 text-white/70 text-xs">
-                  <FiMusic size={12} />
-                  <span className="drop-shadow-lg">{reel.song}</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="w-6 h-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center animate-[spin_4s_linear_infinite]">
+                    <FiMusic size={10} className="text-white/70" />
+                  </div>
+                  <span className="text-white/50 text-xs drop-shadow-lg">{reel.song}</span>
                 </div>
               )}
             </div>
 
-            {/* Sound toggle */}
-            <button
-              onClick={() => setMuted(!muted)}
-              className="absolute top-16 right-4 z-10 w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition"
-            >
-              {muted ? <FiVolumeX size={18} /> : <FiVolume2 size={18} />}
-            </button>
+            {/* ─── PROGRESS BAR ────────────────────────────────── */}
+            <div className="absolute top-0 left-0 right-0 z-30 flex gap-0.5 px-2 pt-1.5">
+              {reels.slice(0, 10).map((_, idx) => (
+                <div key={idx} className="flex-1 h-0.5 rounded-full bg-white/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500 ease-linear"
+                    style={{
+                      width: idx === index ? "100%" : idx < index ? "100%" : "0%",
+                      backgroundColor: idx === index ? "#fff" : idx < index ? "rgba(255,255,255,0.5)" : "transparent",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* ─── SCROLL HINTS ────────────────────────────────── */}
+            {index > 0 && (
+              <div
+                className="absolute left-0 top-0 bottom-28 w-1/3 z-10 cursor-pointer hidden md:block"
+                onClick={() => scrollToReel(index - 1)}
+              />
+            )}
+            {index < reels.length - 1 && (
+              <div
+                className="absolute right-0 top-0 bottom-28 w-1/3 z-10 cursor-pointer hidden md:block"
+                onClick={() => scrollToReel(index + 1)}
+              />
+            )}
           </div>
         );
       })}
 
-      {/* ── Comments Modal ── */}
+      {/* ─── COMMENTS MODAL ──────────────────────────────────── */}
       {commentsOpen && commentReelId !== null && (
         <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCommentsOpen(false)} />
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setCommentsOpen(false)} />
 
-          {/* Panel */}
-          <div className="relative w-full md:max-w-sm md:rounded-2xl bg-gray-900 md:bg-gray-900 rounded-t-2xl shadow-2xl max-h-[70vh] md:max-h-[80vh] flex flex-col overflow-hidden animate-slideUp">
+          <div className="relative w-full md:max-w-sm md:rounded-2xl bg-gray-900/95 backdrop-blur-xl rounded-t-2xl shadow-2xl max-h-[75vh] md:max-h-[80vh] flex flex-col overflow-hidden animate-slideUp border border-white/10">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 shrink-0">
-              <h3 className="text-white font-semibold text-sm">
-                Comments ({formatCount(commentCounts[commentReelId] ?? reels.find((r) => r.id === commentReelId)!.comments)})
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+              <h3 className="text-white font-semibold text-sm tracking-wide">
+                Comments <span className="text-white/40 font-normal">({formatCount(commentCounts[commentReelId] ?? reels.find((r) => r.id === commentReelId)!.comments)})</span>
               </h3>
-              <button onClick={() => setCommentsOpen(false)} className="p-1 hover:bg-gray-700 rounded-lg transition">
-                <FiX size={18} className="text-gray-400" />
+              <button
+                onClick={() => setCommentsOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition active:scale-90"
+              >
+                <FiX size={16} className="text-white/60" />
               </button>
             </div>
 
             {/* Comments list */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {(reelComments[commentReelId] ?? []).length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <FiMessageCircle size={36} className="mb-2 opacity-50" />
-                  <p className="text-sm">No comments yet. Be the first!</p>
+                <div className="flex flex-col items-center justify-center py-12 text-white/30">
+                  <FiMessageCircle size={44} className="mb-3" />
+                  <p className="text-sm font-medium">No comments yet</p>
+                  <p className="text-xs text-white/20 mt-1">Be the first to share your thoughts</p>
                 </div>
               ) : (
                 reelComments[commentReelId]!.map((c) => (
-                  <div key={c.id} className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#4A8CFF] to-[#A855F7] flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  <div key={c.id} className="flex gap-3 group">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold shrink-0 ring-2 ring-white/10">
                       {c.username.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-white text-xs font-semibold">{c.username}</span>
-                        <span className="text-gray-500 text-[10px]">
+                        <span className="text-white/30 text-[10px]">
                           {Math.floor((Date.now() - c.timestamp) / 60000)}m ago
                         </span>
                       </div>
-                      <p className="text-gray-300 text-sm">{c.text}</p>
+                      <p className="text-white/80 text-sm leading-relaxed">{c.text}</p>
                     </div>
                   </div>
                 ))
@@ -509,21 +586,21 @@ export default function ReelsPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-gray-700 p-3 shrink-0">
-              <div className="flex items-center gap-2 bg-gray-800 rounded-xl px-3 py-2">
+            <div className="border-t border-white/10 p-4 shrink-0">
+              <div className="flex items-center gap-3 bg-white/5 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/10 focus-within:border-blue-400/40 transition-all">
                 <input
                   type="text"
                   placeholder="Add a comment..."
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendComment(); } }}
-                  className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-500"
+                  className="flex-1 bg-transparent outline-none text-sm text-white placeholder-white/30"
                   autoFocus
                 />
                 <button
                   onClick={handleSendComment}
                   disabled={!commentText.trim()}
-                  className="text-blue-400 hover:text-blue-300 disabled:opacity-40 transition p-1"
+                  className="text-blue-400 hover:text-blue-300 disabled:opacity-30 transition-all p-1.5 active:scale-90"
                 >
                   <FiSend size={18} />
                 </button>

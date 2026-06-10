@@ -203,8 +203,12 @@ const pt: Translations = {
 
   marketplace: {
     title: "Marketplace",
+    favorites: "Favoritos",
+    addFav: "Salvar nos favoritos",
+    removeFav: "Remover dos favoritos",
+    noFavorites: "Nenhum favorito ainda",
+    noFavoritesHint: "Clique no coração dos itens para salvá-los aqui",
   },
-
   events: {
     title: "Eventos",
     interested: "Tenho Interesse",

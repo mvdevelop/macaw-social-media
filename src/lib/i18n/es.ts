@@ -203,6 +203,11 @@ const es: Translations = {
 
   marketplace: {
     title: "Marketplace",
+    favorites: "Favoritos",
+    addFav: "Guardar en favoritos",
+    removeFav: "Quitar de favoritos",
+    noFavorites: "Sin favoritos aún",
+    noFavoritesHint: "Haz clic en el corazón de los artículos para guardarlos aquí",
   },
 
   events: {

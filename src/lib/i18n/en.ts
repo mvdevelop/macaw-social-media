@@ -209,6 +209,11 @@ const en = {
   // Marketplace
   marketplace: {
     title: "Marketplace",
+    favorites: "Favorites",
+    addFav: "Save to favorites",
+    removeFav: "Remove from favorites",
+    noFavorites: "No favorites yet",
+    noFavoritesHint: "Click the heart on items to save them here",
   },
 
   // Events

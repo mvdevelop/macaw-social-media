@@ -343,22 +343,29 @@ const sidebarAds = [
   { image: "https://images.pexels.com/photos/35554037/pexels-photo-35554037.jpeg", title: "GreenLife Suplementos", desc: "Suplementos naturais. 20% off na primeira compra.", link: "https://www.amazon.com" },
   { image: "https://images.pexels.com/photos/18465582/pexels-photo-18465582.jpeg", title: "Surf Camp Brasil", desc: "Aprenda a surfar na melhor praia do Brasil!", link: "https://www.airbnb.com" },
   { image: "https://images.pexels.com/photos/27585749/pexels-photo-27585749.jpeg", title: "Livraria Cult", desc: "Os melhores livros com desconto exclusivo para membros.", link: "https://www.amazon.com" },
+  { image: "https://images.pexels.com/photos/2504709/pexels-photo-2504709.jpeg", title: "Stargazer", desc: "Telescópios profissionais para ver as estrelas.", link: "https://www.amazon.com" },
+  { image: "https://images.pexels.com/photos/18289481/pexels-photo-18289481.jpeg", title: "PixelArt Studio", desc: "Cursos de arte digital e design gráfico.", link: "https://www.coursera.org" },
 ];
 
-function AdCard({ ad, size }: { ad: typeof sidebarAds[0]; size: "sm" | "md" }) {
-  // Doubled heights: md → h-72, sm → h-56
-  const h = size === "md" ? "h-72" : "h-56";
+function MosaicAd({ ad, className }: { ad: typeof sidebarAds[0]; className?: string }) {
   return (
-    <a href={ad.link} target="_blank" rel="noopener sponsored nofollow" className="block bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition group">
-      <div className={`relative w-full ${h} overflow-hidden`}>
-        <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+    <a href={ad.link} target="_blank" rel="noopener sponsored nofollow"
+      className={`group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-500 ${className || ""}`}
+    >
+      <div className="absolute inset-0">
+        <img src={ad.image} alt={ad.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-black/90 transition-all duration-500" />
       </div>
-      <div className="p-4">
-        <h4 className="text-sm font-semibold text-gray-800 dark:text-white group-hover:text-blue-500 transition-colors">{ad.title}</h4>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{ad.desc}</p>
-        <span className="inline-block mt-2 text-[10px] font-medium text-blue-500 uppercase tracking-wider">Sponsored</span>
+      <div className="relative z-10 p-4 md:p-5 flex flex-col justify-end h-full min-h-[160px]">
+        <span className="self-start text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full mb-2 group-hover:bg-white/20 transition">
+          ⚡ Ad
+        </span>
+        <h4 className="text-white font-bold text-sm md:text-base leading-tight group-hover:text-blue-300 transition-colors drop-shadow-lg">
+          {ad.title}
+        </h4>
+        <p className="text-white/70 text-xs mt-1 line-clamp-2 drop-shadow">{ad.desc}</p>
       </div>
+      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-bl-3xl" />
     </a>
   );
 }
@@ -441,15 +448,7 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 md:px-8">
-      <div className="flex gap-6 max-w-7xl mx-auto">
-        {/* Left sidebar — 2 ads (hidden below xl) */}
-        <aside className="hidden xl:flex flex-col w-72 shrink-0 gap-6">
-          <AdCard ad={sidebarAds[0]} size="md" />
-          <AdCard ad={sidebarAds[1]} size="sm" />
-        </aside>
-
-        {/* Main content */}
-        <div className="flex-1 min-w-0 max-w-4xl mx-auto w-full">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -504,7 +503,9 @@ export default function NewsPage() {
             </div>
           </div>
         ) : (
-          <>
+          <div className="flex gap-6">
+            {/* Main content */}
+            <div className="flex-1 min-w-0 max-w-4xl">
             {/* Featured article */}
             {featured && (
               <a
@@ -541,6 +542,21 @@ export default function NewsPage() {
                 </div>
               </a>
             )}
+
+            {/* ─── MOSAIC ADS ──────────────────────────────────── */}
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Sponsored Content</span>
+                <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <MosaicAd ad={sidebarAds[0]} className="md:col-span-2 md:row-span-2" />
+                <MosaicAd ad={sidebarAds[1]} className="col-span-1" />
+                <MosaicAd ad={sidebarAds[2]} className="col-span-1" />
+                <MosaicAd ad={sidebarAds[3]} className="col-span-1" />
+                <MosaicAd ad={sidebarAds[4]} className="col-span-1" />
+              </div>
+            </div>
 
             {/* News grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -588,23 +604,26 @@ export default function NewsPage() {
               </div>
             )}
 
-            {/* Load count indicator */}
             {!loading && (
               <div className="text-center text-xs text-gray-400 mt-4">
                 Showing {filtered.length} of {articles.length} articles
               </div>
             )}
-          </>
+          </div>
+
+          {/* Right sidebar — 3 compact mosaic ads (hidden below lg) */}
+          <aside className="hidden lg:flex flex-col w-64 shrink-0 gap-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Ads</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-gray-200 dark:from-gray-700 to-transparent" />
+            </div>
+            <MosaicAd ad={sidebarAds[5]} className="min-h-[200px]" />
+            <MosaicAd ad={sidebarAds[6]} className="min-h-[180px]" />
+            <MosaicAd ad={sidebarAds[7]} className="min-h-[180px]" />
+          </aside>
+          </div>
         )}
       </div>
-
-      {/* Right sidebar — 3 ads (hidden below lg) */}
-      <aside className="hidden lg:flex flex-col w-72 shrink-0 gap-6">
-        <AdCard ad={sidebarAds[2]} size="sm" />
-        <AdCard ad={sidebarAds[3]} size="md" />
-        <AdCard ad={sidebarAds[4]} size="sm" />
-      </aside>
-    </div>
     </div>
   );
 }

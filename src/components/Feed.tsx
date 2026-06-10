@@ -100,31 +100,32 @@ const Feed = () => {
     return () => { mountedRef.current = false; };
   }, []);
 
-  // Handle refresh/shuffle
+  // Handle refresh — carrega posts frescos do mock data + embaralha
   const handleRefresh = useCallback(() => {
     if (refreshing) return;
     setRefreshing(true);
 
-    // Shuffle the current posts
-    const shuffled = shuffleArray(displayPosts);
-    allPostsRef.current = shuffled;
+    // Se estiver no fallback mock, carrega um subset aleatório dos 17000 posts
+    const mockSource = getPosts();
+    const freshPosts = shuffleArray(mockSource).slice(0, PAGE_SIZE);
+    allPostsRef.current = freshPosts;
 
-    // Animate stagger: add ids one by one
-    const ids = new Set(shuffled.map(p => p.id));
+    const ids = new Set(freshPosts.map(p => p.id));
     setAnimatingIds(ids);
 
-    // Set display after a tiny delay for animation to register
     setTimeout(() => {
-      setDisplayPosts(shuffled);
+      setPosts(freshPosts);
+      setDisplayPosts(freshPosts);
+      setPage(0);
+      setHasMore(mockSource.length > PAGE_SIZE);
       setCurrentBatch(prev => prev + 1);
     }, 50);
 
-    // Remove animation class after stagger completes
     setTimeout(() => {
       setAnimatingIds(new Set());
       setRefreshing(false);
-    }, shuffled.length * STAGGER_DELAY + 300);
-  }, [refreshing, displayPosts]);
+    }, freshPosts.length * STAGGER_DELAY + 300);
+  }, [refreshing]);
 
   // Load more posts (infinite scroll)
   const loadMore = useCallback(async () => {
@@ -167,7 +168,18 @@ const Feed = () => {
         setHasMore(false);
       }
     } catch {
-      // Silently fail
+      // Fallback mock: carrega mais do dataset completo de 17000 posts
+      const mockSource = getPosts();
+      const fromIdx = (page + 1) * PAGE_SIZE;
+      const morePosts = mockSource.slice(fromIdx, fromIdx + PAGE_SIZE);
+      if (morePosts.length > 0) {
+        setPosts((prev) => [...prev, ...morePosts]);
+        setDisplayPosts((prev) => [...prev, ...morePosts]);
+        setPage(page + 1);
+        setHasMore(fromIdx + PAGE_SIZE < mockSource.length);
+      } else {
+        setHasMore(false);
+      }
     } finally {
       setLoadingMore(false);
     }

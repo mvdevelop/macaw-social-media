@@ -163,23 +163,17 @@ const USERNAME_PREFIXES = [
 // ============================================
 // PEXELS IMAGE POOLS (verified working photo IDs)
 // ============================================
-const AVATAR_POOL = [
-  "12198960","35496265","35525012","35590309","35554037","35634366","35443625","35655771",
-  "35360579","35350413","35565461","34374535","18465582","27585749","18289481",
-  "35729138","35701815","35680942","35639714","35586994","35577172","35563658",
-  "35548297","35528023","35515960","35500894","35487966","35474906","35459874",
-  "35438821","35421139","35409963","35396873","35382479","35369567","35357186",
-  "35342149","35329736","35317558","35305062","35291387","35278481","35266321",
-  "35253964","2379004","35228723","220453","697509","428328","2381069",
-  "415829","35157343","91227","3785079","1681010","1130626","1933873",
-  "874158","1874585","146531","1239291","1065084","1840608","1656684",
-  "428333","3785429","35144974","1874585","146531","1239291","1065084",
-  "1840608","1656684","34994106","3785429","34971057","34959733","91227",
-  "2381069","428328","220453","697509","415829","3785079","1681010",
-  "1130626","1933873","874158","34912292","34900875","34888162","34875644",
-  "34863638","2379004","34840173","415829","34791787","34780380","91227",
-  "3785079","34757172","1681010","1130626","1933873","874158","1874585",
-  "146531","1239291","1065084","1840608","1656684","428333","3785429",
+const AVATAR_POOL_FEMALE = [
+  // Verified female portrait photos
+  "12198960","35496265","35525012","35590309","35554037","35634366","35443625",
+  "35701815","35639714","35586994","415829","91227","1681010","1130626",
+  "874158","1874585","146531","1840608","1656684","428333","3785429","3785079",
+];
+const AVATAR_POOL_MALE = [
+  // Verified male portrait photos
+  "35360579","35350413","18465582","27585749","18289481","2379004","220453",
+  "697509","428328","2381069","1933873","1239291","1065084","35729138",
+  "35680942","35577172","35157343",
 ];
 const COVER_POOL = [
   "2504709","17584747","35350413","35565461","34374535","35655771","18465582",
@@ -196,8 +190,9 @@ const COVER_POOL = [
 function pexelUrl(id: string): string {
   return `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg`;
 }
-function pexelAvatar(): string {
-  return pexelUrl(pick(AVATAR_POOL));
+function pexelAvatar(gender?: "male" | "female"): string {
+  const pool = gender === "male" ? AVATAR_POOL_MALE : gender === "female" ? AVATAR_POOL_FEMALE : AVATAR_POOL_FEMALE;
+  return pexelUrl(pick(pool));
 }
 function pexelCover(): string {
   return pexelUrl(pick(COVER_POOL));
@@ -393,17 +388,19 @@ function generateUsername(name: string, surname: string): string {
 }
 
 const generatedUsers: MockUser[] = [];
-const allFirstNames = [...FIRST_NAMES_M, ...FIRST_NAMES_F];
 
 for (let i = 0; i < USER_COUNT; i++) {
-  const name = pick(allFirstNames);
+  // 50/50 male/female — garante que nome e foto combinem
+  const isMale = RNG() > 0.5;
+  const namePool = isMale ? FIRST_NAMES_M : FIRST_NAMES_F;
+  const name = pick(namePool);
   const surname = pick(LAST_NAMES);
   generatedUsers.push({
     id: `u${i + 1}`,
     username: generateUsername(name, surname),
     name,
     surname,
-    avatar: pexelAvatar(),
+    avatar: pexelAvatar(isMale ? "male" : "female"),
     cover: pexelCover(),
     description: pick(BIOS),
     city: pick(CITIES),
