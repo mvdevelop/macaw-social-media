@@ -108,6 +108,7 @@ const pt: Translations = {
     friendRequest: "enviou uma solicitação de amizade",
     shared: "compartilhou sua publicação",
     message: "enviou uma mensagem",
+    seeAll: "Ver todas as notificações",
   },
 
   // Chat

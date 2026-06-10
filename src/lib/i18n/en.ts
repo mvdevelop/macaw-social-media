@@ -111,6 +111,7 @@ const en = {
     friendRequest: "sent you a friend request",
     shared: "shared your post",
     message: "sent you a message",
+    seeAll: "See all notifications",
   },
 
   // Chat

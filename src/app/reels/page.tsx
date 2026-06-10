@@ -160,7 +160,7 @@ export default function ReelsPage() {
   const [loadedVideos, setLoadedVideos] = useState<Set<number>>(new Set());
   const [refreshing, setRefreshing] = useState(false);
   const [showNav, setShowNav] = useState(true);
-  const navTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
   const touchStartY = useRef(0);

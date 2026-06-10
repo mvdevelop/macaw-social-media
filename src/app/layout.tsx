@@ -16,6 +16,7 @@ import { ToastProvider } from "@/context/ToastProvider";
 import { AuthProvider } from "@/context/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageProvider";
 import { ThemeProvider } from "@/context/ThemeProvider";
+import { NotificationProvider } from "@/lib/useNotifications";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,13 +36,15 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <LanguageProvider>
-              <Navbar />
-              <ToastProvider>
-                <main className="animate-pageIn">{children}</main>
-                <ChatPanelWrapper />
-                <MobileBottomNav />
-                <ScrollToTop />
-              </ToastProvider>
+              <NotificationProvider>
+                <Navbar />
+                <ToastProvider>
+                  <main className="animate-pageIn">{children}</main>
+                  <ChatPanelWrapper />
+                  <MobileBottomNav />
+                  <ScrollToTop />
+                </ToastProvider>
+              </NotificationProvider>
             </LanguageProvider>
           </AuthProvider>
         </ThemeProvider>
